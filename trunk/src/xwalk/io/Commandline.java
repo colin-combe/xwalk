@@ -39,7 +39,7 @@ public class Commandline {
                              final boolean hasValue) {
         int c = 0;
         for (String argument : args) {
-             if (argument.toLowerCase().startsWith(param.toLowerCase())) {
+             if (param.toLowerCase().startsWith(argument.toLowerCase())) {
                 c++;
             }
         }
@@ -49,10 +49,12 @@ public class Commandline {
 
         // loop over all arguments in the commandline
         for (int i = 0; i < args.length; i++) {
-             if (args[i].toLowerCase().startsWith(param) && !hasValue) {
+             if (param.toLowerCase().startsWith(args[i].toLowerCase()) 
+                 &&
+                 !hasValue) {
                  return "EXISTS";
              }
-             if (args[i].toLowerCase().startsWith(param)
+             if (param.toLowerCase().startsWith(args[i].toLowerCase())
                  &&
                  hasValue
                  &&

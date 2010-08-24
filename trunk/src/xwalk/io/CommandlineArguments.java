@@ -90,7 +90,7 @@ public class CommandlineArguments {
      * Maximal distance that is span by the cross-linker.
      * Default {@code maxDist = 21Å}.
      */
-    private double maximumDistance = 21;
+    private double maximumDistance = Constants.DEFAULT_CROSS_LINKER_LENGTH;
     /**
      * To output a PyMol script that visualizes all cross-links.
      * Default {@code pymolOutput = FALSE}.
@@ -106,7 +106,7 @@ public class CommandlineArguments {
      * Solvent-Path-Distances.
      * Default {@code templateRadius = 1.0}.
      */
-    private double gridCellLength = 1.0;
+    private double gridCellLength = Constants.DEFAULT_GRID_SIZE;
     /**
      * To calculate solvent accessible surface areas and allow only cross-links
      * between residues that are accessible to a solvent molecule with radius
@@ -118,7 +118,7 @@ public class CommandlineArguments {
      * Solvent radius for calculating SAS.
      * Default {@code solventRadius = 1.4}.
      */
-    private double solventRadius = 1.4;
+    private double solventRadius = Constants.SOLVENT_RADIUS;
     /**
      * To regard the protein complex as a homomeric one, which disregards
      * cross-links that are formed between identical numbered and typed amino
@@ -142,6 +142,11 @@ public class CommandlineArguments {
      * Default {@code verbose = FALSE};
      */
     private boolean verbose         = false;
+    /**
+     * Use local grids for Solvent-Path distance calculations.
+     * Default {@code verboseGrid = FALSE};
+     */
+    private boolean useLocalGrid = false;
     /**
      * To output all grids that are used to calculate the
      * Solvent-Path distances.
@@ -199,6 +204,7 @@ public class CommandlineArguments {
         this.readAminoAcidName1Argument();
         this.readAminoAcidName2Argument();
         this.readSolventPathDistanceArgument();
+        this.readLocalGridArgument();
         this.readVerboseOutputArgument();
     }
     //--------------------------------------------------------------------------
@@ -344,6 +350,15 @@ public class CommandlineArguments {
               + NL
               + NL
               + "SOLVENT-PATH-DISTANCE GRID RELATED:"
+              + NL
+              + "\t-local\t[switch]\tCalculates local grids for each "
+              +	"cross-link, rather than one single grid for the entire "
+              + "protein structure. For larger protein structures with a size "
+              + "larger than 150 Å this flag is automatically set."
+              + NL
+              + "Does not calculate the solvent accessible "
+              + "surface surface area and thus does not exclude non-accessible "
+              + "amino acids [optional]."
               + NL
               + "\t-xsas\t[switch]\tDoes not calculate the solvent accessible "
               + "surface surface area and thus does not exclude non-accessible "
@@ -1110,6 +1125,27 @@ public class CommandlineArguments {
      */
     public final boolean isHomomericSet() {
         return this.homo;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Determines whether the argument -local has been set on the commandline.
+     * @see #isLocalGridSet()
+     */
+    private void readLocalGridArgument() {
+        if (Commandline.get(this.arguments, "-local", false).equals("EXISTS")) {
+            this.useLocalGrid = true;
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns whether a local grid should be used for Solvent-Path distance
+     * calculation.
+     * @return {@code TRUE} if local grid should be used,
+     *         {@code FALSE} otherwise.
+     * @see #readLocalGridArgument()
+     */
+    public final boolean isLocalGridSet() {
+        return this.useLocalGrid;
     }
     //--------------------------------------------------------------------------
     /**

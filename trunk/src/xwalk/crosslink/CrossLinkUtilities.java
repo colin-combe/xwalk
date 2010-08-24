@@ -15,6 +15,7 @@ import xwalk.grid.Path;
 import xwalk.io.WriteFile;
 import xwalk.io.pdb.PDBreader;
 import xwalk.math.Mathematics;
+import xwalk.math.Point3d;
 import xwalk.math.SolventPathDistance;
 import xwalk.matter.Atom;
 import xwalk.matter.AtomList;
@@ -54,22 +55,75 @@ public final class CrossLinkUtilities {
                                               final CrossLinkParameter parameter
                                                    )
                                                   throws FileNotFoundException {
-
-        boolean doSAS = Boolean.parseBoolean(parameter.getParameter(
-                                                                Parameter.DO_SAS
-                                                                   )
-                                            );
         
         ProteinComplex complex = CrossLinkUtilities.getComplexCoordinates(
                                                                        parameter
                                                                          );
 
-        Hashtable < Atom, AtomList > relevantAtomPairs =
-                       CrossLinkUtilities.findRelevantPairs(parameter, complex);
+        AtomList allAtoms = complex.getAllAtoms();
+        Point3d max = MatterUtilities.getMaximumCooridnate(allAtoms);
+        Point3d min = MatterUtilities.getMinimumCooridnate(allAtoms);
+        Point3d diff = new Point3d(max.getX() - min.getX(),
+                                   max.getY() - min.getY(),
+                                   max.getZ() - min.getZ());
+        double sum = Math.pow(diff.getX(), 2)
+                   + Math.pow(diff.getY(), 2)
+                   + Math.pow(diff.getZ(), 2);
+        
+        double dim = Math.sqrt(sum);
 
+        // if dimension is larger than maxDist
+        Hashtable < Atom, AtomList > relevantAtomPairs =
+                   CrossLinkUtilities.findRelevantPairs(parameter, complex);
+
+        if (dim > Constants.MAX_PROTEIN_DIMENSION 
+            ||
+            Boolean.parseBoolean(parameter.getParameter(
+                                                         Parameter.DO_LOCAL_GRID
+                                                       )
+                                )
+           ) {
+            return CrossLinkUtilities.calculateCrossLinksOnLocalGrid(
+                    complex,
+                    relevantAtomPairs,
+                    parameter
+                          );
+        } else {
+            return CrossLinkUtilities.calculateCrossLinksOnGlobalGrid(
+                    complex,
+                    relevantAtomPairs,
+                    parameter
+                           );
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Creates CrossLink objects between potential cross-linkable atom pairs
+     * that are closer than the user set maximum distance using a single grid
+     * object.
+     * @param complex
+     *      - ProteinComplex object holding all atoms of the protein.
+     * @param relevantAtomPairs
+     *      - Hashtable of potential cross-linkable atoms.
+     * @param parameter
+     *      - CrossLinkParameter object holding all user set parameters for
+     *        calculating cross-links
+     * @return CrossLinkSet object that holds all virtual cross-links found
+     *         between the potential cross-linkable atom pairs.
+     */
+    private static CrossLinkSet calculateCrossLinksOnGlobalGrid(
+                           final ProteinComplex complex,
+                           final Hashtable < Atom, AtomList > relevantAtomPairs,
+                           final CrossLinkParameter parameter
+                                                              ) {
+     
+        boolean doSAS = Boolean.parseBoolean(parameter.getParameter(
+                                                                Parameter.DO_SAS
+                                                                   )
+                                            );
         CrossLinkSet xlinkSet = null;
         if (Boolean.parseBoolean(parameter.getParameter(
-                                             Parameter.DO_SOLVENT_PATH_DISTANCE
+                                              Parameter.DO_SOLVENT_PATH_DISTANCE
                                                        )
                                 )
            ) {
@@ -81,30 +135,56 @@ public final class CrossLinkUtilities {
                                                   );
             }
             AtomGrid grid = new AtomGrid(
-                                         complex.getAllAtoms(),
-                                         Double.parseDouble(
-                                         parameter.getParameter(
-                                                       Parameter.GRID_CELL_SIZE)
-                                                               ), 
-                                         solventRadius + 1, 
-                                         doSAS
-                                        );
-             
+                    complex.getAllAtoms(),
+                    Double.parseDouble(parameter.getParameter(
+                                                        Parameter.GRID_CELL_SIZE
+                                                             )
+                                      ), 
+                    solventRadius + 1, 
+                    doSAS
+            );
+
             xlinkSet = CrossLinkUtilities.crossLinkRelevantAtomPairs(
                                                               relevantAtomPairs,
                                                               grid,
                                                               parameter);
-            //System.out.print(grid);
-            
-        } else {
-            xlinkSet = CrossLinkUtilities.crossLinkRelevantAtomPairs(
+
+            } else {
+                xlinkSet = CrossLinkUtilities.crossLinkRelevantAtomPairs(
                                                               relevantAtomPairs,
                                                               null,
                                                               parameter);
-        }
+            }
         return xlinkSet;
     }
-
+    //--------------------------------------------------------------------------
+    /**
+     * Creates CrossLink objects between potential cross-linkable atom pairs
+     * that are closer than the user set maximum distance using a grid object
+     * for each atom1 object.
+     * @param complex
+     *      - ProteinComplex object holding all atoms of the protein.
+     * @param relevantAtomPairs
+     *      - Hashtable of potential cross-linkable atoms.
+     * @param parameter
+     *      - CrossLinkParameter object holding all user set parameters for
+     *        calculating cross-links
+     * @return CrossLinkSet object that holds all virtual cross-links found
+     *         between the potential cross-linkable atom pairs.
+     */
+    private static CrossLinkSet calculateCrossLinksOnLocalGrid(
+                           final ProteinComplex complex,
+                           final Hashtable < Atom, AtomList > relevantAtomPairs,
+                           final CrossLinkParameter parameter
+                                                               ) {
+        CrossLinkSet xlinkSet = 
+            CrossLinkUtilities.crossLinkRelevantAtomPairs(
+                                                          complex,
+                                                          relevantAtomPairs,
+                                                          parameter
+                                                         );
+        return xlinkSet;
+    }
     //--------------------------------------------------------------------------
     /**
      * Extracts all necessary atom coordinates from the PDB file as defined in
@@ -902,6 +982,180 @@ public final class CrossLinkUtilities {
             CrossLinkUtilities.removeRedundanciesInHomomers(xlinkSet);
         }
     return xlinkSet;
+    }
+   //--------------------------------------------------------------------------
+
+    /**
+     * Creates CrossLink objects between potential cross-linkable atom pairs
+     * that are closer than the user set maximum distance.
+     * @param complex
+     *      - ProteinComplex object holding all atoms of the protein.
+     * @param relevantAtomPairs
+     *      - Hashtable of potential cross-linkable atoms.
+     * @param parameter
+     *      - CrossLinkParameter object holding all user set parameters for
+     *        calculating cross-links
+     * @return CrossLinkSet object that holds all virtual cross-links found
+     *         between the potential cross-linkable atom pairs.
+     */
+    private static CrossLinkSet crossLinkRelevantAtomPairs(
+                           final ProteinComplex complex,
+                           final Hashtable < Atom, AtomList > relevantAtomPairs,
+                           final CrossLinkParameter parameter
+                                                          ) {
+
+        CrossLinkSet xlinkSet = new CrossLinkSet();
+
+        boolean doSpd = Boolean.parseBoolean(parameter.getParameter(
+                                              Parameter.DO_SOLVENT_PATH_DISTANCE
+                                                                   )
+                                            );
+        
+        for (Atom atom1 : relevantAtomPairs.keySet()) {
+            AtomList atoms2 = relevantAtomPairs.get(atom1);
+            if(atom1.getSerialNumber()==14602) {
+                int h=0;
+            }
+            
+            ArrayList < Path > paths = new ArrayList < Path > (); 
+            if (doSpd) {
+                paths = CrossLinkUtilities.calcShortestSolventPathDistance(
+                                                                       complex,
+                                                                       atom1,
+                                                                       atoms2,
+                                                                       parameter
+                                                                          );
+            }
+            for (int i = 0; i < atoms2.size(); i++) {
+                CrossLink crossLink = new CrossLink(atom1, atoms2.get(i));
+                
+                if (doSpd) {
+                    double dist = SolventPathDistance.extractTargetDistances(
+                                                                    paths.get(i)
+                                                                            );
+                    crossLink.setSolventPathDistance(dist);
+                    crossLink.setPath(paths.get(i));
+                }
+                xlinkSet.add(crossLink);
+            }
+        }
+
+        if (Boolean.parseBoolean(parameter.getParameter(
+                                                          Parameter.IS_HOMOMERIC
+                                                       )
+                                )
+            ) {
+            CrossLinkUtilities.removeRedundanciesInHomomers(xlinkSet);
+        }
+    return xlinkSet;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Calculates solvent path distances. Note, that all atom objects in atoms2
+     * which have a distance larger than maxDist to atom1 will removed from
+     * atoms2.
+     * @param complex
+     *      - ProteinComplex object holding all atoms of the protein.
+     * @param atom1
+     *        - First protein atom to be connected by the virtual cross-linker.
+     * @param atoms2
+     *        - List of atoms to be cross-linked to atom1, if distance is
+     *          shorter than maxDist.
+     * @param parameter
+     *      - CrossLinkParameter object holding all user set parameters for
+     *        calculating cross-links
+     * @return List of Path objects that form the shortest path between atom1
+     *         and those atom2 objects that have a distance shorter than
+     *         maxDist.
+     */
+    private static ArrayList < Path > calcShortestSolventPathDistance(
+                                              final ProteinComplex complex,
+                                              final Atom atom1, 
+                                              AtomList atoms2,
+                                              final CrossLinkParameter parameter
+                                                            ) {
+        
+        ArrayList < Path > paths = new ArrayList < Path > (); 
+        
+        boolean doSAS = Boolean.parseBoolean(parameter.getParameter(
+                                                                Parameter.DO_SAS
+                                                                   )
+                                            );
+
+        double gridCellSize = Double.parseDouble(parameter.getParameter(
+                                                Parameter.GRID_CELL_SIZE
+                                                                       )
+                                                );
+        double maxDist = Double.parseDouble(parameter.getParameter(
+                                              Parameter.MAXIMUM_DISTANCE
+                                                                  )
+                                           );
+    
+        AtomGrid grid = new AtomGrid(complex.getAllAtoms(),
+                                     atom1,
+                                     maxDist,
+                                     gridCellSize
+                                    );
+        if (doSAS && !GridUtilities.isAccessible(atom1, grid)) {
+            atoms2.removeAll(atoms2);
+            return paths;
+        }
+
+        AtomList atoms2beRemoved = new AtomList();
+        for (Atom atom2 : atoms2) {
+            if (grid.get(atom2) == null) {
+                atoms2beRemoved.add(atom2);
+            }
+            if (doSAS && !GridUtilities.isAccessible(atom2, grid)) {
+                atoms2beRemoved.add(atom2);
+            }
+        }
+
+        atoms2.removeAll(atoms2beRemoved);
+        
+        SolventPathDistance solvDist  = new SolventPathDistance(
+                                                                atom1,
+                                                                atoms2,
+                                                                grid
+                                                               );
+        paths = solvDist.getShortestPath(maxDist);
+        
+        // remove all atoms that have a distance larger than maxDist.
+        ArrayList < Path > paths2beRemoved = new ArrayList < Path > ();
+        for (int i = 0; i < paths.size(); i++) {
+             if (paths.get(i).size() == 1) {
+                atoms2beRemoved.add(atoms2.get(i));
+                paths2beRemoved.add(paths.get(i));
+             } else if (SolventPathDistance.extractTargetDistances(
+                                                            paths.get(i)
+                                                                  )
+                                                       > maxDist
+                       ) {
+                 atoms2beRemoved.add(atoms2.get(i));
+                 paths2beRemoved.add(paths.get(i));
+             }
+        }
+        atoms2.removeAll(atoms2beRemoved);
+        paths.removeAll(paths2beRemoved);
+        
+        if (atoms2.size() != 0
+            &&
+            Boolean.parseBoolean(parameter.getParameter(
+                                                        Parameter.DO_GRID_OUTPUT
+                                                       )
+                                )
+           ) {
+            System.out.print("HEADER "
+                             + atom1.getSerialNumber()
+                             + atom1.getResidueName()
+                             + atom1.getResidueNumber()
+                             + atom1.getChainId()
+                             + Constants.LINE_SEPERATOR
+                             + grid.toString()
+                             + "END"
+                             + Constants.LINE_SEPERATOR);
+        }
+    return paths;
     }
     //--------------------------------------------------------------------------
     /**

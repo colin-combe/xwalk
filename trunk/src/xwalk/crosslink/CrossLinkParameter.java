@@ -39,6 +39,7 @@ public class CrossLinkParameter {
                             DO_SAS,
                             SOLVENT_RADIUS,
                             MINIMUM_SOLVENT_ACCESSIBILITY_RATIO,
+                            DO_LOCAL_GRID,
                             IS_HOMOMERIC,
                             DO_PYMOL_OUTPUT,
                             INFILE_PATH,
@@ -97,6 +98,8 @@ public class CrossLinkParameter {
                                             arg.getSolventAccessibiltyArgument()
                                           )
                           );
+        this.setParameter(Parameter.DO_LOCAL_GRID,
+                    Boolean.toString(arg.isLocalGridSet()));
         this.setParameter(Parameter.OUTFILE_PATH,
                           arg.getOutfileArgument());
         this.setParameter(Parameter.DO_FORCE_OUTPUT,

@@ -41,6 +41,16 @@ public class Constants {
     public static final double DEFAULT_GRID_SIZE = 1.0;
     //--------------------------------------------------------------------------
     /**
+     * Default grid size.
+     */
+    public static final double SOLVENT_RADIUS = 1.4;
+    //--------------------------------------------------------------------------
+    /**
+     * Default cross-linker length.
+     */
+    public static final double DEFAULT_CROSS_LINKER_LENGTH = 21;
+    //--------------------------------------------------------------------------
+    /**
      * Maximum value that fits into the occupancy and temperature factor
      * column.
      */
@@ -66,6 +76,12 @@ public class Constants {
      * Maximum serial number in PDB files.
      */
     public static final int MAX_SERIAL = 99999;
+    //--------------------------------------------------------------------------
+    /**
+     * Maximum dimension of protein complex after which local grid
+     * calculation is used.
+     */
+    public static final int MAX_PROTEIN_DIMENSION = 150;
     //--------------------------------------------------------------------------
     // CONSTANT STRING VALUES
     //--------------------------------------------------------------------------

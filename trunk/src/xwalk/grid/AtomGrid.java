@@ -56,6 +56,32 @@ public class AtomGrid extends Grid {
     }
     //-------------------------------------------------------------------------
     /**
+     * Constructor.
+     * @param atomList
+     *        - AtomList object on which Grid should be build upon.
+     * @param gridCellSize
+     *        - double value representing the cell edge length of each grid cell
+     * @param offSet
+     *        - double value by which grid should be in addition increased in
+     *          size
+     * @param doBoundaryCalculation
+     *        - {@code TRUE} if boundary between occupied and unoccupied
+     *          GridCell objects should be determined, {@code FALSE} otherwise.
+     */
+    public AtomGrid(final AtomList atomList,
+                    final Atom atom,
+                    final double size,
+                    final double gridCellSize) {
+        super(atom.getPoint3d().add(-size-1, -size-1, -size-1),
+              atom.getPoint3d().add(size+1, size+1, size+1),
+              gridCellSize);
+        
+        this.atoms = atomList;
+        this.setOccupancy();
+        BoundarySearch.findBoundary(this);
+    }
+    //-------------------------------------------------------------------------
+    /**
      * Sets the occupied flag for all grid cells in a grid for a list of atom
      * coordinates.
      */
@@ -74,7 +100,8 @@ public class AtomGrid extends Grid {
      * Returns the grid cell that is closest to an atom.
      * @param atom
      *        - Atom object to which the closest grid cell should be returned.
-     * @return GridCell object that is closest to the atoms centre.
+     * @return GridCell object that is closest to the atoms centre. If atom lies
+     *         outside the grid, then {@code NULL} is returned.
      */
     public final GridCell get(final Atom atom) {
 
@@ -90,11 +117,18 @@ public class AtomGrid extends Grid {
                        /
                        this.get(0, 0, 0).getSize());
 
-        GridCell cell = this.get(i, j, k);
+        if (i > 0 && i < this.getNumberOfCells().getI()
+            && j > 0 && j < this.getNumberOfCells().getJ() 
+            && k > 0 && k < this.getNumberOfCells().getK()) {
+
+            GridCell cell = this.get(i, j, k);
         
-        cell.setValue(Value.GENERAL, atom.getSerialNumber() + "");
+            cell.setValue(Value.GENERAL, atom.getSerialNumber() + "");
         
-        return cell;
+            return cell;
+        } else {
+            return null;
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -106,40 +140,47 @@ public class AtomGrid extends Grid {
      * @return List of GridCell objects that are occupying the atom.
      */
     public final ArrayList < GridCell > getAllGridCells(final Atom atom) {
+        ArrayList < GridCell > allCells = new ArrayList < GridCell > ();
+
         double radius = atom.getVanDerWaalsRadius();
         
         GridCell centre = this.get(atom);
 
-        int expand = GridUtilities.getNumberOfGridCellsFittingIntoHemisphere(
-                                                               radius,
-                                                               centre.getSize()
-                                                                            );
+        // if atom should lie outside the grid, then just return an empty list
+        // of GridCell objects.
+        if (centre != null) {
+           int expand = GridUtilities.getNumberOfGridCellsFittingIntoHemisphere(
+                                                                radius,
+                                                                centre.getSize()
+                                                                              );
 
-        ArrayList < GridCell > neighboursCube = 
-                                            GridUtilities.getNeighbouringCells(
-                                                                        centre,
-                                                                        this,
-                                                                        expand);
+           ArrayList < GridCell > neighboursCube = 
+                                             GridUtilities.getNeighbouringCells(
+                                                                         centre,
+                                                                         this,
+                                                                         expand
+                                                                              );
 
-        // check that grid cell really is located within atom vdW sphere.
-        ArrayList < GridCell > neighbours = new ArrayList < GridCell > (); 
-        for (GridCell neighbour : neighboursCube) {
-            double dist = Mathematics.distance(
-                                               atom.getPoint3d(), 
-                                               neighbour.getPoint3d()
-                                              );
-            if (dist - radius < 0) {
-                neighbours.add(neighbour);
-            }
-        }
+           // check that grid cell really is located within atom vdW sphere.
+           ArrayList < GridCell > neighbours = new ArrayList < GridCell > (); 
+           for (GridCell neighbour : neighboursCube) {
+               double dist = Mathematics.distance(
+                                                  atom.getPoint3d(), 
+                                                  neighbour.getPoint3d()
+                                                  );
+               if (dist - radius < 0) {
+                   neighbours.add(neighbour);
+               }
+           }
         
-        for (GridCell neighbour : neighbours) {
-            neighbour.setValue(Value.GENERAL, centre.getValue(Value.GENERAL));
+           for (GridCell neighbour : neighbours) {
+               neighbour.setValue(Value.GENERAL,
+                                  centre.getValue(Value.GENERAL)
+                                 );
+           }
+           allCells.add(centre);
+           allCells.addAll(neighbours);
         }
-        ArrayList < GridCell > allCells = new ArrayList < GridCell > ();
-        allCells.add(centre);
-        allCells.addAll(neighbours);
-
     return allCells;
     }
     //-------------------------------------------------------------------------
