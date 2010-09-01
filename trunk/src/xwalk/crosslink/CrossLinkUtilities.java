@@ -18,10 +18,10 @@ import structure.math.Mathematics;
 import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
-import structure.matter.pdb.AminoAcid;
-import structure.matter.pdb.Digestion;
-import structure.matter.pdb.PolyPeptide;
-import structure.matter.pdb.ProteinComplex;
+import structure.matter.protein.AminoAcid;
+import structure.matter.protein.Digestion;
+import structure.matter.protein.PolyPeptide;
+import structure.matter.protein.PolyPeptideList;
 
 import xwalk.io.DistanceReader;
 import xwalk.math.SolventPathDistance;
@@ -51,8 +51,8 @@ public final class CrossLinkUtilities {
      *        necessary for the virtual cross-link calculation.
      * @throws IOException if an error occurred while reading the infile.
      * @throws DataFormatException if ATOM or HEATM line does not conform to the
-     *         PDB standards at
-     *         {@link http://www.wwpdb.org/documentation/format32/sect9.html}
+     *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
+     *         PDB standards</a>.
      * @return CrossLinkList object that holds all virtual cross-links on a
      *         protein complex.
      */
@@ -62,7 +62,7 @@ public final class CrossLinkUtilities {
                                                   throws IOException,
                                                          DataFormatException {
         // get all protein complex atom coordinates of the user given inputFile.
-        ArrayList < ProteinComplex > complexes =
+        ArrayList < PolyPeptideList > complexes =
                                    CrossLinkUtilities.getComplexesCoordinates(
                                                                        parameter
                                                                              );
@@ -71,7 +71,7 @@ public final class CrossLinkUtilities {
                                                        )
                                 )) {
             // output digested peptides
-            for (ProteinComplex complex : complexes) {
+            for (PolyPeptideList complex : complexes) {
                 for (int i = 0; i < complex.size(); i++) {
                     System.err.print((i + 1) + ". "
                                     + complex.get(i).toStringOneLetterCode());
@@ -81,7 +81,7 @@ public final class CrossLinkUtilities {
 
         CrossLinkList crossLinkList = new CrossLinkList();
         // find and create virtual cross-links on the protein complexes.
-        for (ProteinComplex complex : complexes) {
+        for (PolyPeptideList complex : complexes) {
             // First find cross-links based on Euclidean distance.
             crossLinkList = CrossLinkUtilities.crossLinkByEuclideanDistance(
                                                                     parameter,
@@ -137,7 +137,7 @@ public final class CrossLinkUtilities {
      */
     public static CrossLinkList crossLinkByEuclideanDistance(
                                              final CrossLinkParameter parameter,
-                                             final ProteinComplex complex)
+                                             final PolyPeptideList complex)
                                             throws IOException {
         Hashtable < Atom, AtomList > relevantAtomPairs =
             new Hashtable < Atom, AtomList >();
@@ -177,7 +177,7 @@ public final class CrossLinkUtilities {
      * that are closer than the user set maximum distance using a single grid
      * object.
      * @param complex
-     *      - ProteinComplex object holding all atoms of the protein.
+     *      - PolyPeptideList object holding all atoms of the protein.
      * @param crossLinksByEuclideanDistance
      *      - List of CrossLinks object that have all a Euclidean distance
      *        smaller then a user set maxDist value between cross-linked atoms.
@@ -188,7 +188,7 @@ public final class CrossLinkUtilities {
      *         between the potential cross-linkable atom pairs.
      */
     private static CrossLinkList calculateCrossLinksOnGlobalGrid(
-                              final ProteinComplex complex,
+                              final PolyPeptideList complex,
                               final CrossLinkList crossLinksByEuclideanDistance,
                               final CrossLinkParameter parameter
                                                               ) {
@@ -231,7 +231,7 @@ public final class CrossLinkUtilities {
      * that are closer than the user set maximum distance using a grid object
      * for each atom1 object.
      * @param complex
-     *      - ProteinComplex object holding all atoms of the protein.
+     *      - PolyPeptideList object holding all atoms of the protein.
      * @param crossLinksByEuclideanDistance
      *      - List of CrossLinks object that have all a Euclidean distance
      *        smaller then a user set maxDist value between cross-linked atoms.
@@ -242,7 +242,7 @@ public final class CrossLinkUtilities {
      *         between the potential cross-linkable atom pairs.
      */
     private static CrossLinkList calculateCrossLinksOnLocalGrid(
-                              final ProteinComplex complex,
+                              final PolyPeptideList complex,
                               final CrossLinkList crossLinksByEuclideanDistance,
                               final CrossLinkParameter parameter
                                                                ) {
@@ -261,14 +261,14 @@ public final class CrossLinkUtilities {
      * @param parameter -
      *        CrossLinkParameter object holding all user set parameters for
      *        calculating cross-links.
-     * @return List of ProteinComplex objects, each holding all protein
+     * @return List of PolyPeptideList objects, each holding all protein
      *         coordinates labeled as ATOM up to an END flag or end of file.
      * @throws IOException if input file could not be read.
      * @throws DataFormatException if ATOM or HEATM line does not conform to the
      *         PDB standards at
      *         {@link http://www.wwpdb.org/documentation/format32/sect9.html}
      */
-    private static ArrayList < ProteinComplex > getComplexesCoordinates(
+    private static ArrayList < PolyPeptideList > getComplexesCoordinates(
                                              final CrossLinkParameter parameter
                                                                        )
                                                    throws IOException,
@@ -281,12 +281,12 @@ public final class CrossLinkUtilities {
                                                );
 
 
-        ArrayList < ProteinComplex > proteinComplexes =
+        ArrayList < PolyPeptideList > proteinComplexes =
               CrossLinkUtilities.extractProteinComplexes(pdbReaders, parameter);
 
         // assign vdW radius to protein atoms
-        for (ProteinComplex proteinComplex : proteinComplexes) {
-             CrossLinkUtilities.setRadius(proteinComplex, parameter);
+        for (PolyPeptideList polyPeptideList : proteinComplexes) {
+             CrossLinkUtilities.setRadius(polyPeptideList, parameter);
         }
 
         // digest protein
@@ -316,8 +316,8 @@ public final class CrossLinkUtilities {
      *         PDB file.
      * @throws IOException if input file could not be read.
      * @throws DataFormatException if ATOM or HEATM line does not conform to the
-     *         PDB standards at
-     *         {@link http://www.wwpdb.org/documentation/format32/sect9.html}
+     *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
+     *         PDB standards</a>.
      */
     public static ArrayList < PDBreader > createPDBreaders(final String infile)
                                        throws IOException, DataFormatException {
@@ -350,16 +350,16 @@ public final class CrossLinkUtilities {
      * @param parameter -
      *        CrossLinkParameter object holding all user set parameters for
      *        calculating cross-links.
-     * @return List of ProteinComplex objects holding only coordinates
+     * @return List of PolyPeptideList objects holding only coordinates
      *         of atoms with user defined chain and alternative location
      *         information.
      */
-    public static ArrayList < ProteinComplex > extractProteinComplexes(
+    public static ArrayList < PolyPeptideList > extractProteinComplexes(
                                        final ArrayList < PDBreader > pdbReaders,
                                        final CrossLinkParameter parameter
                                                                       ) {
-        ArrayList < ProteinComplex > proteinComplexes =
-            new ArrayList < ProteinComplex >();
+        ArrayList < PolyPeptideList > proteinComplexes =
+            new ArrayList < PolyPeptideList >();
 
         if (parameter.getParameter(
                 Parameter.CHAIN_ID1).equals(
@@ -400,33 +400,33 @@ public final class CrossLinkUtilities {
     /**
      * Digest all protein components of a protein complex.
      * @param proteinComplexes
-     *        - List of ProteinComplex objects to be digested.
+     *        - List of PolyPeptideList objects to be digested.
      * @param useExpasyRules
      *        - boolean value indicating to use
      *          <a href="http://www.expasy.ch/tools/peptidecutter/
      *          peptidecutter_special_enzymes.html">ExPASy Exception rules</a>
                 for digestion.
-     * @return new ProteinComplex object with PolyPeptide objects holding the
+     * @return new PolyPeptideList object with PolyPeptide objects holding the
      *         digested peptide segments.
      */
-    public static ArrayList < ProteinComplex > trypsinate(
-                            final ArrayList < ProteinComplex > proteinComplexes,
+    public static ArrayList < PolyPeptideList > trypsinate(
+                            final ArrayList < PolyPeptideList > proteinComplexes,
                             final boolean useExpasyRules
                                                      ) {
 
-        ArrayList < ProteinComplex > digestedComplexes =
-                                            new ArrayList < ProteinComplex >();
+        ArrayList < PolyPeptideList > digestedComplexes =
+                                            new ArrayList < PolyPeptideList >();
 
-        for (ProteinComplex proteinComplex : proteinComplexes) {
-            ProteinComplex digestedComplex = new ProteinComplex();
-            for (PolyPeptide protein : proteinComplex) {
+        for (PolyPeptideList polyPeptideList : proteinComplexes) {
+            PolyPeptideList digestedComplex = new PolyPeptideList();
+            for (PolyPeptide protein : polyPeptideList) {
                 ArrayList < PolyPeptide > digest = Digestion.trypsinate(
                                                                   protein,
                                                                   useExpasyRules
                                                                    );
                 digestedComplex.addAll(digest);
             }
-            digestedComplex.setName(proteinComplex.getName());
+            digestedComplex.setName(polyPeptideList.getName());
             digestedComplexes.add(digestedComplex);
         }
         return digestedComplexes;
@@ -444,7 +444,7 @@ public final class CrossLinkUtilities {
      *        calculating cross-links.
      * @throws IOException if an error occurs while reading the parameter file.
      */
-    private static void setRadius(final ProteinComplex complex,
+    private static void setRadius(final PolyPeptideList complex,
                                   final CrossLinkParameter parameter)
                                                             throws IOException {
 
@@ -488,7 +488,7 @@ public final class CrossLinkUtilities {
      */
     private static Hashtable < Atom, AtomList > findRelevantPairs(
                                              final CrossLinkParameter parameter,
-                                             final ProteinComplex complex
+                                             final PolyPeptideList complex
                                                                  ) {
         ArrayList <ArrayList < AtomList >> relevantAtoms =
                                        new ArrayList < ArrayList <AtomList >>();
@@ -526,7 +526,7 @@ public final class CrossLinkUtilities {
      * @throws IOException if input file could not be read.
      */
     private static Hashtable < Atom, AtomList > extractRelevantPairs(
-                                             final ProteinComplex complex,
+                                             final PolyPeptideList complex,
                                              final CrossLinkList crossLinks,
                                              final CrossLinkParameter parameter
                                                                     )
@@ -630,7 +630,7 @@ public final class CrossLinkUtilities {
      */
     private static CrossLinkList calculatesSolventPathDistance(
                             final CrossLinkParameter parameter,
-                            final ProteinComplex complex,
+                            final PolyPeptideList complex,
                             final CrossLinkList crossLinksByEuclideanDistance
                                                               ) {
 
@@ -726,7 +726,7 @@ public final class CrossLinkUtilities {
      */
     private static ArrayList < AtomList > findAllRelevantAtoms1(
                                              final CrossLinkParameter parameter,
-                                             final ProteinComplex complex) {
+                                             final PolyPeptideList complex) {
 
         ArrayList < AtomList > candidates1 = new ArrayList < AtomList >();
 
@@ -780,7 +780,7 @@ public final class CrossLinkUtilities {
      */
     private static ArrayList < AtomList > findAllRelevantAtoms2(
                                              final CrossLinkParameter parameter,
-                                             final ProteinComplex complex
+                                             final PolyPeptideList complex
                                                                ) {
 
         ArrayList < AtomList > candidates2 = new ArrayList < AtomList >();
@@ -1345,7 +1345,7 @@ public final class CrossLinkUtilities {
      * Creates CrossLink objects between potential cross-linkable atom pairs
      * that are closer than the user set maximum distance within local grids.
      * @param complex
-     *      - ProteinComplex object holding all atoms of the protein.
+     *      - PolyPeptideList object holding all atoms of the protein.
      * @param crossLinksByEuclideanDistance
      *      - List of CrossLinks object that have all a Euclidean distance
      *        smaller then a user set maxDist value between cross-linked atoms.
@@ -1356,7 +1356,7 @@ public final class CrossLinkUtilities {
      *         between the potential cross-linkable atom pairs.
      */
     private static CrossLinkList evaluateSolventPathDistance(
-                           final ProteinComplex complex,
+                           final PolyPeptideList complex,
                            final CrossLinkList crossLinksByEuclideanDistance,
                            final CrossLinkParameter parameter
                                                           ) {
@@ -1407,7 +1407,7 @@ public final class CrossLinkUtilities {
      * which have a distance larger than maxDist to atom1 will removed from
      * atoms2.
      * @param complex
-     *      - ProteinComplex object holding all atoms of the protein.
+     *      - PolyPeptideList object holding all atoms of the protein.
      * @param atom1
      *        - First protein atom to be connected by the virtual cross-linker.
      * @param atoms2
@@ -1421,7 +1421,7 @@ public final class CrossLinkUtilities {
      *         maxDist.
      */
     private static ArrayList < Path > calculateShortestPathThroughSolvent(
-                                              final ProteinComplex complex,
+                                              final PolyPeptideList complex,
                                               final Atom atom1,
                                               final AtomList atoms2,
                                               final CrossLinkParameter parameter

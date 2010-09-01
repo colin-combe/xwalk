@@ -15,9 +15,9 @@ import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
 import structure.matter.hetgroups.SmallMolecule;
-import structure.matter.pdb.AminoAcid;
-import structure.matter.pdb.PolyPeptide;
-import structure.matter.pdb.ProteinComplex;
+import structure.matter.protein.AminoAcid;
+import structure.matter.protein.PolyPeptide;
+import structure.matter.protein.PolyPeptideList;
 
 
 /**
@@ -50,8 +50,8 @@ public class PDBreader {
      *         - Path to PDB file.
      * @throws IOException if error occurs while reading infile.
      * @throws DataFormatException if ATOM or HEATM line does not conform to the
-     *         PDB standards at
-     *         {@link http://www.wwpdb.org/documentation/format32/sect9.html}
+     *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
+     *         PDB standards</a>.
      */
     public PDBreader(final String fileName) throws IOException,
                                                    DataFormatException {
@@ -68,8 +68,8 @@ public class PDBreader {
      * @throws IOException if an error occurs while reading the BufferedReader
      *         object.
      * @throws DataFormatException if ATOM or HEATM line does not conform to the
-     *         PDB standards at
-     *         {@link http://www.wwpdb.org/documentation/format32/sect9.html}
+     *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
+     *         PDB standards</a>.
      */
     public PDBreader(final BufferedReader bufferedReader)
                                                     throws IOException,
@@ -83,8 +83,8 @@ public class PDBreader {
      * @param  readFile
      *         - ReadFile object holding the content of a PDB file.
      * @throws DataFormatException if ATOM or HEATM line does not conform to the
-     *         PDB standards at
-     *         {@link http://www.wwpdb.org/documentation/format32/sect9.html}
+     *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
+     *         PDB standards</a>.
      */
     public PDBreader(final ReadFile readFile) throws DataFormatException {
         this.pdbFile = readFile;
@@ -189,23 +189,23 @@ public class PDBreader {
     /**
      * Method to read in all ATOM entries in a PDB file and convert all ATOM
      * entries to AminoAcidType, Protein objects and return PDB file as
-     * ProteinComplex object.
+     * PolyPeptideList object.
      * @param chainIds
      *        - String object of all chain IDs to be used to build up the
-     *          ProteinComplex
+     *          PolyPeptideList
      * @param alternativeLocations
      *        - String object of all alternative locations to be used to build
-     *          up the ProteinComplex
-     * @return A ProteinComplex object that consists of Protein objects, which
+     *          up the PolyPeptideList
+     * @return A PolyPeptideList object that consists of Protein objects, which
      *         consist themselves of AminoAcidType objects, which again consists
      *         themselves of AtomRadius objects.
      */
-    public final ArrayList < ProteinComplex > getProteinComplex(
+    public final ArrayList < PolyPeptideList > getProteinComplex(
                                                final String chainIds,
                                                final String alternativeLocations
                                                                ) {
-        ArrayList < ProteinComplex > complexes =
-                                            new ArrayList < ProteinComplex >();
+        ArrayList < PolyPeptideList > complexes =
+                                            new ArrayList < PolyPeptideList >();
 
         for (AtomList atoms : this.allAtoms) {
             // First put all atoms of user requested protein chains into a
@@ -229,7 +229,7 @@ public class PDBreader {
                     }
                 }
             }
-            ProteinComplex complex = new ProteinComplex();
+            PolyPeptideList complex = new PolyPeptideList();
             // Get for each protein chain all amino acids.
             int rank = 1;
             for (Enumeration < Character > e = selection.keys();
@@ -254,12 +254,12 @@ public class PDBreader {
     /**
      * Method to read in all ATOM entries in a PDB file and convert all ATOM
      * entries to AminoAcidType, Protein objects and return PDB file as
-     * ProteinComplex object.
-     * @return ProteinComplex object that consists of Protein objects, which
+     * PolyPeptideList object.
+     * @return PolyPeptideList object that consists of Protein objects, which
      *         consist themselves of AminoAcidType objects, which again consists
      *         themselves of AtomRadius objects.
      */
-    public final ArrayList < ProteinComplex > getEntireProteinComplex() {
+    public final ArrayList < PolyPeptideList > getEntireProteinComplex() {
         // First put all atoms of user requested protein chains into a selection
         // hashtable.
         return this.getProteinComplex(

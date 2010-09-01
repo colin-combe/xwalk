@@ -5,4 +5,4 @@
  * @version 3.0
  * @since 3.0
  */
-package structure.matter.pdb;
+package structure.matter.protein;

@@ -1,4 +1,4 @@
-package structure.matter.pdb;
+package structure.matter.protein;
 
 import structure.constants.Constants;
 import structure.matter.Atom;
