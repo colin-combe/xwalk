@@ -22,7 +22,7 @@ public abstract class Molecule {
     /**
      * List of all bonds within the molecule.
      */
-    private ArrayList < Bond > bonds = new ArrayList < Bond > ();
+    private ArrayList < Bond > bonds = new ArrayList < Bond >();
     /**
      * List of all atoms in the molecule.
      */

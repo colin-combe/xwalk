@@ -167,7 +167,7 @@ public class CommandlineArguments {
      */
     private boolean doTrypsin = false;
     /**
-     * To digest according to the exceptions listed in 
+     * To digest according to the exceptions listed in
      * <a href="http://expasy.org/tools/peptidecutter/
      * peptidecutter_enzymes.html">ExPASy</a>.
      */
@@ -382,7 +382,7 @@ public class CommandlineArguments {
               + "SOLVENT-PATH-DISTANCE GRID RELATED:"
               + NL
               + "\t-local\t[switch]\tCalculates local grids for each "
-              +	"cross-link, rather than one single grid for the entire "
+              + "cross-link, rather than one single grid for the entire "
               + "protein structure. For larger protein structures with a size "
               + "larger than 150 Å this flag is automatically set."
               + NL
@@ -470,7 +470,7 @@ public class CommandlineArguments {
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns whether the output should be forced to be written out, 
+     * Returns whether the output should be forced to be written out,
      * even if file already exists.
      * @return {@code TRUE} if forced output should be performed, {@code FALSE}
      * otherwise.
@@ -1068,9 +1068,9 @@ public class CommandlineArguments {
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns the radius of the solvent, which should be larger than that of 
+     * Returns the radius of the solvent, which should be larger than that of
      * water with 1.4 A, because both reactive ends of a cross-linker are much
-     * larger than a tri-atomic water molecule. 
+     * larger than a tri-atomic water molecule.
      * @return double number representing the radius.
      * @see #readSolventRadiusArgument()
      */

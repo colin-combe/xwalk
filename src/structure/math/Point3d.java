@@ -127,25 +127,17 @@ public class Point3d {
      *              - Point3d object
      * @return {@code TRUE} if both points have the same coordinates,
      *         {@code FALSE} otherwise.
-     * @throws ClassCastException if point3dObject is not of type Point3d.
      */
-    public final boolean equals(final Object point3dObject) 
-                                                     throws ClassCastException {
+    public final boolean equals(final Point3d point3dObject) {
         final double errorMargin = 0.001;
-        if (point3dObject instanceof Point3d) {
-            Point3d point3d = (Point3d) point3dObject;
+        Point3d point3d = (Point3d) point3dObject;
 
-            if (Math.abs(this.xCoordinate - point3d.getX()) <= errorMargin
-                &&
-                Math.abs(this.yCoordinate - point3d.getY()) <= errorMargin
-                &&
-                Math.abs(this.zCoordinate - point3d.getZ()) <= errorMargin) {
-                return true;
-            }
-        } else {
-            throw new ClassCastException("ERROR: Object " + point3dObject
-                                       + " is not of type Point3d"
-                                       + Constants.LINE_SEPERATOR);
+        if (Math.abs(this.xCoordinate - point3d.getX()) <= errorMargin
+            &&
+            Math.abs(this.yCoordinate - point3d.getY()) <= errorMargin
+            &&
+            Math.abs(this.zCoordinate - point3d.getZ()) <= errorMargin) {
+              return true;
         }
     return false;
     }

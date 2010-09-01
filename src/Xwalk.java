@@ -144,7 +144,7 @@ public class Xwalk {
         if (crossLinks.size() == 0) {
             Xwalk.outputNoXLfound(parameter);
         }
-        
+
         if (arguments.getOutfileArgument().equals("")) {
             System.out.print(DistanceWriter.toString(crossLinks, parameter));
         } else {

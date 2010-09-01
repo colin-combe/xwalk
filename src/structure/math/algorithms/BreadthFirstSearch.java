@@ -30,7 +30,7 @@ public class BreadthFirstSearch {
      *
      */
     private Hashtable < GridCell, String > targetsFoundInSearch =
-                                          new Hashtable < GridCell, String > ();
+                                          new Hashtable < GridCell, String >();
     //--------------------------------------------------------------------------
 
     /**
@@ -56,17 +56,17 @@ public class BreadthFirstSearch {
                                            final Grid grid,
                                            final double maxDist
                                                     ) {
-        ArrayList < GridCell > actives = new ArrayList < GridCell > ();
+        ArrayList < GridCell > actives = new ArrayList < GridCell >();
 
         // set value of source cell to 0.0
         source.setValue(Value.DISTANCE, "0.0");
         actives.add(source);
-        
+
         // start breadth-first search from grid cell.
         this.setDistanceRecursively(actives, targets, grid, maxDist);
 
         // trace back the path
-        ArrayList < Path > paths = new ArrayList < Path > ();
+        ArrayList < Path > paths = new ArrayList < Path >();
         for (GridCell target : targets) {
             // first element in the path is the target cell itself.
             // Last element will be the source cell.
@@ -111,7 +111,7 @@ public class BreadthFirstSearch {
         // breadth-first-search.
         ArrayList < GridCell > newActives = new ArrayList < GridCell >();
         for (GridCell active : actives) {
-            
+
              ArrayList < GridCell > neighbours =
                             GridUtilities.getNeighbouringCells(active, grid, 1);
 

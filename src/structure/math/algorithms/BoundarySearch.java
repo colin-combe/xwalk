@@ -32,25 +32,25 @@ public class BoundarySearch {
      *          or unoccupied.
      */
     public static final void findBoundary(final Grid grid) {
-        
+
         // initialize grid by setting all cells to visited = FALSE.
         for (int i = 0; i < grid.getNumberOfCells().getI(); i++) {
             for (int j = 0; j < grid.getNumberOfCells().getJ(); j++) {
                 for (int k = 0; k < grid.getNumberOfCells().getK(); k++) {
 
                     GridCell cell = grid.get(i, j, k);
-                    ArrayList<GridCell> neighbours = 
+                    ArrayList<GridCell> neighbours =
                                         GridUtilities.getNeighbouringCells(
                                                                            cell,
                                                                            grid,
                                                                            1
                                                                           );
-                    
+
                     for (GridCell neighbour : neighbours) {
                         if (cell.isOccupied() != neighbour.isOccupied()) {
                             GridCell occupiedCell = cell;
                             if (!cell.isOccupied()) {
-                                occupiedCell = neighbour; 
+                                occupiedCell = neighbour;
                             }
                             occupiedCell.setBoundaryStatus();
                             break;

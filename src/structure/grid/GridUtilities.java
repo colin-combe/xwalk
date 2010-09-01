@@ -3,13 +3,9 @@ package structure.grid;
 import java.util.ArrayList;
 
 import structure.constants.Constants.Value;
-import structure.io.pdb.PDBreader;
-import structure.math.Mathematics;
 import structure.math.Point3d;
 import structure.math.Point3i;
-import structure.math.algorithms.BoundarySearch;
 import structure.matter.Atom;
-import structure.matter.AtomList;
 
 
 /**
@@ -167,7 +163,7 @@ public class GridUtilities {
      * @return ArrayList of GridCells being unoccupied.
      */
     public static ArrayList < GridCell > getUnoccupiedCells(final Grid grid) {
-        ArrayList < GridCell > candidates = new ArrayList < GridCell > ();
+        ArrayList < GridCell > candidates = new ArrayList < GridCell >();
         for (int i = 0; i < grid.getNumberOfCells().getI(); i++) {
             for (int j = 0; j < grid.getNumberOfCells().getJ(); j++) {
                 for (int k = 0; k < grid.getNumberOfCells().getK(); k++) {
@@ -198,7 +194,7 @@ public class GridUtilities {
                                                             final Grid grid,
                                                             final int cellSize
                                                              ) {
-        ArrayList < GridCell > neighbours = new ArrayList < GridCell > ();
+        ArrayList < GridCell > neighbours = new ArrayList < GridCell >();
         Point3i ijk = cell.getPoint3i();
 
         for (int m = -cellSize;

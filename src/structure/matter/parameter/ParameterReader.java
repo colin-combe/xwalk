@@ -20,7 +20,7 @@ public class ParameterReader {
      * Holds van der Waals radii from the various supported force fields.
      */
     private Hashtable < Element, Double > vdWradii =
-                                           new Hashtable < Element, Double > ();
+                                           new Hashtable < Element, Double >();
     /**
      * MMRR94 radius identifier.
      */
@@ -89,7 +89,7 @@ public class ParameterReader {
      *        - String object holding the path to the desired parameter file.
      * @throws IOException if an error occurs while reading the parameter file.
      */
-    private void readParameterSet(final String parameterFileName) 
+    private void readParameterSet(final String parameterFileName)
                                                             throws IOException {
         ReadFile read = new ReadFile(parameterFileName);
         for (String line : read) {

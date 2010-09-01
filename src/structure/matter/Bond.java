@@ -12,11 +12,11 @@ public class Bond {
     /**
      * Atom at pre position within the bond.
      */
-    private Atom pre;
+    private Atom preAtom;
     /**
      * Atom at post position within the bond.
      */
-    private Atom post;
+    private Atom postAtom;
     /**
      * Type of bond.
      */
@@ -27,13 +27,13 @@ public class Bond {
      *        - Atom object of first atom.
      * @param post
      *        - Atom object of second atom.
-     * @param bondType
+     * @param type
      *        - BondType of bond.
      */
-    public Bond(final Atom pre, final Atom post, final BondTypes bondType) {
-        this.pre = pre;
-        this.post = post;
-        this.bondType = bondType;
+    public Bond(final Atom pre, final Atom post, final BondTypes type) {
+        this.preAtom = pre;
+        this.postAtom = post;
+        this.bondType = type;
     }
     /**
      * Returns the type of this bond.
@@ -48,22 +48,24 @@ public class Bond {
      * @return Atom object.
      */
     public final Atom getPreAtom() {
-        return this.pre;
+        return this.preAtom;
     }
     /**
      * Returns the second atom in the bond.
      * @return Atom object.
      */
     public final Atom getPostAtom() {
-        return this.post;
+        return this.postAtom;
     }
     /**
      * Checks whether {@code atom} is part of the bond.
+     * @param atom
+     *        - Atom object to be checked for existent in this bond.
      * @return {@code TRUE} if atom is part of this bond, {@code FALSE}
      *         otherwise.
      */
     public final boolean isInBond(final Atom atom) {
-        if (pre.equals(atom) || post.equals(atom)) {
+        if (preAtom.equals(atom) || postAtom.equals(atom)) {
             return true;
         }
         return false;

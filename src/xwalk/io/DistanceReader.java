@@ -10,7 +10,7 @@ import xwalk.crosslink.CrossLink;
 import xwalk.crosslink.CrossLinkList;
 
 /**
- * This class converts distance files into CrossLink objects. 
+ * This class converts distance files into CrossLink objects.
  * @author Abdullah Kahraman
  * @version 3.0
  * @since 3.0
@@ -32,12 +32,12 @@ public class DistanceReader {
      * @throws IOException if an error occurs while reading the BufferedReader
      *         object.
      */
-    public static CrossLinkList getCrossLinks(final String fileName) 
+    public static CrossLinkList getCrossLinks(final String fileName)
                                                             throws IOException {
         CrossLinkList set = new CrossLinkList();
-        
+
         ReadFile read = new ReadFile(fileName);
-        
+
         for (String line : read) {
             if (!line.startsWith("#")) {
                 Atom atom1 = new Atom();
@@ -58,18 +58,18 @@ public class DistanceReader {
                     if (!array[6].equals("-")) {
                         solvDist = Double.parseDouble(array[6]);
                     }
-                    
+
                     array = atom1info.split("-");
                     atom1.setResidueName(array[0].trim());
                     atom1.setResidueNumber(Integer.parseInt(array[1].trim()));
-                    atom1.setChainId(array[2].trim().charAt(0) == '_' 
+                    atom1.setChainId(array[2].trim().charAt(0) == '_'
                                                     ? ' ' : array[2].charAt(0));
                     atom1.setName(array[3].trim());
 
                     array = atom2info.split("-");
                     atom2.setResidueName(array[0].trim());
                     atom2.setResidueNumber(Integer.parseInt(array[1].trim()));
-                    atom2.setChainId(array[2].trim().charAt(0) == '_' 
+                    atom2.setChainId(array[2].trim().charAt(0) == '_'
                                                     ? ' ' : array[2].charAt(0));
                     atom2.setName(array[3].trim());
                 } catch (Exception e) {

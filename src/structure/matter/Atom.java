@@ -69,7 +69,7 @@ import structure.matter.parameter.ParameterReader;
  * Example
  *
  * 1         2         3         4         5         6         7         8
- * 12345678901234567890123456789012345678901234567890123456789012345678901234567890
+* 123456789012345678901234567890123456789012345678901234567890123456789012345678
 * ATOM    145  N   VAL A  25      32.433  16.336  57.540  1.00 11.92      A1   N
 * ATOM    146  CA  VAL A  25      31.132  16.439  58.160  1.00 11.85      A1   C
 * ATOM    147  C   VAL A  25      30.447  15.105  58.363  1.00 12.34      A1   C
@@ -287,7 +287,7 @@ public class Atom {
      * metal state of atom.
      */
     private boolean isMetalic;
-    
+
     //--------------------------------------------------------------------------
     /**
      * Constructor sets all the fields to defaults (mainly 0 and "").
@@ -352,19 +352,19 @@ public class Atom {
     //--------------------------------------------------------------------------
     /**
      * Sets the flag of the atom.
-     * @param  flag
+     * @param  flagName
      *         - String object, which must be either "ATOM" or "HETATM".
      * @return {@code TRUE} if flag correspond to ATOM or HETATM, {@code FALSE}
      *         otherwise.
      * @see #getFlag()
      */
-    public final boolean setFlag(final String flag) {
-        if (!flag.equals("ATOM  ") && !flag.equals("HETATM")) {
-            System.err.println("Warning PDB flag \"" + flag + "\" neither "
+    public final boolean setFlag(final String flagName) {
+        if (!flagName.equals("ATOM  ") && !flagName.equals("HETATM")) {
+            System.err.println("Warning PDB flag \"" + flagName + "\" neither "
                              + "ATOM nor HETATM!");
             return false;
         } else {
-            this.flag = flag;
+            this.flag = flagName;
         }
     return true;
     }
@@ -380,19 +380,19 @@ public class Atom {
     //--------------------------------------------------------------------------
     /**
      * Sets the serialNumber number of an atom.
-     * @param  serialNumber
+     * @param  serialNo
      *            - integer between -9999 and 99999
      * @return {@code TRUE} if serialNumber is within limits, {@code FALSE}
      *         otherwise.
      * @see #getSerialNumber()
      */
-    public final boolean setSerialNumber(final int serialNumber) {
-        if ((serialNumber > Constants.MAX_SERIAL)) {
-            System.err.println("WARNING PDB serialNumber \"" + serialNumber
+    public final boolean setSerialNumber(final int serialNo) {
+        if ((serialNo > Constants.MAX_SERIAL)) {
+            System.err.println("WARNING PDB serialNumber \"" + serialNo
                               + "\" number out of range!");
             return false;
         }
-        this.serialNumber = serialNumber;
+        this.serialNumber = serialNo;
     return true;
     }
     //--------------------------------------------------------------------------
@@ -760,7 +760,7 @@ public class Atom {
      * @see #getVanDerWaalsRadius()
      */
     public final void setVanDerWaalsRadius(
-                                   final Constants.ParameterSets parameterSet) 
+                                   final Constants.ParameterSets parameterSet)
                                                             throws IOException {
         ParameterReader params = new ParameterReader(parameterSet);
         Hashtable < Element, Double > radii = params.getVdwRadiusParameterSet();

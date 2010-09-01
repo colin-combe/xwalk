@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import structure.constants.Constants;
 import structure.matter.Atom;
+import structure.matter.hetgroups.SmallMolecule;
 /**
  * Class representing Proteins and polypeptides in general.
  * @author Abdullah Kahraman
@@ -21,14 +22,14 @@ public class PolyPeptide {
      * List of all amino acids in this polypeptide.
      */
     private ArrayList < AminoAcid > aminoAcidChain =
-                                                 new ArrayList < AminoAcid > ();
+                                                 new ArrayList < AminoAcid >();
     //--------------------------------------------------------------------------
 
     /**
      * List of small molecules that are associated to this polypeptides.
      */
     private ArrayList < SmallMolecule > smallMolecule =
-                                             new ArrayList < SmallMolecule > ();
+                                             new ArrayList < SmallMolecule >();
     //--------------------------------------------------------------------------
 
     /**
