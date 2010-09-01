@@ -8,7 +8,7 @@ import structure.constants.Constants.ElementTypes;
 import structure.math.Mathematics;
 import structure.math.Point3d;
 import structure.matter.parameter.Element;
-import structure.matter.pdb.ProteinComplex;
+import structure.matter.protein.PolyPeptideList;
 
 
 /**
@@ -130,10 +130,10 @@ public abstract class MatterUtilities {
     /**
      * Returns the dimension of a protein complex.
      * @param complex
-     *        - ProteinComplex object to which dimension should be calculated.
+     *        - PolyPeptideList object to which dimension should be calculated.
      * @return double value representing the dimension of the protein complex.
      */
-    public static double getDimension(final ProteinComplex complex) {
+    public static double getDimension(final PolyPeptideList complex) {
         AtomList allAtoms = complex.getAllAtoms();
         Point3d max = MatterUtilities.getMaximumCooridnate(allAtoms);
         Point3d min = MatterUtilities.getMinimumCooridnate(allAtoms);

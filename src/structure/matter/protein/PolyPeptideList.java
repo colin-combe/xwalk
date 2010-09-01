@@ -1,4 +1,4 @@
-package structure.matter.pdb;
+package structure.matter.protein;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import structure.matter.AtomList;
  * @version 3.0
  * @since 3.0
  */
-public class ProteinComplex extends ArrayList < PolyPeptide > {
+public class PolyPeptideList extends ArrayList < PolyPeptide > {
 
     //--------------------------------------------------------------------------
     /**

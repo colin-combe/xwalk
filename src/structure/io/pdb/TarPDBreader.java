@@ -53,8 +53,8 @@ public class TarPDBreader {
      * @return PDBreader object.
      * @throws IOException if an error occurs while reading in the gzipped file.
      * @throws DataFormatException if ATOM or HEATM line does not conform to the
-     *         PDB standards at
-     *         {@link http://www.wwpdb.org/documentation/format32/sect9.html}
+     *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
+     *         PDB standards</a>.
      */
     public final ArrayList < PDBreader > getPDBreaders() throws IOException,
                                                            DataFormatException {

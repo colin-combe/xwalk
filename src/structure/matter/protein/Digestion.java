@@ -1,4 +1,4 @@
-package structure.matter.pdb;
+package structure.matter.protein;
 
 import java.util.ArrayList;
 import java.util.Collections;

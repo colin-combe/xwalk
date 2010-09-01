@@ -11,7 +11,7 @@ import structure.grid.Path;
 import structure.math.Mathematics;
 import structure.matter.Atom;
 import structure.matter.Bond;
-import structure.matter.pdb.AminoAcid;
+import structure.matter.protein.AminoAcid;
 
 
 /**
@@ -334,11 +334,10 @@ public class CrossLink extends Bond {
     //--------------------------------------------------------------------------
     /**
      * Sets the path to the file in which this cross-link has been found.
-     * @param filePath
+     * @param fileName
      *        - String object holding the path to the file.
      */
-    public final void setFileName(String filePath) {
-        this.filePath = filePath;
+    public final void setFileName(final String fileName) {
+        this.filePath = fileName;
     }
-    
 }

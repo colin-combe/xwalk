@@ -6,9 +6,9 @@ import structure.constants.Constants;
 import structure.io.WriteFile;
 import structure.matter.Atom;
 import structure.matter.Molecule;
-import structure.matter.pdb.AminoAcid;
-import structure.matter.pdb.PolyPeptide;
-import structure.matter.pdb.ProteinComplex;
+import structure.matter.protein.AminoAcid;
+import structure.matter.protein.PolyPeptide;
+import structure.matter.protein.PolyPeptideList;
 
 
 /**
@@ -34,7 +34,7 @@ public class PDBwriter extends WriteFile {
      *          otherwise.
      * @see #write(Molecule)
      * @see #write(PolyPeptide)
-     * @see #write(ProteinComplex)
+     * @see #write(PolyPeptideList)
      */
     public final boolean write(final Atom atom) {
         StringBuffer output = new StringBuffer();
@@ -52,7 +52,7 @@ public class PDBwriter extends WriteFile {
      *          otherwise.
      * @see #write(Atom)
      * @see #write(PolyPeptide)
-     * @see #write(ProteinComplex)
+     * @see #write(PolyPeptideList)
      */
     public final boolean write(final Molecule molecule) {
         StringBuffer output = new StringBuffer();
@@ -73,7 +73,7 @@ public class PDBwriter extends WriteFile {
      *         otherwise.
      * @see #write(Atom)
      * @see #write(Molecule)
-     * @see #write(ProteinComplex)
+     * @see #write(PolyPeptideList)
      */
     public final boolean write(final PolyPeptide polyPeptide) {
         StringBuffer output = new StringBuffer();
@@ -98,7 +98,7 @@ public class PDBwriter extends WriteFile {
      * @see #write(Molecule)
      * @see #write(PolyPeptide)
      */
-    public final boolean write(final ProteinComplex complex) {
+    public final boolean write(final PolyPeptideList complex) {
         StringBuffer output = new StringBuffer();
         for (PolyPeptide polyPeptide : complex) {
              for (AminoAcid aminoAcid : polyPeptide.getAminoAcids()) {
