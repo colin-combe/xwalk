@@ -62,7 +62,7 @@ public final class CrossLinkUtilities {
                                                   throws IOException,
                                                          DataFormatException {
         // get all protein complex atom coordinates of the user given inputFile.
-        ArrayList < ProteinComplex > complexes = 
+        ArrayList < ProteinComplex > complexes =
                                    CrossLinkUtilities.getComplexesCoordinates(
                                                                        parameter
                                                                              );
@@ -92,7 +92,7 @@ public final class CrossLinkUtilities {
             if (Boolean.parseBoolean(parameter.getParameter(
                                               Parameter.DO_SOLVENT_PATH_DISTANCE
                                                            ))) {
-                crossLinkList = 
+                crossLinkList =
                            CrossLinkUtilities.calculatesSolventPathDistance(
                                                                    parameter,
                                                                    complex,
@@ -114,7 +114,7 @@ public final class CrossLinkUtilities {
         }
         // sort list of cross-links by distance.
         crossLinkList.sort();
-        
+
         // set indices of cross-links
         CrossLinkUtilities.setCrossLinkIndices(crossLinkList, parameter);
 
@@ -137,7 +137,7 @@ public final class CrossLinkUtilities {
      */
     public static CrossLinkList crossLinkByEuclideanDistance(
                                              final CrossLinkParameter parameter,
-                                             final ProteinComplex complex) 
+                                             final ProteinComplex complex)
                                             throws IOException {
         Hashtable < Atom, AtomList > relevantAtomPairs =
             new Hashtable < Atom, AtomList > ();
@@ -150,7 +150,6 @@ public final class CrossLinkUtilities {
                                                                   complex
                                                                     );
         } else {
-            // if 
             distanceFileCrossLinks = DistanceReader.getCrossLinks(
                         parameter.getParameter(Parameter.DISTANCE_FILE_PATH)
                                                                  );
@@ -160,7 +159,7 @@ public final class CrossLinkUtilities {
                                                      parameter
                                                                         );
         }
-        
+
         // create CrossLinks object from all relevant atom pairs.
         CrossLinkList crossLinks = new CrossLinkList();
         for (Atom atom1 : relevantAtomPairs.keySet()) {
@@ -168,10 +167,10 @@ public final class CrossLinkUtilities {
                 crossLinks.add(new CrossLink(atom1, atom2));
             }
         }
-        
+
         return crossLinks;
     }
-    
+
     //--------------------------------------------------------------------------
     /**
      * Creates CrossLink objects between potential cross-linkable atom pairs
@@ -193,12 +192,12 @@ public final class CrossLinkUtilities {
                               final CrossLinkList crossLinksByEuclideanDistance,
                               final CrossLinkParameter parameter
                                                               ) {
-     
+
         boolean doSAS = Boolean.parseBoolean(parameter.getParameter(
                                                                 Parameter.DO_SAS
                                                                    )
                                             );
-        // set solvent radius 
+        // set solvent radius
         double solventRadius = 0;
         if (doSAS) {
             solventRadius = Double.parseDouble(parameter.getParameter(
@@ -212,18 +211,18 @@ public final class CrossLinkUtilities {
                                      Double.parseDouble(parameter.getParameter(
                                                         Parameter.GRID_CELL_SIZE
                                                                               )
-                                                       ), 
+                                                       ),
                                      solventRadius + 1,
                                      doSAS
                                     );
 
-        // measure distances in the atom grid. 
+        // measure distances in the atom grid.
         CrossLinkList xlinkSet = CrossLinkUtilities.evaluateSolventPathDistance(
                                                   crossLinksByEuclideanDistance,
                                                   grid,
                                                   parameter
                                                                               );
-        
+
         return xlinkSet;
     }
     //--------------------------------------------------------------------------
@@ -247,7 +246,7 @@ public final class CrossLinkUtilities {
                               final CrossLinkList crossLinksByEuclideanDistance,
                               final CrossLinkParameter parameter
                                                                ) {
-        CrossLinkList xlinkSet = 
+        CrossLinkList xlinkSet =
             CrossLinkUtilities.evaluateSolventPathDistance(
                                                   complex,
                                                   crossLinksByEuclideanDistance,
@@ -262,7 +261,7 @@ public final class CrossLinkUtilities {
      * @param parameter -
      *        CrossLinkParameter object holding all user set parameters for
      *        calculating cross-links.
-     * @return List of ProteinComplex objects, each holding all protein 
+     * @return List of ProteinComplex objects, each holding all protein
      *         coordinates labeled as ATOM up to an END flag or end of file.
      * @throws IOException if input file could not be read.
      * @throws DataFormatException if ATOM or HEATM line does not conform to the
@@ -271,7 +270,7 @@ public final class CrossLinkUtilities {
      */
     private static ArrayList < ProteinComplex > getComplexesCoordinates(
                                              final CrossLinkParameter parameter
-                                                                       ) 
+                                                                       )
                                                    throws IOException,
                                                            DataFormatException {
 
@@ -280,23 +279,23 @@ public final class CrossLinkUtilities {
                                                            Parameter.INFILE_PATH
                                                                       )
                                                );
-        
-        
+
+
         ArrayList < ProteinComplex > proteinComplexes =
               CrossLinkUtilities.extractProteinComplexes(pdbReaders, parameter);
-        
-        // assign vdW radius to protein atoms 
+
+        // assign vdW radius to protein atoms
         for (ProteinComplex proteinComplex : proteinComplexes) {
              CrossLinkUtilities.setRadius(proteinComplex, parameter);
         }
-        
+
         // digest protein
         if (Boolean.parseBoolean(parameter.getParameter(
                                                      Parameter.DO_TRYPSIN_DIGEST
                                                        )
                                 )
            ) {
-            return CrossLinkUtilities.trypsinate(proteinComplexes, 
+            return CrossLinkUtilities.trypsinate(proteinComplexes,
                                                  Boolean.parseBoolean(
                                                   parameter.getParameter(
                                                         Parameter.DO_EXPASY_RULE
@@ -320,7 +319,7 @@ public final class CrossLinkUtilities {
      *         PDB standards at
      *         {@link http://www.wwpdb.org/documentation/format32/sect9.html}
      */
-    public static ArrayList < PDBreader > createPDBreaders(final String infile) 
+    public static ArrayList < PDBreader > createPDBreaders(final String infile)
                                        throws IOException, DataFormatException {
 
         ArrayList < PDBreader > pdbReaders = new ArrayList < PDBreader > ();
@@ -328,7 +327,7 @@ public final class CrossLinkUtilities {
             GzipFileReader gzip = new GzipFileReader(infile);
             TarPDBreader tarPdb = new TarPDBreader(gzip.getGZIPInputStream());
             pdbReaders.addAll(tarPdb.getPDBreaders());
-            
+
         } else if (infile.endsWith(".gz")) {
             GzipPDBreader gzipReader = new GzipPDBreader(infile);
             pdbReaders.add(gzipReader.getPDBreader());
@@ -340,7 +339,7 @@ public final class CrossLinkUtilities {
         }
     return pdbReaders;
     }
-    
+
     //--------------------------------------------------------------------------
     /**
      * Extracts user set chain and alternative location based PDBcomplex objects
@@ -359,7 +358,7 @@ public final class CrossLinkUtilities {
                                        final ArrayList < PDBreader > pdbReaders,
                                        final CrossLinkParameter parameter
                                                                       ) {
-        ArrayList < ProteinComplex > proteinComplexes = 
+        ArrayList < ProteinComplex > proteinComplexes =
             new ArrayList < ProteinComplex > ();
 
         if (parameter.getParameter(
@@ -379,7 +378,7 @@ public final class CrossLinkUtilities {
                          parameter.getParameter(Parameter.ALTERNATIVE_LOCATION1)
                                                          )
                                 );
-            }   
+            }
         } else {
             for (PDBreader reader : pdbReaders) {
                 proteinComplexes.addAll(reader.getProteinComplex(
@@ -396,18 +395,18 @@ public final class CrossLinkUtilities {
         }
         return proteinComplexes;
     }
-    
+
     //--------------------------------------------------------------------------
     /**
      * Digest all protein components of a protein complex.
      * @param proteinComplexes
      *        - List of ProteinComplex objects to be digested.
      * @param useExpasyRules
-     *        - boolean value indicating to use 
+     *        - boolean value indicating to use
      *          <a href="http://www.expasy.ch/tools/peptidecutter/
      *          peptidecutter_special_enzymes.html">ExPASy Exception rules</a>
-                for digestion. 
-     * @return new ProteinComplex object with PolyPeptide objects holding the 
+                for digestion.
+     * @return new ProteinComplex object with PolyPeptide objects holding the
      *         digested peptide segments.
      */
     public static ArrayList < ProteinComplex > trypsinate(
@@ -415,7 +414,7 @@ public final class CrossLinkUtilities {
                             final boolean useExpasyRules
                                                      ) {
 
-        ArrayList < ProteinComplex > digestedComplexes = 
+        ArrayList < ProteinComplex > digestedComplexes =
                                             new ArrayList < ProteinComplex > ();
 
         for (ProteinComplex proteinComplex : proteinComplexes) {
@@ -428,11 +427,11 @@ public final class CrossLinkUtilities {
                 digestedComplex.addAll(digest);
             }
             digestedComplex.setName(proteinComplex.getName());
-            digestedComplexes.add(digestedComplex);                 
+            digestedComplexes.add(digestedComplex);
         }
         return digestedComplexes;
     }
-    
+
     //--------------------------------------------------------------------------
     /**
      * Sets the van der Waals radius of the protein complex atoms appropriately,
@@ -446,12 +445,12 @@ public final class CrossLinkUtilities {
      * @throws IOException if an error occurs while reading the parameter file.
      */
     private static void setRadius(final ProteinComplex complex,
-                                  final CrossLinkParameter parameter) 
+                                  final CrossLinkParameter parameter)
                                                             throws IOException {
 
         // Finally set atom radii to SURFNET ones.
         complex.setAtomRadii(ParameterSets.SURFNET);
-        
+
         // If cross-links should be excluded by SAS, then van der Waals radii
         // must be increased by the radius of the solvent molecule.
         if (Boolean.parseBoolean(parameter.getParameter(
@@ -475,7 +474,6 @@ public final class CrossLinkUtilities {
             }
         }
     }
-    
     //--------------------------------------------------------------------------
     /**
      * Returns pairs of atoms that conform to the atom and amino acid
@@ -531,12 +529,11 @@ public final class CrossLinkUtilities {
                                              final ProteinComplex complex,
                                              final CrossLinkList crossLinks,
                                              final CrossLinkParameter parameter
-                                                                    ) 
+                                                                    )
                                                             throws IOException {
-        
+
         Hashtable < Atom, AtomList > pairs = new Hashtable < Atom, AtomList >();
-        
-        
+
         AtomList uniqueCrossLinkAtoms = new AtomList();
         for (CrossLink xl : crossLinks) {
              Atom preAtom = xl.getPreAtom();
@@ -548,11 +545,11 @@ public final class CrossLinkUtilities {
                  uniqueCrossLinkAtoms.add(postAtom);
              }
         }
-        
+
         AtomList uniqueCrossLinkAtomsInComplex = new AtomList();
         for (Atom atom1 : complex.getAllAtoms()) {
              for (Atom atom2 : uniqueCrossLinkAtoms) {
-                  if (MatterUtilities.equalsResidue(atom1, atom2) 
+                  if (MatterUtilities.equalsResidue(atom1, atom2)
                       &&
                       atom1.getName().trim().equals(atom2.getName().trim())) {
                           uniqueCrossLinkAtomsInComplex.add(atom1);
@@ -565,29 +562,29 @@ public final class CrossLinkUtilities {
             uniqueCrossLinkAtoms.size()) {
             return pairs;
         }
-        
+
         for (CrossLink xl : crossLinks) {
              Atom preAtom = xl.getPreAtom();
              Atom postAtom = xl.getPostAtom();
-             
+
              for (Atom atom : uniqueCrossLinkAtomsInComplex) {
-                 if (MatterUtilities.equalsResidue(atom, preAtom) 
+                 if (MatterUtilities.equalsResidue(atom, preAtom)
                      &&
                      atom.getName().trim().equals(preAtom.getName().trim())) {
                          preAtom = atom;
                  }
-                 if (MatterUtilities.equalsResidue(atom, postAtom) 
+                 if (MatterUtilities.equalsResidue(atom, postAtom)
                      &&
                      atom.getName().trim().equals(postAtom.getName().trim())) {
                      postAtom = atom;
                  }
              }
-             
+
              if (preAtom == xl.getPreAtom() || postAtom == xl.getPostAtom()) {
                  System.err.println("Cross-linked atom in distance file could "
                                   + "not be found : " + xl.toString());
              }
-                          
+
              double dist = Double.parseDouble(
                              Constants.DISTANCE_DEC_FORMAT.format(
                                                      Mathematics.distance(
@@ -630,14 +627,13 @@ public final class CrossLinkUtilities {
      *      - List of CrossLinks object that have all a Euclidean distance
      *        smaller then a user set maxDist value between cross-linked atoms.
      * @return List of CrossLink objects.
-     *        
      */
     private static CrossLinkList calculatesSolventPathDistance(
                             final CrossLinkParameter parameter,
                             final ProteinComplex complex,
                             final CrossLinkList crossLinksByEuclideanDistance
                                                               ) {
-        
+
         boolean verbose = Boolean.parseBoolean(parameter.getParameter(
                                                      Parameter.DO_VERBOSE_OUTPUT
                                                                      )
@@ -649,10 +645,10 @@ public final class CrossLinkUtilities {
         double dim = MatterUtilities.getDimension(complex);
         if (verbose) {
             System.err.print("Protein Complex's dimension is "
-            		       + "\"" + (int) dim + "\" Angstroem."
+                           + "\"" + (int) dim + "\" Angstroem."
                            + Constants.LINE_SEPERATOR);
-        }        
-        if (dim > Constants.MAX_PROTEIN_DIMENSION 
+        }
+        if (dim > Constants.MAX_PROTEIN_DIMENSION
             ||
             Boolean.parseBoolean(parameter.getParameter(
                                                      Parameter.DO_LOCAL_GRID
@@ -682,7 +678,7 @@ public final class CrossLinkUtilities {
     }
     //--------------------------------------------------------------------------
     /**
-     * Sets the indices of the cross-linked objects either iteratively or if 
+     * Sets the indices of the cross-linked objects either iteratively or if
      * a distance file is set by the user according to the indices in the
      * distance file.
      * @param crossLinkList
@@ -698,7 +694,7 @@ public final class CrossLinkUtilities {
         if (parameter.getParameter(Parameter.DISTANCE_FILE_PATH).equals("")) {
             for (int i = 0; i < crossLinkList.size(); i++) {
                 crossLinkList.get(i).setIndex(i + 1);
-            }            
+            }
         } else {
             CrossLinkList distanceFileCrossLinks = DistanceReader.getCrossLinks(
                             parameter.getParameter(Parameter.DISTANCE_FILE_PATH)
@@ -1304,15 +1300,15 @@ public final class CrossLinkUtilities {
                                                       Parameter.MAXIMUM_DISTANCE
                                                                           )
                                                    );
-        
-        Hashtable <Atom, AtomList> pairs = 
+
+        Hashtable <Atom, AtomList> pairs =
                                          crossLinksByEuclideanDistance.toHash();
 
         CrossLinkList xlinkList = new CrossLinkList();
         for (Atom atom : pairs.keySet()) {
             AtomList pairedAtoms = pairs.get(atom);
-            
-            
+
+
             SolventPathDistance solvDist  = new SolventPathDistance(
                                                                     atom,
                                                                     pairedAtoms,
@@ -1370,13 +1366,13 @@ public final class CrossLinkUtilities {
                                                       Parameter.MAXIMUM_DISTANCE
                                                                   )
                                            );
-        
+
         Hashtable <Atom, AtomList> pairs =
                                          crossLinksByEuclideanDistance.toHash();
 
         for (Atom atom : pairs.keySet()) {
             AtomList pairedAtoms = pairs.get(atom);
-            ArrayList < Path > paths = 
+            ArrayList < Path > paths =
                 CrossLinkUtilities.calculateShortestPathThroughSolvent(
                                                                 complex,
                                                                 atom,
@@ -1384,12 +1380,12 @@ public final class CrossLinkUtilities {
                                                                 parameter
                                                                   );
             for (int i = 0; i < pairedAtoms.size(); i++) {
-                
+
                 CrossLink crossLink = crossLinksByEuclideanDistance.get(
                                                               atom,
                                                               pairedAtoms.get(i)
                                                                        );
-                    
+
                 double dist = SolventPathDistance.extractTargetDistances(
                                                                     paths.get(i)
                                                                         );
@@ -1397,7 +1393,7 @@ public final class CrossLinkUtilities {
                     crossLink.setSolventPathDistance(dist);
                     crossLink.setPath(paths.get(i));
                     crossLink.setFileName(complex.getName());
-                    
+
                     crossLinksBySolventPathDist.add(crossLink);
                 }
             }
@@ -1426,11 +1422,11 @@ public final class CrossLinkUtilities {
      */
     private static ArrayList < Path > calculateShortestPathThroughSolvent(
                                               final ProteinComplex complex,
-                                              final Atom atom1, 
+                                              final Atom atom1,
                                               final AtomList atoms2,
                                               final CrossLinkParameter parameter
                                                             ) {
-                
+
         boolean doSAS = Boolean.parseBoolean(parameter.getParameter(
                                                                 Parameter.DO_SAS
                                                                    )
@@ -1444,13 +1440,13 @@ public final class CrossLinkUtilities {
                                               Parameter.MAXIMUM_DISTANCE
                                                                   )
                                            );
-    
+
         AtomGrid grid = new AtomGrid(complex.getAllAtoms(),
                                      atom1,
                                      maxDist,
                                      gridCellSize
                                     );
-        
+
         // Check for solvent accessibility, if necessary.
         if (doSAS) {
             AtomList toBremoved = new AtomList();
@@ -1464,16 +1460,16 @@ public final class CrossLinkUtilities {
                 return new ArrayList < Path > ();
             }
         }
-        
+
         SolventPathDistance solvDist  = new SolventPathDistance(
                                                                 atom1,
                                                                 atoms2,
                                                                 grid
                                                                );
         ArrayList < Path > paths = solvDist.getShortestPath(maxDist);
-              
+
         CrossLinkUtilities.cleanAtomPairs(paths, atoms2, maxDist);
-        
+
         if (atoms2.size() != 0
             &&
             Boolean.parseBoolean(parameter.getParameter(
@@ -1505,7 +1501,7 @@ public final class CrossLinkUtilities {
         if (grid.get(atom1) == null || grid.get(atom2) == null) {
             return false;
         }
-        
+
         if (!GridUtilities.isAccessible(atom1, grid)
             ||
             !GridUtilities.isAccessible(atom2, grid)) {
