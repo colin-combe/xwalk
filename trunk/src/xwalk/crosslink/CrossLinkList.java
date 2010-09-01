@@ -61,11 +61,11 @@ public class CrossLinkList extends ArrayList < CrossLink > {
      * @return Hashtable object.
      */
     public final Hashtable < Atom, AtomList > toHash() {
-        Hashtable < Atom, AtomList > hash = new Hashtable < Atom, AtomList > ();
+        Hashtable < Atom, AtomList > hash = new Hashtable < Atom, AtomList >();
         for (CrossLink crossLink : this) {
             Atom atomPre  = crossLink.getPreAtom();
             Atom atomPost = crossLink.getPostAtom();
-            
+
             if (hash.get(atomPre) != null) {
                 hash.get(atomPre).add(atomPost);
             } else if (hash.get(atomPost) != null) {
@@ -82,10 +82,10 @@ public class CrossLinkList extends ArrayList < CrossLink > {
     /**
      * Returns the cross-link which contains both atoms.
      * @param atom1
-     *        - First Atom object to be checked in this list of cross-links. 
+     *        - First Atom object to be checked in this list of cross-links.
      * @param atom2
      *        - Second Atom object to be checked in this list of cross-links.
-     * @return CrossLink object that holds both atoms. 
+     * @return CrossLink object that holds both atoms.
      */
     public final CrossLink get(final Atom atom1, final Atom atom2) {
         for (CrossLink crossLink : this) {

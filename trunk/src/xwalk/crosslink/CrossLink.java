@@ -1,7 +1,5 @@
 package xwalk.crosslink;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -70,11 +68,11 @@ public class CrossLink extends Bond {
      */
     public CrossLink(final Atom atom1, final Atom atom2) {
         super(atom1, atom2, BondTypes.CROSS_LINK);
-        ArrayList < Atom > list = new ArrayList < Atom > ();
+        ArrayList < Atom > list = new ArrayList < Atom >();
         list.add(atom1);
         list.add(atom2);
         // sorting atom pair by chain id.
-        Collections.sort(list, new Comparator < Atom > () {
+        Collections.sort(list, new Comparator < Atom >() {
                                   public int compare(final Atom atom1,
                                                      final Atom atom2) {
                                      String chainId1 = atom1.getChainId() + "";
@@ -97,10 +95,10 @@ public class CrossLink extends Bond {
      * @param atom2
      *        - Second protein atom to be connected by the virtual cross-linker.
      * @param euclideanDistance
-     *        - double value representing the Euclidean distance between both 
+     *        - double value representing the Euclidean distance between both
      *          atoms.
      * @param sequenceDistance
-     *        - integer value representing the distance in sequence space of  
+     *        - integer value representing the distance in sequence space of
      *          both atoms.
      */
     public CrossLink(
@@ -110,11 +108,11 @@ public class CrossLink extends Bond {
                      final double euclideanDistance
                     ) {
         super(atom1, atom2, BondTypes.CROSS_LINK);
-        ArrayList < Atom > list = new ArrayList < Atom > ();
+        ArrayList < Atom > list = new ArrayList < Atom >();
         list.add(atom1);
         list.add(atom2);
         // sorting atom pair by chain id.
-        Collections.sort(list, new Comparator < Atom > () {
+        Collections.sort(list, new Comparator < Atom >() {
                                   public int compare(final Atom atom1,
                                                      final Atom atom2) {
                                      String chainId1 = atom1.getChainId() + "";
@@ -126,7 +124,7 @@ public class CrossLink extends Bond {
         this.preAtom = list.get(0);
         this.postAtom = list.get(1);
 
-        this.seqDist = sequenceDistance; 
+        this.seqDist = sequenceDistance;
         this.eucDist = euclideanDistance;
     }
     //--------------------------------------------------------------------------

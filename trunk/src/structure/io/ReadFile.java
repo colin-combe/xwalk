@@ -3,7 +3,6 @@ package structure.io;
 import java.util.Vector;
 import java.util.ArrayList;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -168,7 +167,7 @@ public class ReadFile extends ArrayList < String > {
     public final Vector < String > getColumn(final int columnNumber,
                                              final String delim) throws
                                                 ArrayIndexOutOfBoundsException {
-        Vector < String > column = new Vector < String > ();
+        Vector < String > column = new Vector < String >();
         for (String line : this) {
              String[] lineArray = line.split(delim);
              if (lineArray.length <= columnNumber) {

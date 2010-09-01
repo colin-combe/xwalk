@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import structure.constants.Constants;
-import sun.security.provider.SystemSigner;
 
 import com.ice.tar.TarEntry;
 import com.ice.tar.TarInputStream;
@@ -45,7 +44,7 @@ public class TarFileReader {
         tin = new TarInputStream(new FileInputStream(fileName));
     }
     //--------------------------------------------------------------------------
-    // The TarInputStream object itself is of no use to the current Xwalk 
+    // The TarInputStream object itself is of no use to the current Xwalk
     // implementation. Therefore I have commented it out for the moment.
     ///**
     // * Returns the InputStream of the tar-ed file.
@@ -62,13 +61,13 @@ public class TarFileReader {
      * @throws IOException if an Error occurs while reading the TarInputStream
      */
     public final Hashtable < String, ReadFile> unTar() throws IOException {
-        Hashtable < String, ReadFile> entries = 
-                          new Hashtable < String, ReadFile> ();
+        Hashtable < String, ReadFile> entries =
+                          new Hashtable < String, ReadFile>();
         TarEntry te = this.tin.getNextEntry();
           while (te != null) {
               int buf;
               StringBuffer buffer = new StringBuffer();
-              ArrayList < String > lines = new ArrayList < String > (); 
+              ArrayList < String > lines = new ArrayList < String >();
               while ((buf = this.tin.read()) != -1) {
                   buffer.append((char) buf);
                   if (buf == Constants.LINE_SEPERATOR.charAt(0)) {

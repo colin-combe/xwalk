@@ -7,7 +7,6 @@ import structure.constants.Constants.Value;
 import structure.grid.AtomGrid;
 import structure.grid.Grid;
 import structure.grid.GridCell;
-import structure.grid.GridUtilities;
 import structure.grid.Path;
 import structure.math.algorithms.BreadthFirstSearch;
 import structure.matter.Atom;
@@ -33,16 +32,7 @@ public class SolventPathDistance {
      * Grid object which will be used to calculate the Solvent-Path distance.
      */
     private Grid grid;
-    /**
-     * The linker moiety of a cross-linker is about 1,5 carbon atom thick.
-     */
-    private static final double DISTANCE_PATH_RADIUS = 3.0;
 
-    /**
-     * GridCells that are active and for which distances are calculated.
-     *
-     */
-    private Vector < GridCell > activeCells = new Vector < GridCell > ();
     //--------------------------------------------------------------------------
     /**
      * Constructor.
@@ -83,14 +73,14 @@ public class SolventPathDistance {
             // unvisited.
              cell.reset();
         }
-        ArrayList < GridCell > atom2cells = new ArrayList < GridCell > ();
+        ArrayList < GridCell > atom2cells = new ArrayList < GridCell >();
         for (Atom atom2 : atoms2) {
              GridCell atom2cell = atomGrid.get(atom2);
              atom2cell.reset();
              atom2cells.add(atom2cell);
              atomCells = atomGrid.getAllGridCells(atom2);
              for (GridCell cell : atomCells) {
-                 // set all cells that are occupied by this atom to unoccupied 
+                 // set all cells that are occupied by this atom to unoccupied
                  // and unvisited.
                  cell.reset();
             }
@@ -133,7 +123,7 @@ public class SolventPathDistance {
      */
     public static double extractTargetDistances(final Path path) {
         return Double.parseDouble(path.get(
-                                     BreadthFirstSearch.CELL_NO_OF_TARGET_CELL_IN_PATH
+                               BreadthFirstSearch.CELL_NO_OF_TARGET_CELL_IN_PATH
                                           ).getValue(Value.DISTANCE)
                                  );
     }

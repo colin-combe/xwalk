@@ -44,7 +44,7 @@ public class GridCell {
      */
     private boolean isOccupied = false;
     /**
-     * Stores boolean information about whether grid cell lies on the 
+     * Stores boolean information about whether grid cell lies on the
      * boundary between occupied and unoccupied grid cells.
      * Default is {@code FALSE}.
      */
@@ -59,7 +59,7 @@ public class GridCell {
      * Stores any value information as a String object.
      */
     private Hashtable < Value, String > value =
-            new Hashtable < Value, String > ();
+            new Hashtable < Value, String >();
 
     //-------------------------------------------------------------------------
     /**
@@ -239,7 +239,7 @@ public class GridCell {
     //-------------------------------------------------------------------------
 
     /**
-     * Resets the distance and cluster_no value, visited and occupied status of 
+     * Resets the distance and cluster_no value, visited and occupied status of
      * this grid cells.
      * @see #resetSoft()
      */
@@ -252,7 +252,7 @@ public class GridCell {
     //-------------------------------------------------------------------------
 
     /**
-     * Resets only the distance value and visited status of this grid cells, 
+     * Resets only the distance value and visited status of this grid cells,
      * but not the occupied status.
      * @see #reset()
      */
@@ -311,7 +311,7 @@ public class GridCell {
         double maxTempFactorValue = Constants.MAX_OCCUPANCY_TEMPERATURE_VALUE;
 
         atom.setFlag("HETATM");
-        
+
         atom.setPoint3d(new Point3d(this.getPoint3d().getX(),
                                     this.getPoint3d().getY(),
                                     this.getPoint3d().getZ()));
@@ -339,9 +339,5 @@ public class GridCell {
             atom.setChainId('B');
          }
         return atom;
-    }
-
-    public String toString(){
-        return this.toAtom().toString();
     }
 }

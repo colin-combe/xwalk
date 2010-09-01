@@ -143,7 +143,7 @@ public abstract class MatterUtilities {
         double sum = Math.pow(diff.getX(), 2)
                    + Math.pow(diff.getY(), 2)
                    + Math.pow(diff.getZ(), 2);
-        
+
         double dim = Math.sqrt(sum);
     return dim;
     }
@@ -162,7 +162,7 @@ public abstract class MatterUtilities {
         // (see http://en.wikipedia.org/wiki/Bond_length).
         // To account for resolution error distance is taken to be less than
         // 1.8 (0.28 Å estimated standard error for X-ray structures)
-        ArrayList < Bond > bonds = new ArrayList < Bond > ();
+        ArrayList < Bond > bonds = new ArrayList < Bond >();
         for (Atom atom1 : atoms) {
             for (Atom atom2 : atoms) {
                 if (atom1 != atom2) {

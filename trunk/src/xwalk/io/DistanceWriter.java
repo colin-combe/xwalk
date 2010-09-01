@@ -13,7 +13,7 @@ import xwalk.crosslink.CrossLinkList;
 import xwalk.crosslink.CrossLinkParameter.Parameter;
 
 /**
- * This class holds the distance file format and can be used to output or write 
+ * This class holds the distance file format and can be used to output or write
  * CrossLink object in distance file format.
  * @author Abdullah Kahraman
  * @version 3.0
@@ -71,7 +71,6 @@ public class DistanceWriter extends WriteFile {
         StringBuffer output = new StringBuffer();
 
         // get necessary values from CrossLinkParameter object.
-        
         if (Boolean.parseBoolean(parameter.getParameter(
                                                      Parameter.DO_VERBOSE_OUTPUT
                                                        )
@@ -79,7 +78,7 @@ public class DistanceWriter extends WriteFile {
            ) {
             output.append(DistanceWriter.getDistanceFileHeader());
         }
-                
+
         output.append(crossLinkList.toString());
         return output.toString();
     }

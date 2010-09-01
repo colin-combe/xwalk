@@ -37,12 +37,12 @@ public class PDBreader {
     /**
      * path to the PDB file to be converted into Java Objects.
      */
-    private String fileName = "";
+    private String filePath = "";
     /**
      * AtomList object, which holds all atoms in the PDB file.
      * @see #readAllAtoms()
      */
-    private ArrayList < AtomList > allAtoms = new ArrayList < AtomList > ();
+    private ArrayList < AtomList > allAtoms = new ArrayList < AtomList >();
     //--------------------------------------------------------------------------
     /**
      * Constructor; Reads in all ATOM and HETATM entries from a PDB file.
@@ -96,16 +96,16 @@ public class PDBreader {
      * @return String object holding the path to the PDB file.
      */
     public final String getFilePath() {
-        return fileName;
+        return filePath;
     }
     //--------------------------------------------------------------------------
     /**
      * Sets the path to the PDB file.
-     * @param filePath
+     * @param fileName
      *        - String object holding the path to the PDB file.
      */
-    public final void setFileName(String filePath) {
-        this.fileName = filePath;
+    public final void setFileName(final String fileName) {
+        this.filePath = fileName;
     }
     //--------------------------------------------------------------------------
     /**
@@ -139,7 +139,7 @@ public class PDBreader {
                }
            }
            if (atoms.size() > 0) {
-               this.allAtoms.add(atoms);               
+               this.allAtoms.add(atoms);
            }
     }
     //--------------------------------------------------------------------------
@@ -205,13 +205,13 @@ public class PDBreader {
                                                final String alternativeLocations
                                                                ) {
         ArrayList < ProteinComplex > complexes =
-                                            new ArrayList < ProteinComplex > ();
-        
+                                            new ArrayList < ProteinComplex >();
+
         for (AtomList atoms : this.allAtoms) {
             // First put all atoms of user requested protein chains into a
             // selection hashtable.
             Hashtable < Character, AtomList > selection =
-                                       new Hashtable < Character, AtomList > ();
+                                       new Hashtable < Character, AtomList >();
             for (Atom atom : atoms) {
                 if ((atom.getFlag().equals("ATOM  "))
                     &&
@@ -245,7 +245,7 @@ public class PDBreader {
                 PolyPeptide polyPeptide = new PolyPeptide(aminoAcids);
                 complex.add(polyPeptide);
             }
-            complex.setName(new File(this.fileName).getName());
+            complex.setName(new File(this.filePath).getName());
             complexes.add(complex);
         }
        return complexes;
@@ -273,13 +273,13 @@ public class PDBreader {
      * flag HETATM.
      * @return A MolecularGroup object of single SmallMolecule objects.
      */
-    public final ArrayList < ArrayList < SmallMolecule >> 
+    public final ArrayList < ArrayList < SmallMolecule >>
                                                         getAllSmallMolecules() {
         ArrayList < ArrayList < SmallMolecule >> smallMolecules =
-                                new ArrayList < ArrayList < SmallMolecule >> ();
+                                new ArrayList < ArrayList < SmallMolecule >>();
         for (AtomList atoms : allAtoms) {
             AtomList selection = new AtomList();
-           
+
             for (Atom atom : atoms) {
                 if (atom.getFlag().equals("HETATM")) {
                     selection.add(atom);
@@ -300,7 +300,7 @@ public class PDBreader {
      * @return An array of AminoAcid objects.
      */
     private ArrayList < AminoAcid > getAllAminoAcids(final AtomList atomList) {
-        ArrayList < AminoAcid > aminoAcids = new ArrayList < AminoAcid > ();
+        ArrayList < AminoAcid > aminoAcids = new ArrayList < AminoAcid >();
         Atom preAtom = atomList.get(0);
         AtomList residue = new AtomList();
         for (Atom atom : atomList) {
@@ -330,7 +330,7 @@ public class PDBreader {
                                                          final AtomList atomList
                                                             ) {
         ArrayList < SmallMolecule > molecules =
-                                             new ArrayList < SmallMolecule > ();
+                                             new ArrayList < SmallMolecule >();
         Atom preAtom = atomList.get(0);
         AtomList mol = new AtomList();
         for (Atom atom : atomList) {

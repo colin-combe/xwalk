@@ -103,23 +103,15 @@ public class Point3i {
      *              - Point3i object
      * @return {@code TRUE} if both points have the same index values,
      *         {@code FALSE} otherwise.
-     * @throws ClassCastException if point3iObject is not of type Point3i.
      */
-    public final boolean equals(final Object point3iObject)
-                                                     throws ClassCastException {
-        if (point3iObject instanceof Point3i) {
-            Point3i point3i = (Point3i) point3iObject;
-            if (this.iIndex == point3i.getI()
-                &&
-                this.jIndex == point3i.getJ()
-                &&
-                this.kIndex == point3i.getK()) {
-                return true;
-            }
-        } else {
-            throw new ClassCastException("ERROR: Object " + point3iObject
-                                         + " is not of type Point3i"
-                                         + Constants.LINE_SEPERATOR);
+    public final boolean equals(final Point3i point3iObject) {
+        Point3i point3i = (Point3i) point3iObject;
+        if (this.iIndex == point3i.getI()
+            &&
+            this.jIndex == point3i.getJ()
+            &&
+            this.kIndex == point3i.getK()) {
+            return true;
         }
     return false;
     }

@@ -49,7 +49,7 @@ public class Commandline {
 
         // loop over all arguments in the commandline
         for (int i = 0; i < args.length; i++) {
-             if (param.toLowerCase().startsWith(args[i].toLowerCase()) 
+             if (param.toLowerCase().startsWith(args[i].toLowerCase())
                  &&
                  !hasValue) {
                  return "EXISTS";

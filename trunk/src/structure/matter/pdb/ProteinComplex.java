@@ -61,16 +61,16 @@ public class ProteinComplex extends ArrayList < PolyPeptide > {
     }
     //--------------------------------------------------------------------------
     /**
-     * Sets the name of this complex
-     * @param name
+     * Sets the name of this complex.
+     * @param complexName
      *        - String object holding the name of this complex.
      */
-    public final void setName(String name) {
-        this.name = name;
+    public final void setName(final String complexName) {
+        this.name = complexName;
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns the name of this complex
+     * Returns the name of this complex.
      * @return String object holding the name of this complex.
      */
     public final String getName() {

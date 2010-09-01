@@ -116,26 +116,26 @@ public class Constants {
      */
     public static final String ALPHANUMERIC =
                                          " ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
-    
+
     //--------------------------------------------------------------------------
     /**
      * Distances are given up to a single digit after comma.
      */
-    public static final NumberFormat DISTANCE_DEC_FORMAT = 
+    public static final NumberFormat DISTANCE_DEC_FORMAT =
                                                        new DecimalFormat("0.0");
 
     //--------------------------------------------------------------------------
     /**
      * Cartesian coordinates are given up to a three digit after comma.
      */
-    public static final NumberFormat CARTESIAN_DEC_FORMAT = 
+    public static final NumberFormat CARTESIAN_DEC_FORMAT =
                                                      new DecimalFormat("0.000");
     //--------------------------------------------------------------------------
     /**
      * Occupancy and temperature factor values are given up to a two digit
      * after comma.
      */
-    public static final NumberFormat OCCUPANCY_TEMP_DEC_FORMAT = 
+    public static final NumberFormat OCCUPANCY_TEMP_DEC_FORMAT =
                                                      new DecimalFormat("0.00");
     //--------------------------------------------------------------------------
     // CONSTANT ENUM SETS

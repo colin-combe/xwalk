@@ -221,7 +221,7 @@ public class PDBwriter extends WriteFile {
             output.append(" ");
         }
         output.append(Constants.OCCUPANCY_TEMP_DEC_FORMAT.format(occupancy));
-        
+
         for (int j = Constants.OCCUPANCY_TEMP_DEC_FORMAT.format(
                                                                temperatureFactor
                                                                ).length();

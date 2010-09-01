@@ -101,7 +101,7 @@ public class CrossLinkParameter {
                           Double.toString(arg.getMaximumDistanceArgument()));
         this.setParameter(Parameter.SOLVENT_RADIUS,
                           Double.toString(arg.getSolventRadiusArgument()));
-        this.setParameter(Parameter.DO_SAS, 
+        this.setParameter(Parameter.DO_SAS,
                           Boolean.toString(
                                             arg.getSolventAccessibiltyArgument()
                                           )

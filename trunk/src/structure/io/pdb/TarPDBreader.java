@@ -59,7 +59,7 @@ public class TarPDBreader {
     public final ArrayList < PDBreader > getPDBreaders() throws IOException,
                                                            DataFormatException {
 
-        ArrayList < PDBreader > pdbReaders = new ArrayList < PDBreader > ();
+        ArrayList < PDBreader > pdbReaders = new ArrayList < PDBreader >();
 
         TarFileReader tarReader = null;
         if (this.inputStream == null) {

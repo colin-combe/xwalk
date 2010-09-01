@@ -140,7 +140,7 @@ public final class CrossLinkUtilities {
                                              final ProteinComplex complex)
                                             throws IOException {
         Hashtable < Atom, AtomList > relevantAtomPairs =
-            new Hashtable < Atom, AtomList > ();
+            new Hashtable < Atom, AtomList >();
         CrossLinkList distanceFileCrossLinks = new CrossLinkList();
 
 
@@ -322,7 +322,7 @@ public final class CrossLinkUtilities {
     public static ArrayList < PDBreader > createPDBreaders(final String infile)
                                        throws IOException, DataFormatException {
 
-        ArrayList < PDBreader > pdbReaders = new ArrayList < PDBreader > ();
+        ArrayList < PDBreader > pdbReaders = new ArrayList < PDBreader >();
         if (infile.endsWith(".tar.gz") || infile.endsWith(".tgz")) {
             GzipFileReader gzip = new GzipFileReader(infile);
             TarPDBreader tarPdb = new TarPDBreader(gzip.getGZIPInputStream());
@@ -359,7 +359,7 @@ public final class CrossLinkUtilities {
                                        final CrossLinkParameter parameter
                                                                       ) {
         ArrayList < ProteinComplex > proteinComplexes =
-            new ArrayList < ProteinComplex > ();
+            new ArrayList < ProteinComplex >();
 
         if (parameter.getParameter(
                 Parameter.CHAIN_ID1).equals(
@@ -415,7 +415,7 @@ public final class CrossLinkUtilities {
                                                      ) {
 
         ArrayList < ProteinComplex > digestedComplexes =
-                                            new ArrayList < ProteinComplex > ();
+                                            new ArrayList < ProteinComplex >();
 
         for (ProteinComplex proteinComplex : proteinComplexes) {
             ProteinComplex digestedComplex = new ProteinComplex();
@@ -728,7 +728,7 @@ public final class CrossLinkUtilities {
                                              final CrossLinkParameter parameter,
                                              final ProteinComplex complex) {
 
-        ArrayList < AtomList > candidates1 = new ArrayList < AtomList > ();
+        ArrayList < AtomList > candidates1 = new ArrayList < AtomList >();
 
         for (PolyPeptide protein : complex) {
             for (AminoAcid residue : protein.getAminoAcids()) {
@@ -783,7 +783,7 @@ public final class CrossLinkUtilities {
                                              final ProteinComplex complex
                                                                ) {
 
-        ArrayList < AtomList > candidates2 = new ArrayList < AtomList > ();
+        ArrayList < AtomList > candidates2 = new ArrayList < AtomList >();
 
         StringBuffer dataNotFoundMessage = new StringBuffer();
 
@@ -1143,7 +1143,7 @@ public final class CrossLinkUtilities {
                                        final Hashtable < Atom, AtomList > pairs,
                                        final CrossLinkParameter parameter) {
         Hashtable < Atom, AtomList > newPairs =
-                                            new Hashtable < Atom, AtomList > ();
+                                            new Hashtable < Atom, AtomList >();
 
         for (Atom atom1 : pairs.keySet()) {
             for (Atom atom2 : pairs.get(atom1)) {
@@ -1200,14 +1200,14 @@ public final class CrossLinkUtilities {
         // get all redundant cross links
         Hashtable < CrossLink, ArrayList < CrossLink > >
                                                    redundantCrossLinksCandidates
-                      = new Hashtable < CrossLink, ArrayList < CrossLink > > ();
+                      = new Hashtable < CrossLink, ArrayList < CrossLink > >();
         for (CrossLink crossLink1 : crossLinkList) {
             for (CrossLink crossLink2 : crossLinkList) {
                 if (crossLink1.equalsInHomolog(crossLink2)) {
                     ArrayList < CrossLink > list =
                                   redundantCrossLinksCandidates.get(crossLink1);
                     if (list == null) {
-                        list = new ArrayList < CrossLink > ();
+                        list = new ArrayList < CrossLink >();
                     }
                     list.add(crossLink2);
                     redundantCrossLinksCandidates.put(crossLink1, list);
@@ -1218,7 +1218,7 @@ public final class CrossLinkUtilities {
         // remove all redundant cross links except of the one with the lowest
         // Euclidean/SolventPath distance.
         ArrayList < CrossLink > redundantCrossLinks =
-                                                 new ArrayList < CrossLink > ();
+                                                 new ArrayList < CrossLink >();
         for (CrossLink crossLink1 : redundantCrossLinksCandidates.keySet()) {
             CrossLink minXL = crossLink1;
             double minDist = minXL.getSolventPathDistance() == -1 ?
@@ -1457,7 +1457,7 @@ public final class CrossLinkUtilities {
             }
             atoms2.removeAll(toBremoved);
             if (atoms2.size() == 0) {
-                return new ArrayList < Path > ();
+                return new ArrayList < Path >();
             }
         }
 
@@ -1528,7 +1528,7 @@ public final class CrossLinkUtilities {
                                        final AtomList atoms2,
                                        final double maxDist) {
         // remove all atoms that have a distance larger than maxDist.
-        ArrayList < Path > paths2beRemoved = new ArrayList < Path > ();
+        ArrayList < Path > paths2beRemoved = new ArrayList < Path >();
         AtomList toBremoved = new AtomList();
         for (int i = 0; i < paths.size(); i++) {
              if (paths.get(i).size() == 1) {

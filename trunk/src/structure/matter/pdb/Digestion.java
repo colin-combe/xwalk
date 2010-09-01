@@ -27,11 +27,11 @@ public class Digestion {
 
     /**
      * PolyPeptide digestion according to a trypsin.
-     * Following info was extracted from: <br> 
+     * Following info was extracted from: <br>
      * <a href="http://www.expasy.ch/tools/peptidecutter/
      *          peptidecutter_special_enzymes.html">here</a>. <br>
      * <pre>
-     *                  Cleavage 
+     *                  Cleavage
      *                     ||
      *  Pn-----P4-P3-P2-P1-||-P1'-P2'-P3'-P4'------Pm
      *   |     |  |  |  |  ||   |   |   |        |
@@ -41,7 +41,7 @@ public class Digestion {
      *  Px = Peptide position <br>
      *  Sx = Protease position <br>
      *  <br>
-     *  For Trypsin: 
+     *  For Trypsin:
      *  <ol>
      *     <li> Cleavage preferable at Arg, Lys at P1,
      *          but neighbouring AA have large impact on digest, in
@@ -51,9 +51,9 @@ public class Digestion {
      *     </li>
      *     <li> Arg, Lys at P1' induces inhibition
      *     </li>
-     *     <br>     
-     *     Additionally following exception might occur: 
-     *     <li> Pro usually blocks the action when found in position P1', 
+     *     <br>
+     *     Additionally following exception might occur:
+     *     <li> Pro usually blocks the action when found in position P1',
      *          but not when Lys is in position P1 and Trp is in position P2 at
      *          the same time. This blocking of cleavage exerted by Pro in
      *          position P1' is also negligible when Arg is in position P1 and
@@ -82,11 +82,11 @@ public class Digestion {
      *         </ul>
      *     </li>
      *  </ol>
-     *   
+     *
      * @param protein
      *        - PolyPeptide object to be digested.
      * @param useException
-     *        - boolean value indicating to include exceptions to digestion. 
+     *        - boolean value indicating to include exceptions to digestion.
      * @return List of PolyPeptide object being the peptides remaining after
      *         digestion.
      */
@@ -96,15 +96,15 @@ public class Digestion {
                                                   ) {
 
         ArrayList < PolyPeptide > trypticPeptides =
-                                               new ArrayList < PolyPeptide > ();
-        
+                                               new ArrayList < PolyPeptide >();
+
         ArrayList < AminoAcid > sequence = protein.getAminoAcids();
 
-        ArrayList < AminoAcid > peptide = new ArrayList < AminoAcid > ();
-        
+        ArrayList < AminoAcid > peptide = new ArrayList < AminoAcid >();
+
         for (int i = 0; i < sequence.size(); i++) {
             peptide.add(sequence.get(i));
-            
+
             AminoAcid p1 = sequence.get(i);
             AminoAcidType p1type = p1.getType();
             AminoAcid p2 = null;
@@ -112,7 +112,7 @@ public class Digestion {
 
             AminoAcid p1p = null;
             AminoAcidType p1pType = null;
-                        
+
             if (i - 1 > 0) {
                 p2 = sequence.get(i - 1);
                 p2type = p2.getType();
@@ -122,8 +122,7 @@ public class Digestion {
                 p1p = sequence.get(i + 1);
                 p1pType = p1p.getType();
             }
-            
-            
+
             if (// check for rule 1.)
                 p1type == AminoAcidType.LYSINE
                 ||
@@ -131,7 +130,7 @@ public class Digestion {
 
                 // digestion is inhibited if following cases occur:
                 boolean inhibit = false;
-                        
+
                 // check for rule 2.)
                 if (p1pType != null) {
                     if (p1pType == AminoAcidType.PROLINE) {
@@ -165,8 +164,8 @@ public class Digestion {
                 if (useException) {
                     // check for rule 5.)
                     if (p1type == AminoAcidType.LYSINE) {
-                        
-                        if (p2type == AminoAcidType.ASPARTIC_ACID 
+
+                        if (p2type == AminoAcidType.ASPARTIC_ACID
                             &&
                             p1pType == AminoAcidType.ASPARTIC_ACID
                            ) {
@@ -186,19 +185,19 @@ public class Digestion {
                     // check for rule 6.)
                     if (p1type == AminoAcidType.ARGININE) {
 
-                        if (p2type == AminoAcidType.ARGININE 
+                        if (p2type == AminoAcidType.ARGININE
                             &&
                             p1pType == AminoAcidType.HISTIDINE
                            ) {
                             inhibit = true;
                         }
-                        if (p2type == AminoAcidType.CYSTEINE 
+                        if (p2type == AminoAcidType.CYSTEINE
                             &&
                             p1pType == AminoAcidType.LYSINE
                            ) {
                             inhibit = true;
                         }
-                        if (p2type == AminoAcidType.ARGININE 
+                        if (p2type == AminoAcidType.ARGININE
                             &&
                             p1pType == AminoAcidType.ARGININE
                         ) {
@@ -206,7 +205,7 @@ public class Digestion {
                         }
                     }
                 }
-                
+
                 if (!inhibit || i == sequence.size() - 1) {
                     if (peptide.size()
                         >=
@@ -218,7 +217,7 @@ public class Digestion {
                        ) {
                         trypticPeptides.add(new PolyPeptide(peptide));
                     }
-                    peptide = new ArrayList < AminoAcid > ();
+                    peptide = new ArrayList < AminoAcid >();
                 }
             }
         }
