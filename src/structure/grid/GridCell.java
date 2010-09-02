@@ -3,7 +3,6 @@ package structure.grid;
 import java.util.Hashtable;
 
 import structure.constants.Constants;
-import structure.constants.Constants.Value;
 import structure.math.Point3d;
 import structure.math.Point3i;
 import structure.matter.Atom;
@@ -15,6 +14,39 @@ import structure.matter.Atom;
  * @version 3.0
  */
 public class GridCell {
+    /**
+     * Value enumerator which determines which type values an object can
+     * be assigned, primarily for GridCell objects.
+     */
+     public enum Value {
+         /**
+          * Values that can be assigned to a GridCell Object.
+          */
+         GENERAL(""), CLUSTER_NO(""), DISTANCE(Integer.MAX_VALUE + "");
+
+         /**
+          * Default text description.
+          */
+         private String defaultText;
+
+         /**
+          * Constructor.
+          * @param text
+          *        - String object holding the default text for the Value.
+          */
+         Value(final String text) {
+             this.defaultText = text;
+         }
+
+         /**
+          * Returns the default text to the Value object.
+          * @return String object for GENERAL="", CLUSTER_NO="",
+          *         DISTANCE="Integer.MAX_VALUE".
+          */
+         public String getDefault() {
+             return this.defaultText;
+         }
+     }
 
     //-------------------------------------------------------------------------
     /**

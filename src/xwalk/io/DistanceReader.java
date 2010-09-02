@@ -3,7 +3,7 @@ package xwalk.io;
 import java.io.IOException;
 
 import structure.constants.Constants;
-import structure.constants.Constants.Value;
+import structure.grid.GridCell.Value;
 import structure.io.ReadFile;
 import structure.matter.Atom;
 import xwalk.crosslink.CrossLink;

@@ -1,6 +1,8 @@
 package structure.matter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import structure.constants.Constants;
 import structure.constants.Constants.BondTypes;
@@ -8,6 +10,7 @@ import structure.constants.Constants.ElementTypes;
 import structure.math.Mathematics;
 import structure.math.Point3d;
 import structure.matter.parameter.Element;
+import structure.matter.protein.PolyPeptide;
 import structure.matter.protein.PolyPeptideList;
 
 
@@ -195,6 +198,24 @@ public abstract class MatterUtilities {
             }
         }
         return bonds;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Sort a list of PolyPeptide objects according to their sequence length.
+     * @param peptides
+     *        - List of PolyPeptide object to be sorted.
+     */
+    public static void sort(final ArrayList < PolyPeptide > peptides) {
+        Collections.sort(peptides, new Comparator<PolyPeptide>() {
+            public int compare(final PolyPeptide p1, final PolyPeptide p2) {
+                if (p1.size() < p2.size()) {
+                    return 1;
+                }
+                if (p1.size() > p2.size()) {
+                    return -1;
+                }
+                return 0;
+            } });
     }
 }
 

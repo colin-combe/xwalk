@@ -2,7 +2,7 @@ package structure.grid;
 
 import java.util.ArrayList;
 
-import structure.constants.Constants.Value;
+import structure.grid.GridCell.Value;
 import structure.math.Point3d;
 import structure.math.Point3i;
 import structure.matter.Atom;

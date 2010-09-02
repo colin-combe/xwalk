@@ -6,12 +6,13 @@ import java.util.Comparator;
 
 import structure.constants.Constants;
 import structure.constants.Constants.BondTypes;
-import structure.constants.Constants.Value;
 import structure.grid.Path;
+import structure.grid.GridCell.Value;
 import structure.math.Mathematics;
 import structure.matter.Atom;
 import structure.matter.Bond;
 import structure.matter.protein.AminoAcid;
+import structure.matter.protein.PolyPeptide;
 
 
 /**
@@ -58,6 +59,16 @@ public class CrossLink extends Bond {
      * has been found.
      */
     private String filePath = "";
+    /**
+     * Peptide sequence of first protein atom that is connected by the
+     * cross-link.
+     */
+    private PolyPeptide preAtomPeptide;
+    /**
+     * Peptide sequence of second protein atom that is connected by the
+     * cross-link.
+     */
+    private PolyPeptide postAtomPeptide;
     //--------------------------------------------------------------------------
     /**
      * Constructor.
@@ -183,9 +194,8 @@ public class CrossLink extends Bond {
      * @return double number representing the distance in Euclidean space.
      */
     public final double getEuclideanDistance() {
-        return Double.parseDouble(Constants.DISTANCE_DEC_FORMAT.format(
-                                                                    this.eucDist
-                                                                      ));
+        return Double.parseDouble(
+            xwalk.constants.Constants.DISTANCE_DEC_FORMAT.format(this.eucDist));
     }
     //--------------------------------------------------------------------------
 
@@ -195,9 +205,10 @@ public class CrossLink extends Bond {
      *         space.
      */
     public final double getSolventPathDistance() {
-        return Double.parseDouble(Constants.DISTANCE_DEC_FORMAT.format(
+        return Double.parseDouble(
+                xwalk.constants.Constants.DISTANCE_DEC_FORMAT.format(
                                                         this.solventPathDistance
-                                                                      ));
+                                                                    ));
     }
     //--------------------------------------------------------------------------
 
@@ -307,21 +318,55 @@ public class CrossLink extends Bond {
                          + "-"
                          + postAtom.getName().trim();
 
+        String output = "";
+        int maxPeptideLength = xwalk.constants.Constants.MAX_PEPTIDE_LENGTH;
+        int minPeptideLength = xwalk.constants.Constants.MIN_PEPTIDE_LENGTH;
+        boolean outputPeptide = preAtomPeptide.size() <= maxPeptideLength
+                                &&
+                                preAtomPeptide.size() >= minPeptideLength
+                                &&
+                                postAtomPeptide.size() <= maxPeptideLength
+                                &&
+                                postAtomPeptide.size() >= minPeptideLength;
+
         if (this.solventPathDistance == Double.parseDouble(
                                                     Value.DISTANCE.getDefault())
                                                        ) {
-            return this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
+            output = this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
                    + this.seqDist + "\t"
                    + this.getEuclideanDistance() + "\t"
                    + "-"
-                   + Constants.LINE_SEPERATOR;
+                   + "\t";
+            if (outputPeptide) {
+                output += this.preAtomPeptide.toStringOneLetterCode() + "-"
+                       +  this.postAtomPeptide.toStringOneLetterCode();
+            } else {
+                output += "-";
+            }
         } else {
-            return this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
+            output = this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
                    + this.seqDist + "\t"
                    + this.getEuclideanDistance() + "\t"
                    + this.getSolventPathDistance()
-                   + Constants.LINE_SEPERATOR;
+                   + "\t";
+            if (outputPeptide) {
+                output += this.preAtomPeptide.toStringOneLetterCode() + "-"
+                       +  this.postAtomPeptide.toStringOneLetterCode();
+            } else {
+                output += "-";
+            }
         }
+        output += Constants.LINE_SEPERATOR;
+    return output;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Sets the path to the file in which this cross-link has been found.
+     * @param fileName
+     *        - String object holding the path to the file.
+     */
+    public final void setFileName(final String fileName) {
+        this.filePath = fileName;
     }
     //--------------------------------------------------------------------------
     /**
@@ -333,11 +378,31 @@ public class CrossLink extends Bond {
     }
     //--------------------------------------------------------------------------
     /**
-     * Sets the path to the file in which this cross-link has been found.
-     * @param fileName
-     *        - String object holding the path to the file.
+     * Sets both peptide object that are interconnected by this cross-linker.
+     * @param prePeptide
+     *        - PolyPeptide object of the preAtom.
+     * @param postPeptide
+     *        - PolyPeptide object of the postAtom.
      */
-    public final void setFileName(final String fileName) {
-        this.filePath = fileName;
+    public final void setPeptides(final PolyPeptide prePeptide,
+                                  final PolyPeptide postPeptide) {
+        this.preAtomPeptide = prePeptide;
+        this.postAtomPeptide = postPeptide;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the peptide object to which preAtom belongs.
+     * @return PolyPeptide object of preAtom.
+     */
+    public final PolyPeptide getPrePeptide() {
+        return this.preAtomPeptide;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the peptide object to which postAtom belongs.
+     * @return PolyPeptide object of postAtom.
+     */
+    public final PolyPeptide getPostPeptide() {
+        return this.postAtomPeptide;
     }
 }

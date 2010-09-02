@@ -98,7 +98,8 @@ public class CommandlineArguments {
      * Maximal distance that is span by the cross-linker.
      * Default {@code maxDist = 21Å}.
      */
-    private double maximumDistance = Constants.DEFAULT_CROSS_LINKER_LENGTH;
+    private double maximumDistance =
+                          xwalk.constants.Constants.DEFAULT_CROSS_LINKER_LENGTH;
     /**
      * To output a PyMol script that visualizes all cross-links.
      * Default {@code pymolOutput = FALSE}.
@@ -271,7 +272,7 @@ public class CommandlineArguments {
               + NL
               + "IndexNo\tInfileName\tResidue1info\tResidue2info\t"
               + "DistanceInPDBsequence\tEuclideanDistance\t"
-              + "SolventPathDistance"
+              + "SolventPathDistance\tPeptideSequence"
               + NL
               + NL
               + "Commandline PARAMETER:"
@@ -296,7 +297,7 @@ public class CommandlineArguments {
               + "\t-v\t[switch]\tOutputs various information other "
               + "than distances [optional]."
               + NL
-              + "\t-vg\t[switch]\tOutputs on STDOUT channel the "
+              + "\t-grid\t[switch]\tOutputs on STDOUT channel the "
               + "Solvent-Path-Distance grids in PDB format with "
               + "distances in the B-factor column [optional]."
               + NL
@@ -1231,11 +1232,11 @@ public class CommandlineArguments {
     }
     //--------------------------------------------------------------------------
     /**
-     * Determines whether the argument -vg has been set on the commandline.
+     * Determines whether the argument -grid has been set on the commandline.
      * @see #isGridOutputSet()
      */
     private void readGridOutputArgument() {
-        if (Commandline.get(arguments, "-vg", false).equals("EXISTS")) {
+        if (Commandline.get(arguments, "-grid", false).equals("EXISTS")) {
             this.verboseGrid = true;
         }
     }

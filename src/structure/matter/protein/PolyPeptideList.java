@@ -35,7 +35,7 @@ public class PolyPeptideList extends ArrayList < PolyPeptide > {
     public final AtomList getAllAtoms() {
         AtomList complexCoordinates = new AtomList();
         for (PolyPeptide protein : this) {
-             for (AminoAcid aminoacid : protein.getAminoAcids()) {
+             for (AminoAcid aminoacid : protein) {
                   complexCoordinates.addAll(aminoacid.getAllAtoms());
              }
         }
@@ -52,7 +52,7 @@ public class PolyPeptideList extends ArrayList < PolyPeptide > {
     public final void setAtomRadii(final ParameterSets parameter)
                                                             throws IOException {
         for (PolyPeptide protein : this) {
-             for (AminoAcid aminoacid : protein.getAminoAcids()) {
+             for (AminoAcid aminoacid : protein) {
                  for (Atom atom : aminoacid.getAllAtoms()) {
                       atom.setVanDerWaalsRadius(parameter);
                  }
@@ -75,5 +75,27 @@ public class PolyPeptideList extends ArrayList < PolyPeptide > {
      */
     public final String getName() {
         return name;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the first PolyPeptide object that holds the atom. The search for
+     * the atom will be done based on reference and not by the .equal method.
+     * @param atom
+     *        - Atom object to be searched in the PolyPeptide list members.
+     * @return PolyPeptide object holding the atom. If the atom could not be
+     *         found in one of the PolyPeptide list members, than {@code NULL}
+     *         is returned.
+     */
+    public final PolyPeptide get(final Atom atom) {
+        for (PolyPeptide peptide : this) {
+             for (AminoAcid aa : peptide) {
+                  for (Atom atom1 : aa.getAllAtoms()) {
+                      if (atom == atom1) {
+                          return peptide;
+                      }
+                  }
+             }
+        }
+        return null;
     }
 }

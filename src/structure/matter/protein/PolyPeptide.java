@@ -2,7 +2,6 @@ package structure.matter.protein;
 
 import java.util.ArrayList;
 
-import structure.constants.Constants;
 import structure.matter.Atom;
 import structure.matter.hetgroups.SmallMolecule;
 /**
@@ -11,27 +10,18 @@ import structure.matter.hetgroups.SmallMolecule;
  * @version 3.0
  * @since 3.0
  */
-public class PolyPeptide {
+public class PolyPeptide extends ArrayList <AminoAcid> {
     /**
      * Default serialVersionUID.
      */
     private static final long serialVersionUID = 1L;
     //--------------------------------------------------------------------------
-
-    /**
-     * List of all amino acids in this polypeptide.
-     */
-    private ArrayList < AminoAcid > aminoAcidChain =
-                                                 new ArrayList < AminoAcid >();
-    //--------------------------------------------------------------------------
-
     /**
      * List of small molecules that are associated to this polypeptides.
      */
-    private ArrayList < SmallMolecule > smallMolecule =
+    private ArrayList < SmallMolecule > smallMolecules =
                                              new ArrayList < SmallMolecule >();
     //--------------------------------------------------------------------------
-
     /**
      * Constructor.
      * @param chain
@@ -39,7 +29,7 @@ public class PolyPeptide {
      *          of.
      */
     public PolyPeptide(final ArrayList < AminoAcid > chain) {
-        this.aminoAcidChain = chain;
+        this.addAll(chain);
     }
     //--------------------------------------------------------------------------
 
@@ -51,24 +41,15 @@ public class PolyPeptide {
     public final void addSmallMolecules(
                                      final ArrayList < SmallMolecule > hetgroups
                                        ) {
-        this.smallMolecule = hetgroups;
-    }
-    //--------------------------------------------------------------------------
-
-    /**
-     * Returns all AminoAcid object that this polypeptide consists of.
-     * @return List of AminoAcid objects.
-     */
-    public final ArrayList < AminoAcid > getAminoAcids() {
-        return this.aminoAcidChain;
+        this.smallMolecules = hetgroups;
     }
     //--------------------------------------------------------------------------
     /**
      * Returns all SmallMolecule object that are associated to this polypeptide.
      * @return List of SmallMolecule objects.
      */
-    public final ArrayList < SmallMolecule > getHetGroups() {
-        return this.smallMolecule;
+    public final ArrayList < SmallMolecule > getSmallMolecules() {
+        return this.smallMolecules;
     }
     //--------------------------------------------------------------------------
     /**
@@ -78,7 +59,7 @@ public class PolyPeptide {
      */
     public final String toString() {
         StringBuffer output = new StringBuffer();
-        for (AminoAcid aa : this.getAminoAcids()) {
+        for (AminoAcid aa : this) {
             for (Atom atom : aa.getAllAtoms()) {
                 output.append(atom.toString());
             }
@@ -92,12 +73,29 @@ public class PolyPeptide {
      */
     public final String toStringOneLetterCode() {
         StringBuffer buffer = new StringBuffer();
-        for (AminoAcid a : this.getAminoAcids()) {
-            buffer.append(a.getType().getOneLetterCode());
+        for (AminoAcid aa : this) {
+            buffer.append(aa.getType().getOneLetterCode());
         }
-        buffer.append(Constants.LINE_SEPERATOR);
     return buffer.toString();
     }
+    //--------------------------------------------------------------------------
+    /**
+     * Creates a copy of this PolyPeptide object.
+     * @return Copy of this PolyPeptide object.
+     */
+    public final PolyPeptide copy() {
+        ArrayList<AminoAcid> aminoAcidListCopy = new ArrayList<AminoAcid>();
+        for (AminoAcid aa : this) {
+            aminoAcidListCopy.add(aa.copy());
+        }
+        PolyPeptide copy = new PolyPeptide(aminoAcidListCopy);
+        ArrayList<SmallMolecule> smallMolsCopy = new ArrayList<SmallMolecule>();
+        for (SmallMolecule sm : this.getSmallMolecules()) {
+            smallMolsCopy.add(sm.copy());
+        }
 
+        copy.smallMolecules = smallMolsCopy;
+    return copy;
+    }
 }
 

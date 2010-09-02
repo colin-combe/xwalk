@@ -1,13 +1,12 @@
 package xwalk.math;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
-import structure.constants.Constants.Value;
 import structure.grid.AtomGrid;
 import structure.grid.Grid;
 import structure.grid.GridCell;
 import structure.grid.Path;
+import structure.grid.GridCell.Value;
 import structure.math.algorithms.BreadthFirstSearch;
 import structure.matter.Atom;
 import structure.matter.AtomList;
