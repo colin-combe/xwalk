@@ -48,11 +48,6 @@ public class Constants {
     public static final double SOLVENT_RADIUS = 1.4;
     //--------------------------------------------------------------------------
     /**
-     * Default cross-linker length.
-     */
-    public static final double DEFAULT_CROSS_LINKER_LENGTH = 21;
-    //--------------------------------------------------------------------------
-    /**
      * Maximum value that fits into the occupancy and temperature factor
      * column.
      */
@@ -79,22 +74,6 @@ public class Constants {
      */
     public static final int MAX_SERIAL = 99999;
     //--------------------------------------------------------------------------
-    /**
-     * Maximum dimension of protein complex after which local grid
-     * calculation is used.
-     */
-    public static final int MAX_PROTEIN_DIMENSION = 150;
-    //--------------------------------------------------------------------------
-    /**
-     * Minimum length of peptide in order to be detected by xQuest.
-     */
-    public static final int MIN_PEPTIDE_LENGTH = 5;
-    //--------------------------------------------------------------------------
-    /**
-     * Maximum length of peptide in order to be detected by xQuest.
-     */
-    public static final int MAX_PEPTIDE_LENGTH = 40;
-    //--------------------------------------------------------------------------
     // CONSTANT STRING VALUES
     //--------------------------------------------------------------------------
     /**
@@ -116,13 +95,6 @@ public class Constants {
      */
     public static final String ALPHANUMERIC =
                                          " ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
-
-    //--------------------------------------------------------------------------
-    /**
-     * Distances are given up to a single digit after comma.
-     */
-    public static final NumberFormat DISTANCE_DEC_FORMAT =
-                                                       new DecimalFormat("0.0");
 
     //--------------------------------------------------------------------------
     /**
@@ -155,39 +127,4 @@ public class Constants {
      */
     public enum BondTypes { SINGLE_BOND, DOUBLE_BOND, TRIPLE_BOND,
                             AROMATIC_BOND, CROSS_LINK};
-
-    /**
-     * Value enumerator which determines which type values an object can
-     * be assigned, primarily for GridCell objects.
-     */
-     public enum Value {
-         /**
-          * Values that can be assigned to a GridCell Object.
-          */
-         GENERAL(""), CLUSTER_NO(""), DISTANCE(Integer.MAX_VALUE + "");
-
-         /**
-          * Default text description.
-          */
-         private String defaultText;
-
-         /**
-          * Constructor.
-          * @param text
-          *        - String object holding the default text for the Value.
-          */
-         Value(final String text) {
-             this.defaultText = text;
-         }
-
-         /**
-          * Returns the default text to the Value object.
-          * @return String object for GENERAL="", CLUSTER_NO="",
-          *         DISTANCE="Integer.MAX_VALUE".
-          */
-         public String getDefault() {
-             return this.defaultText;
-         }
-     }
-
 }

@@ -77,7 +77,7 @@ public class PDBwriter extends WriteFile {
      */
     public final boolean write(final PolyPeptide polyPeptide) {
         StringBuffer output = new StringBuffer();
-        for (AminoAcid aminoAcid : polyPeptide.getAminoAcids()) {
+        for (AminoAcid aminoAcid : polyPeptide) {
             for (Atom atom : aminoAcid.getAllAtoms()) {
                 output.append(PDBwriter.pdbFormat(atom) + nL);
             }
@@ -101,7 +101,7 @@ public class PDBwriter extends WriteFile {
     public final boolean write(final PolyPeptideList complex) {
         StringBuffer output = new StringBuffer();
         for (PolyPeptide polyPeptide : complex) {
-             for (AminoAcid aminoAcid : polyPeptide.getAminoAcids()) {
+             for (AminoAcid aminoAcid : polyPeptide) {
                   for (Atom atom : aminoAcid.getAllAtoms()) {
                        output.append(PDBwriter.pdbFormat(atom) + nL);
                 }

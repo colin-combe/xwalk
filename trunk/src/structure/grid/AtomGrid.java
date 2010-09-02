@@ -3,7 +3,7 @@ package structure.grid;
 import java.util.ArrayList;
 
 import structure.constants.Constants;
-import structure.constants.Constants.Value;
+import structure.grid.GridCell.Value;
 import structure.math.Mathematics;
 import structure.math.algorithms.BoundarySearch;
 import structure.matter.Atom;

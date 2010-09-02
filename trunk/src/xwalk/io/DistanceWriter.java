@@ -29,13 +29,13 @@ public class DistanceWriter extends WriteFile {
     private static String getDistanceFileHeader() {
         StringBuffer output = new StringBuffer();
         output.append("#-----\t--------\t---------\t---------\t---\t---");
-        output.append("\t--------");
+        output.append("\t---\t----------------");
         output.append(Constants.LINE_SEPERATOR);
         output.append("#Index\tFileName\tResi1info\tResi2info\tSeq\tEuc");
-        output.append("\tSolvPath");
+        output.append("\tSpd\tPepSeq");
         output.append(Constants.LINE_SEPERATOR);
         output.append("#-----\t--------\t---------\t---------\t---\t---");
-        output.append("\t--------");
+        output.append("\t---\t----------------");
         output.append(Constants.LINE_SEPERATOR);
     return output.toString();
     }

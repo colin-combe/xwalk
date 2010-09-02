@@ -2,7 +2,9 @@ package xwalk.crosslink;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Hashtable;
+import java.util.TreeSet;
 import java.util.zip.DataFormatException;
 
 import structure.constants.Constants;
@@ -10,6 +12,7 @@ import structure.constants.Constants.ParameterSets;
 import structure.grid.AtomGrid;
 import structure.grid.GridUtilities;
 import structure.grid.Path;
+import structure.grid.GridCell.Value;
 import structure.io.GzipFileReader;
 import structure.io.pdb.GzipPDBreader;
 import structure.io.pdb.PDBreader;
@@ -66,18 +69,6 @@ public final class CrossLinkUtilities {
                                    CrossLinkUtilities.getComplexesCoordinates(
                                                                        parameter
                                                                              );
-        if (Boolean.parseBoolean(parameter.getParameter(
-                                                     Parameter.DO_VERBOSE_OUTPUT
-                                                       )
-                                )) {
-            // output digested peptides
-            for (PolyPeptideList complex : complexes) {
-                for (int i = 0; i < complex.size(); i++) {
-                    System.err.print((i + 1) + ". "
-                                    + complex.get(i).toStringOneLetterCode());
-                }
-            }
-        }
 
         CrossLinkList crossLinkList = new CrossLinkList();
         // find and create virtual cross-links on the protein complexes.
@@ -100,9 +91,12 @@ public final class CrossLinkUtilities {
                                                                            );
             }
             // set file name of each grid to the file name of its protein
-            // complex.
+            // complex and assign peptide sequences to cross-linked atoms.
             for (CrossLink xlink : crossLinkList) {
                 xlink.setFileName(complex.getName());
+                xlink.setPeptides(complex.get(xlink.getPreAtom()),
+                                  complex.get(xlink.getPostAtom()));
+
             }
 
         }
@@ -164,7 +158,8 @@ public final class CrossLinkUtilities {
         CrossLinkList crossLinks = new CrossLinkList();
         for (Atom atom1 : relevantAtomPairs.keySet()) {
             for (Atom atom2 : relevantAtomPairs.get(atom1)) {
-                crossLinks.add(new CrossLink(atom1, atom2));
+                CrossLink xl = new CrossLink(atom1, atom2);
+                crossLinks.add(xl);
             }
         }
 
@@ -295,13 +290,27 @@ public final class CrossLinkUtilities {
                                                        )
                                 )
            ) {
-            return CrossLinkUtilities.trypsinate(proteinComplexes,
+            ArrayList <PolyPeptideList> digest =
+                   CrossLinkUtilities.trypsinate(proteinComplexes,
                                                  Boolean.parseBoolean(
                                                   parameter.getParameter(
                                                         Parameter.DO_EXPASY_RULE
                                                                         )
                                                                      )
                                                  );
+            if (Boolean.parseBoolean(parameter.getParameter(
+                                                     Parameter.DO_VERBOSE_OUTPUT
+                                                           )
+                                    )) {
+                // output digested peptides
+                for (PolyPeptideList peptides : digest) {
+                    for (int i = 0; i < peptides.size(); i++) {
+                        System.err.println((i + 1) + ". "
+                                + peptides.get(i).toStringOneLetterCode());
+                    }
+                }
+            }
+            return digest;
         }
     return proteinComplexes;
     }
@@ -410,8 +419,8 @@ public final class CrossLinkUtilities {
      *         digested peptide segments.
      */
     public static ArrayList < PolyPeptideList > trypsinate(
-                            final ArrayList < PolyPeptideList > proteinComplexes,
-                            final boolean useExpasyRules
+                           final ArrayList < PolyPeptideList > proteinComplexes,
+                           final boolean useExpasyRules
                                                      ) {
 
         ArrayList < PolyPeptideList > digestedComplexes =
@@ -420,7 +429,8 @@ public final class CrossLinkUtilities {
         for (PolyPeptideList polyPeptideList : proteinComplexes) {
             PolyPeptideList digestedComplex = new PolyPeptideList();
             for (PolyPeptide protein : polyPeptideList) {
-                ArrayList < PolyPeptide > digest = Digestion.trypsinate(
+                 ArrayList < PolyPeptide > digest =
+                                     Digestion.partialTrypticDigest(
                                                                   protein,
                                                                   useExpasyRules
                                                                    );
@@ -465,7 +475,7 @@ public final class CrossLinkUtilities {
                                                                             )
                                                      );
             for (PolyPeptide protein : complex) {
-                for (AminoAcid aa : protein.getAminoAcids()) {
+                for (AminoAcid aa : protein) {
                     for (Atom atom : aa.getAllAtoms()) {
                         atom.setVanDerWaalsRadius(atom.getVanDerWaalsRadius()
                                                 + solventRadius);
@@ -490,8 +500,8 @@ public final class CrossLinkUtilities {
                                              final CrossLinkParameter parameter,
                                              final PolyPeptideList complex
                                                                  ) {
-        ArrayList <ArrayList < AtomList >> relevantAtoms =
-                                       new ArrayList < ArrayList <AtomList >>();
+        ArrayList <TreeSet < AtomList >> relevantAtoms =
+                                       new ArrayList < TreeSet <AtomList >>();
         relevantAtoms.add(CrossLinkUtilities.findAllRelevantAtoms1(
                                                                    parameter,
                                                                    complex)
@@ -586,7 +596,7 @@ public final class CrossLinkUtilities {
              }
 
              double dist = Double.parseDouble(
-                             Constants.DISTANCE_DEC_FORMAT.format(
+                     xwalk.constants.Constants.DISTANCE_DEC_FORMAT.format(
                                                      Mathematics.distance(
                                                            preAtom.getPoint3d(),
                                                            postAtom.getPoint3d()
@@ -648,7 +658,7 @@ public final class CrossLinkUtilities {
                            + "\"" + (int) dim + "\" Angstroem."
                            + Constants.LINE_SEPERATOR);
         }
-        if (dim > Constants.MAX_PROTEIN_DIMENSION
+        if (dim > xwalk.constants.Constants.MAX_PROTEIN_DIMENSION
             ||
             Boolean.parseBoolean(parameter.getParameter(
                                                      Parameter.DO_LOCAL_GRID
@@ -721,17 +731,29 @@ public final class CrossLinkUtilities {
      * @param parameter -
      *        CrossLinkParameter object holding all user set parameters for
      *        calculating cross-links
-     * @return ArrayList of AtomList objects that hold all atoms of amino acids
+     * @return Set of AtomList objects that hold all atoms of amino acids
      *         that conform to the user set identifiers.
      */
-    private static ArrayList < AtomList > findAllRelevantAtoms1(
+    private static TreeSet < AtomList > findAllRelevantAtoms1(
                                              final CrossLinkParameter parameter,
                                              final PolyPeptideList complex) {
 
-        ArrayList < AtomList > candidates1 = new ArrayList < AtomList >();
+        TreeSet < AtomList > candidates1 = new TreeSet < AtomList >(
+                new Comparator<AtomList>() {
+                    public int compare(final AtomList a1, final AtomList a2) {
+                        for (Atom atom1 : a1) {
+                            for (Atom atom2 : a2) {
+                                if (atom1.equals(atom2)) {
+                                    return 0;
+                                }
+                            }
+                        }
+                        return 1;
+                    }
+                });
 
         for (PolyPeptide protein : complex) {
-            for (AminoAcid residue : protein.getAminoAcids()) {
+            for (AminoAcid residue : protein) {
                 if (CrossLinkUtilities.isAminoAcid1Relevant(residue,
                                                             parameter)
                                                            ) {
@@ -775,20 +797,32 @@ public final class CrossLinkUtilities {
      * @param parameter
      *        - CrossLinkParameter object holding all user set parameters for
      *          calculating cross-links.
-     * @return ArrayList of AtomList objects that hold all atoms of amino acids
+     * @return TreeSet of AtomList objects that hold all atoms of amino acids
      *         that conform to the user set identifiers.
      */
-    private static ArrayList < AtomList > findAllRelevantAtoms2(
+    private static TreeSet < AtomList > findAllRelevantAtoms2(
                                              final CrossLinkParameter parameter,
                                              final PolyPeptideList complex
                                                                ) {
 
-        ArrayList < AtomList > candidates2 = new ArrayList < AtomList >();
+        TreeSet < AtomList > candidates2 = new TreeSet < AtomList >(
+                new Comparator<AtomList>() {
+                    public int compare(final AtomList a1, final AtomList a2) {
+                        for (Atom atom1 : a1) {
+                            for (Atom atom2 : a2) {
+                                if (atom1.equals(atom2)) {
+                                    return 0;
+                                }
+                            }
+                        }
+                        return 1;
+                    }
+                });
 
         StringBuffer dataNotFoundMessage = new StringBuffer();
 
         for (PolyPeptide protein : complex) {
-            for (AminoAcid residue : protein.getAminoAcids()) {
+            for (AminoAcid residue : protein) {
                 if (CrossLinkUtilities.isAminoAcid2Relevant(residue,
                                                             parameter)) {
                     if (parameter.getParameter(
@@ -1057,10 +1091,10 @@ public final class CrossLinkUtilities {
      * Returns those pairs of potential cross-linkable atoms that have an
      * Euclidean distance smaller than the user set maximum distance.
      * @param candidates1
-     *        - List of AtomList objects that fulfill all criteria set by the
+     *        - Set of AtomList objects that fulfill all criteria set by the
      *          user on the commandline for the first cross-linked atoms.
      * @param candidates2
-     *        - List of AtomList objects that fulfill all criteria set by the
+     *        - Set of AtomList objects that fulfill all criteria set by the
      *          user on the commandline for the second cross-linked atoms.
      * @param parameter
      *        - CrossLinkParameter object holding all user set parameters for
@@ -1068,8 +1102,8 @@ public final class CrossLinkUtilities {
      * @return Hashtable of potential cross-linkable atoms.
      */
     private static Hashtable < Atom, AtomList > createPairsBetweenRelevantAtoms(
-                                       final ArrayList < AtomList > candidates1,
-                                       final ArrayList < AtomList > candidates2,
+                                       final TreeSet < AtomList > candidates1,
+                                       final TreeSet < AtomList > candidates2,
                                        final CrossLinkParameter parameter) {
         Hashtable < Atom, AtomList > pairs = new Hashtable < Atom, AtomList >();
         for (AtomList list1 : candidates1) {
@@ -1203,43 +1237,51 @@ public final class CrossLinkUtilities {
                       = new Hashtable < CrossLink, ArrayList < CrossLink > >();
         for (CrossLink crossLink1 : crossLinkList) {
             for (CrossLink crossLink2 : crossLinkList) {
-                if (crossLink1.equalsInHomolog(crossLink2)) {
-                    ArrayList < CrossLink > list =
+                if (crossLink1 != crossLink2) {
+                    if (crossLink1.equalsInHomolog(crossLink2)) {
+                        ArrayList < CrossLink > list =
                                   redundantCrossLinksCandidates.get(crossLink1);
-                    if (list == null) {
-                        list = new ArrayList < CrossLink >();
+                        if (list == null) {
+                            list = new ArrayList < CrossLink >();
+                        }
+                        list.add(crossLink2);
+                        redundantCrossLinksCandidates.put(crossLink1, list);
                     }
-                    list.add(crossLink2);
-                    redundantCrossLinksCandidates.put(crossLink1, list);
                 }
             }
         }
 
         // remove all redundant cross links except of the one with the lowest
         // Euclidean/SolventPath distance.
-        ArrayList < CrossLink > redundantCrossLinks =
-                                                 new ArrayList < CrossLink >();
         for (CrossLink crossLink1 : redundantCrossLinksCandidates.keySet()) {
             CrossLink minXL = crossLink1;
-            double minDist = minXL.getSolventPathDistance() == -1 ?
-                  minXL.getEuclideanDistance() : minXL.getSolventPathDistance();
+            double minDist =
+                (minXL.getSolventPathDistance()
+                 ==
+                 Double.parseDouble(Value.DISTANCE.getDefault())
+                 ?
+                 minXL.getEuclideanDistance() : minXL.getSolventPathDistance());
             for (CrossLink crossLink2 : redundantCrossLinksCandidates.get(
                                                                       crossLink1
                                                                          )
                 ) {
-                double dist2 = crossLink2.getSolventPathDistance() == -1 ?
-                                            crossLink2.getEuclideanDistance()
-                                          : crossLink2.getSolventPathDistance();
+                double dist2 =
+                    (crossLink2.getSolventPathDistance()
+                     ==
+                     Double.parseDouble(Value.DISTANCE.getDefault())
+                     ?
+                     crossLink2.getEuclideanDistance()
+                                         : crossLink2.getSolventPathDistance());
+
                 if (minDist < dist2) {
-                    redundantCrossLinks.add(crossLink2);
+                    crossLinkList.remove(crossLink2);
                 } else {
-                    redundantCrossLinks.add(minXL);
+                    crossLinkList.remove(minXL);
                     minDist = dist2;
                     minXL = crossLink2;
                 }
             }
         }
-        crossLinkList.removeAll(redundantCrossLinks);
     }
     //--------------------------------------------------------------------------
 

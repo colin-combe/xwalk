@@ -3,11 +3,11 @@ package structure.math.algorithms;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import structure.constants.Constants.Value;
 import structure.grid.Grid;
 import structure.grid.GridCell;
 import structure.grid.GridUtilities;
 import structure.grid.Path;
+import structure.grid.GridCell.Value;
 import structure.math.Mathematics;
 
 /**

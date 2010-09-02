@@ -117,4 +117,20 @@ public class AminoAcid extends Molecule {
             atom.setRank(rank);
         }
     }
+    //--------------------------------------------------------------------------
+    /**
+     * Creates a copy of this AminoAcid object.
+     * @return Copy of this AminoAcid object.
+     */
+    public final AminoAcid copy() {
+        AtomList atomListCopy = new AtomList();
+        for (Atom atom : this.getAllAtoms()) {
+            atomListCopy.add(atom.copy());
+        }
+        AminoAcid copy = new AminoAcid(atomListCopy);
+        copy.number = this.number;
+        copy.aminoAcidType = this.aminoAcidType;
+
+    return copy;
+    }
 }

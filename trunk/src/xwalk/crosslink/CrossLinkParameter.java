@@ -1,6 +1,11 @@
 package xwalk.crosslink;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Hashtable;
+
+import structure.constants.Constants;
 
 import xwalk.io.CommandlineArguments;
 
@@ -120,6 +125,10 @@ public class CrossLinkParameter {
         this.setParameter(Parameter.DO_EXPASY_RULE, Boolean.toString(
                                                       arg.isExpasyArgumentSet())
                                                                );
+
+        if (arg.isVerboseOutputSet()) {
+            this.output();
+        }
     }
     //--------------------------------------------------------------------------
     /**
@@ -144,5 +153,27 @@ public class CrossLinkParameter {
      */
     public final String getParameter(final Parameter xlParameter) {
         return this.parameter.get(xlParameter);
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Outputs all parameter via the STDERR stream to the terminal.
+     */
+    public final void output() {
+        ArrayList < Parameter > pars = new ArrayList < Parameter >();
+        for (Parameter par : this.parameter.keySet()) {
+            pars.add(par);
+        }
+        Collections.sort(pars, new Comparator<Parameter>() {
+            public int compare(final Parameter p1, final Parameter p2) {
+                return p1.toString().compareTo(p2.toString());
+            }
+        });
+
+        System.err.println("List of all argument values:");
+        for (Parameter par : pars) {
+            System.err.println(par.toString() + ": "
+                             + this.parameter.get(par));
+        }
+        System.err.print(Constants.LINE_SEPERATOR);
     }
 }

@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import structure.constants.Constants;
+import structure.matter.MatterUtilities;
 import structure.matter.parameter.AminoAcidType;
+import xwalk.constants.Constants;
 
 /**
  * Class for digesting PolyPeptide object according to a particular protease.
@@ -49,10 +50,10 @@ public class Digestion {
      *     </li>
      *     <li> Pro at P1' has negative influence
      *     </li>
-     *     <li> Arg, Lys at P1' induces inhibition
-     *     </li>
      *     <br>
      *     Additionally following exception might occur:
+     *     <li> Arg, Lys at P1' induces inhibition
+     *     </li>
      *     <li> Pro usually blocks the action when found in position P1',
      *          but not when Lys is in position P1 and Trp is in position P2 at
      *          the same time. This blocking of cleavage exerted by Pro in
@@ -90,150 +91,310 @@ public class Digestion {
      * @return List of PolyPeptide object being the peptides remaining after
      *         digestion.
      */
-    public static ArrayList < PolyPeptide > trypsinate(
+    public static ArrayList < PolyPeptide > partialTrypticDigest(
                                                      final PolyPeptide protein,
                                                      final boolean useException
                                                   ) {
 
-        ArrayList < PolyPeptide > trypticPeptides =
-                                               new ArrayList < PolyPeptide >();
+        ArrayList < PolyPeptide > fullDigest = Digestion.fullTrypticDigest(
+                                                                    protein,
+                                                                    useException
+                                                                          );
 
-        ArrayList < AminoAcid > sequence = protein.getAminoAcids();
 
-        ArrayList < AminoAcid > peptide = new ArrayList < AminoAcid >();
-
-        for (int i = 0; i < sequence.size(); i++) {
-            peptide.add(sequence.get(i));
-
-            AminoAcid p1 = sequence.get(i);
-            AminoAcidType p1type = p1.getType();
-            AminoAcid p2 = null;
-            AminoAcidType p2type = null;
-
-            AminoAcid p1p = null;
-            AminoAcidType p1pType = null;
-
-            if (i - 1 > 0) {
-                p2 = sequence.get(i - 1);
-                p2type = p2.getType();
-
-            }
-            if (i + 1 < sequence.size()) {
-                p1p = sequence.get(i + 1);
-                p1pType = p1p.getType();
+        ArrayList < PolyPeptide > digestWithCrossLink =
+                                                new ArrayList < PolyPeptide >();
+        for (int i = 0; i < fullDigest.size(); i++) {
+            PolyPeptide peptide = fullDigest.get(i);
+            String pepSequence = peptide.toStringOneLetterCode();
+            if (pepSequence.length() > Constants.MAX_PEPTIDE_LENGTH) {
+                break;
             }
 
-            if (// check for rule 1.)
-                p1type == AminoAcidType.LYSINE
+            if (pepSequence.matches(
+                    Constants.CROSS_LINKABLE_PEPTIDE_SEQUENCE_EXPRESSION1
+                                   )
                 ||
-                p1type == AminoAcidType.ARGININE) {
+                pepSequence.matches(
+                    Constants.CROSS_LINKABLE_PEPTIDE_SEQUENCE_EXPRESSION2
+                                   )
+               ) {
+                if (pepSequence.length() >= Constants.MIN_PEPTIDE_LENGTH) {
+                    digestWithCrossLink.add(peptide.copy());
+                }
+            }
 
-                // digestion is inhibited if following cases occur:
-                boolean inhibit = false;
+            for (int j = i + 1; j < fullDigest.size(); j++) {
+                PolyPeptide peptide2 = fullDigest.get(j);
 
-                // check for rule 2.)
-                if (p1pType != null) {
-                    if (p1pType == AminoAcidType.PROLINE) {
-                        inhibit = true;
+                pepSequence += peptide2.toStringOneLetterCode();
+                peptide.addAll(peptide2);
 
-                        // check for rule 4.)
-                        if (useException) {
-                            if (p1type == AminoAcidType.LYSINE
-                                &&
-                                p2type == AminoAcidType.TRYPTOPHAN) {
-                                inhibit = false;
-                            }
-                            if (p1type == AminoAcidType.ARGININE
-                                &&
-                                p2type == AminoAcidType.METHIONINE) {
-                                inhibit = false;
-                            }
-                        }
-                    }
+                if (pepSequence.length() > Constants.MAX_PEPTIDE_LENGTH) {
+                    break;
+                }
+                if (pepSequence.length() < Constants.MIN_PEPTIDE_LENGTH) {
+                    continue;
                 }
 
-                // check for rule 3.)
-                if (p1pType != null) {
-                    if (p1pType == AminoAcidType.LYSINE
-                        ||
-                        p1pType == AminoAcidType.ARGININE) {
-                        inhibit = true;
-                    }
-                }
-
-                if (useException) {
-                    // check for rule 5.)
-                    if (p1type == AminoAcidType.LYSINE) {
-
-                        if (p2type == AminoAcidType.ASPARTIC_ACID
-                            &&
-                            p1pType == AminoAcidType.ASPARTIC_ACID
-                           ) {
-                            inhibit = true;
-                        }
-                        if (p2type == AminoAcidType.CYSTEINE
-                            &&
-                              (p1pType == AminoAcidType.ASPARTIC_ACID
-                               ||
-                               p1pType == AminoAcidType.HISTIDINE
-                               ||
-                               p1pType == AminoAcidType.TYROSINE)
-                           ) {
-                            inhibit = true;
-                        }
-                    }
-                    // check for rule 6.)
-                    if (p1type == AminoAcidType.ARGININE) {
-
-                        if (p2type == AminoAcidType.ARGININE
-                            &&
-                            p1pType == AminoAcidType.HISTIDINE
-                           ) {
-                            inhibit = true;
-                        }
-                        if (p2type == AminoAcidType.CYSTEINE
-                            &&
-                            p1pType == AminoAcidType.LYSINE
-                           ) {
-                            inhibit = true;
-                        }
-                        if (p2type == AminoAcidType.ARGININE
-                            &&
-                            p1pType == AminoAcidType.ARGININE
-                        ) {
-                            inhibit = true;
-                        }
-                    }
-                }
-
-                if (!inhibit || i == sequence.size() - 1) {
-                    if (peptide.size()
-                        >=
-                        Constants.MIN_PEPTIDE_LENGTH
-                            &&
-                        peptide.size()
-                        <=
-                        Constants.MAX_PEPTIDE_LENGTH
-                       ) {
-                        trypticPeptides.add(new PolyPeptide(peptide));
-                    }
-                    peptide = new ArrayList < AminoAcid >();
+                if (pepSequence.matches(
+                        Constants.CROSS_LINKABLE_PEPTIDE_SEQUENCE_EXPRESSION1
+                                       )
+                    ||
+                    pepSequence.matches(
+                        Constants.CROSS_LINKABLE_PEPTIDE_SEQUENCE_EXPRESSION2
+                                       )
+                   ) {
+                    digestWithCrossLink.add(peptide.copy());
                 }
             }
         }
-
-        Collections.sort(trypticPeptides, new Comparator<PolyPeptide>() {
-
-            public int compare(final PolyPeptide p1, final PolyPeptide p2) {
-                if (p1.getAminoAcids().size() < p2.getAminoAcids().size()) {
-                    return 1;
-                }
-                if (p1.getAminoAcids().size() > p2.getAminoAcids().size()) {
-                    return -1;
-                }
-                return 0;
-            } });
-    return trypticPeptides;
+        MatterUtilities.sort(digestWithCrossLink);
+    return digestWithCrossLink;
     }
+    //--------------------------------------------------------------------------
+    /**
+     * PolyPeptide digestion according to a trypsin.
+     * Following info was extracted from: <br>
+     * <a href="http://www.expasy.ch/tools/peptidecutter/
+     *          peptidecutter_special_enzymes.html">here</a>. <br>
+     * <pre>
+     *                  Cleavage
+     *                     ||
+     *  Pn-----P4-P3-P2-P1-||-P1'-P2'-P3'-P4'------Pm
+     *   |     |  |  |  |  ||   |   |   |        |
+     *  Sn-----S4-S3-S2-S1-||-S1'-S2'-S3'-S4'------Sm
+     *                     ||
+     *  </pre>
+     *  Px = Peptide position <br>
+     *  Sx = Protease position <br>
+     *  <br>
+     *  For Trypsin:
+     *  <ol>
+     *     <li> Cleavage preferable at Arg, Lys at P1,
+     *          but neighbouring AA have large impact on digest, in
+     *          particular
+     *     </li>
+     *     <li> Pro at P1' has negative influence
+     *     </li>
+     *     <br>
+     *     Additionally following exception might occur:
+     *     <li> Arg, Lys at P1' induces inhibition
+     *     </li>
+     *     <li> Pro usually blocks the action when found in position P1',
+     *          but not when Lys is in position P1 and Trp is in position P2 at
+     *          the same time. This blocking of cleavage exerted by Pro in
+     *          position P1' is also negligible when Arg is in position P1 and
+     *          Met is in position P2 at the same time
+     *     </li>
+     *     <li> Lys is found in position P1 the following situation considerably
+     *          block the action of trypsin:
+     *          <ul>
+     *              <li>Asp in position P2 and Asp in position P1'
+     *              </li>
+     *              <li>Cys in position P2 and Asp in position P1'
+     *              </li>
+     *              <li>Cys in position P2 and His in position P1'
+     *              </li>
+     *              <li>Cys in position P2 and Tyr in position P1'
+     *              </li>
+     *         </ul>
+     *     <li>Arg is in P1 and the following situations are found:
+     *         <ul>
+     *              <li>Arg in position P2 and His in position P1'
+     *              </li>
+     *              <li>Cys in position P2 and Lys in position P1'
+     *              </li>
+     *              <li>Arg in position P2 and Arg in positionP1'
+     *              </li>
+     *         </ul>
+     *     </li>
+     *  </ol>
+     *
+     * Performs a full tryptic digestion on protein.
+     * @param protein
+     *        PolyPeptide object representing a protein to be digested.
+     * @param useException
+     *        - boolean value indicating to include exceptions to digestion.
+     * @return List of digestion product peptides.
+     */
+    public static final ArrayList < PolyPeptide > fullTrypticDigest(
+                                                      final PolyPeptide protein,
+                                                      final boolean useException
+                                                        ) {
+        ArrayList < PolyPeptide > trypticPeptides =
+                                                new ArrayList < PolyPeptide >();
 
+        ArrayList < AminoAcid > peptide = new ArrayList < AminoAcid >();
+
+        for (int i = 0; i < protein.size(); i++) {
+            peptide.add(protein.get(i));
+
+            AminoAcid p1 = protein.get(i);
+            AminoAcidType p1type = p1.getType();
+            AminoAcid p1p = null;
+            AminoAcidType p1pType = null;
+            AminoAcid p2 = null;
+            AminoAcidType p2type = null;
+
+            if (i + 1 < protein.size()) {
+                p1p = protein.get(i + 1);
+                p1pType = p1p.getType();
+            }
+            if (i - 1 > 0) {
+                p2 = protein.get(i - 1);
+                p2type = p2.getType();
+            }
+
+            if (// check for rule 1.)
+                    (p1type == AminoAcidType.LYSINE
+                    ||
+                    p1type == AminoAcidType.ARGININE)
+                    &&
+                    p1pType != AminoAcidType.PROLINE) {
+
+                if (useException) {
+                    if (!Digestion.trypticDigestByExPASyRule(p1type,
+                                                            p1pType,
+                                                            p2type)) {
+                        continue;
+                    }
+                }
+                trypticPeptides.add(new PolyPeptide(peptide));
+                peptide = new ArrayList < AminoAcid >();
+            }
+        }
+        MatterUtilities.sort(trypticPeptides);
+        return trypticPeptides;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns back whether trypsin could digest according to the
+     * <a href="http://www.expasy.ch/tools/peptidecutter/
+     *          peptidecutter_special_enzymes.html">ExPASy exception rules</a>,
+     * given a tripeptide sequence.
+     * <pre>
+     *                  Cleavage
+     *                     ||
+     *  Pn-----P4-P3-P2-P1-||-P1'-P2'-P3'-P4'------Pm
+     *   |     |  |  |  |  ||   |   |   |        |
+     *  Sn-----S4-S3-S2-S1-||-S1'-S2'-S3'-S4'------Sm
+     *                     ||
+     *  </pre>
+     *  Px = Peptide position <br>
+     *  Sx = Protease position <br>
+     *  <br>
+     *  The exception rules are the following:
+     *  <ol>
+     *     <li> Arg, Lys at P1' induces inhibition
+     *     </li>
+     *     <li> Pro usually blocks the action when found in position P1',
+     *          but not when Lys is in position P1 and Trp is in position P2 at
+     *          the same time. This blocking of cleavage exerted by Pro in
+     *          position P1' is also negligible when Arg is in position P1 and
+     *          Met is in position P2 at the same time
+     *     </li>
+     *     <li> Lys is found in position P1 the following situation considerably
+     *          block the action of trypsin:
+     *          <ul>
+     *              <li>Asp in position P2 and Asp in position P1'
+     *              </li>
+     *              <li>Cys in position P2 and Asp in position P1'
+     *              </li>
+     *              <li>Cys in position P2 and His in position P1'
+     *              </li>
+     *              <li>Cys in position P2 and Tyr in position P1'
+     *              </li>
+     *         </ul>
+     *     <li>Arg is in P1 and the following situations are found:
+     *         <ul>
+     *              <li>Arg in position P2 and His in position P1'
+     *              </li>
+     *              <li>Cys in position P2 and Lys in position P1'
+     *              </li>
+     *              <li>Arg in position P2 and Arg in positionP1'
+     *              </li>
+     *         </ul>
+     *     </li>
+     *  </ol>
+     *
+     * @param p1type
+     *        AminoAcidType of the position p1.
+     * @param p1pType
+     *        AminoAcidType of the position p1-prime.
+     * @param p2type
+     *        AminoAcidType of the position p2.
+     * @return {@code TRUE} if digestion is possible at position p1,
+     *         {@code FALSE} otherwise.
+     */
+    private static boolean trypticDigestByExPASyRule(final AminoAcidType p1type,
+                                              final AminoAcidType p1pType,
+                                              final AminoAcidType p2type) {
+        // check for rule 2.)
+        if (p1pType != null) {
+            if (p1type == AminoAcidType.LYSINE
+                &&
+                p2type == AminoAcidType.TRYPTOPHAN) {
+                return false;
+            }
+            if (p1type == AminoAcidType.ARGININE
+                &&
+                p2type == AminoAcidType.METHIONINE) {
+                return false;
+            }
+        }
+
+        // check for rule 3.)
+        if (p1pType != null) {
+            if (p1pType == AminoAcidType.LYSINE
+                ||
+                p1pType == AminoAcidType.ARGININE) {
+                return true;
+            }
+        }
+        // check for rule 5.)
+        if (p1type == AminoAcidType.LYSINE) {
+
+            if (p2type == AminoAcidType.ASPARTIC_ACID
+                &&
+                p1pType == AminoAcidType.ASPARTIC_ACID
+            ) {
+                return true;
+            }
+            if (p2type == AminoAcidType.CYSTEINE
+                &&
+               (p1pType == AminoAcidType.ASPARTIC_ACID
+                ||
+                p1pType == AminoAcidType.HISTIDINE
+                ||
+                p1pType == AminoAcidType.TYROSINE)
+            ) {
+                return true;
+            }
+        }
+        // check for rule 6.)
+        if (p1type == AminoAcidType.ARGININE) {
+
+            if (p2type == AminoAcidType.ARGININE
+                &&
+                p1pType == AminoAcidType.HISTIDINE
+            ) {
+                return true;
+            }
+            if (p2type == AminoAcidType.CYSTEINE
+                &&
+                p1pType == AminoAcidType.LYSINE
+            ) {
+                return true;
+            }
+            if (p2type == AminoAcidType.ARGININE
+                &&
+                p1pType == AminoAcidType.ARGININE
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+    //--------------------------------------------------------------------------
 }

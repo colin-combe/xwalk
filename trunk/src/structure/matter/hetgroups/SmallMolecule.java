@@ -48,4 +48,17 @@ public class SmallMolecule extends Molecule {
                            + e + Constants.LINE_SEPERATOR);
         }
     }
+    //--------------------------------------------------------------------------
+    /**
+     * Creates a copy of this SmallMolecule object.
+     * @return Copy of this SmallMolecule object.
+     */
+    public final SmallMolecule copy() {
+        AtomList atomsCopy = new AtomList();
+        for (Atom atom : this.getAllAtoms()) {
+            atomsCopy.add(atom.copy());
+        }
+        SmallMolecule copy = new SmallMolecule(atomsCopy);
+    return copy;
+    }
 }
