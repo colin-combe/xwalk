@@ -144,6 +144,7 @@ public class CrossLink extends Bond {
      * difference of the amino acid rank to which both atoms are associated.
      */
     private void setSequenceDistance() {
+
         this.seqDist = Math.abs(
                                          postAtom.getRank() - preAtom.getRank()
                                         );
@@ -154,8 +155,10 @@ public class CrossLink extends Bond {
      * Calculates the distance in Euclidean space.
      */
     private void setEuclideanDistance() {
+
         this.eucDist = Mathematics.distance(preAtom.getPoint3d(),
-                                                      postAtom.getPoint3d());
+                                                      postAtom.getPoint3d()
+                                           );
     }
     //--------------------------------------------------------------------------
 
@@ -321,13 +324,16 @@ public class CrossLink extends Bond {
         String output = "";
         int maxPeptideLength = xwalk.constants.Constants.MAX_PEPTIDE_LENGTH;
         int minPeptideLength = xwalk.constants.Constants.MIN_PEPTIDE_LENGTH;
-        boolean outputPeptide = preAtomPeptide.size() <= maxPeptideLength
-                                &&
-                                preAtomPeptide.size() >= minPeptideLength
-                                &&
-                                postAtomPeptide.size() <= maxPeptideLength
-                                &&
-                                postAtomPeptide.size() >= minPeptideLength;
+        boolean outputPeptide = false;
+        if (preAtomPeptide != null && postAtomPeptide != null) {
+            outputPeptide = preAtomPeptide.size() <= maxPeptideLength
+                            &&
+                            preAtomPeptide.size() >= minPeptideLength
+                            &&
+                            postAtomPeptide.size() <= maxPeptideLength
+                            &&
+                            postAtomPeptide.size() >= minPeptideLength;
+        }
 
         if (this.solventPathDistance == Double.parseDouble(
                                                     Value.DISTANCE.getDefault())

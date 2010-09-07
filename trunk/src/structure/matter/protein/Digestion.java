@@ -105,12 +105,18 @@ public class Digestion {
         ArrayList < PolyPeptide > digestWithCrossLink =
                                                 new ArrayList < PolyPeptide >();
         for (int i = 0; i < fullDigest.size(); i++) {
-            PolyPeptide peptide = fullDigest.get(i);
+            PolyPeptide peptide = new PolyPeptide(new ArrayList <AminoAcid>());
+            peptide.addAll(fullDigest.get(i));
             String pepSequence = peptide.toStringOneLetterCode();
+            // if peptide is longer than maxLength right from the start then
+            // just skip it.
             if (pepSequence.length() > Constants.MAX_PEPTIDE_LENGTH) {
-                break;
+                continue;
             }
 
+            // if peptide conforms to a cross-linkable peptide sequence
+            // right from the start then added to the peptide list right from
+            // the beginnin.
             if (pepSequence.matches(
                     Constants.CROSS_LINKABLE_PEPTIDE_SEQUENCE_EXPRESSION1
                                    )
@@ -120,10 +126,14 @@ public class Digestion {
                                    )
                ) {
                 if (pepSequence.length() >= Constants.MIN_PEPTIDE_LENGTH) {
-                    digestWithCrossLink.add(peptide.copy());
+                    digestWithCrossLink.add(peptide);
+                    peptide = new PolyPeptide(peptide);
                 }
             }
 
+            // if peptide is not already larger then maxLength, then check
+            // whether peptide sequence can be grown continuing to conform
+            // a cross-linkable peptide and without being larger then maxLength
             for (int j = i + 1; j < fullDigest.size(); j++) {
                 PolyPeptide peptide2 = fullDigest.get(j);
 
@@ -145,7 +155,8 @@ public class Digestion {
                         Constants.CROSS_LINKABLE_PEPTIDE_SEQUENCE_EXPRESSION2
                                        )
                    ) {
-                    digestWithCrossLink.add(peptide.copy());
+                    digestWithCrossLink.add(peptide);
+                    peptide = new PolyPeptide(peptide);
                 }
             }
         }

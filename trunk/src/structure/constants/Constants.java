@@ -4,6 +4,9 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import structure.matter.Atom;
+import structure.matter.AtomList;
+
 /**
  * Various constants that are used by various classes.
  * @author Abdullah Kahraman
@@ -26,6 +29,41 @@ public class Constants {
      * Structural Bioinformatics, 273-303.
      */
     public static final double COORDINATE_UNCERTAINTY = 0.28;
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the uncertainty of the atom's position in Angstroem, calculated
+     * from the temperature factor and the average X-ray coordinate uncertainty.
+     * @param atom
+     *        Atom object from which the uncertainty shall be calculated.
+     * @return double value representing the atom's uncertainty
+     * @see #getCoordinateUncertainty(AtomList)
+     */
+    public static double getCoordinateUncertainty(final Atom atom) {
+        double errorRange = atom.getAverageDislocation()
+                          + Constants.COORDINATE_UNCERTAINTY;
+    return errorRange;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the maximum uncertainty of from a list of atom positions in
+     * Angstroem, calculated from the temperature factor and the average X-ray
+     * coordinate uncertainty.
+     * @param atoms
+     *        List of Atom object from which the maximum uncertainty will be
+     *        calculated.
+     * @return double value representing the maximum uncertainty found within
+     *         all atoms of the list.
+     * @see #getCoordinateUncertainty(Atom)
+     */
+    public static double getCoordinateUncertainty(final AtomList atoms) {
+        double maxUncertainty = Integer.MIN_VALUE;
+        for (Atom atom : atoms) {
+            maxUncertainty = Math.max(atom.getAverageDislocation()
+                                    + Constants.COORDINATE_UNCERTAINTY,
+                                      maxUncertainty);
+        }
+    return maxUncertainty;
+    }
     //--------------------------------------------------------------------------
     /**
      * Bond length between a hydrogen and a non-hydrogen.
