@@ -35,6 +35,11 @@ public class CommandlineArguments {
      */
     private String distanceInfile = "";
     /**
+     * Output only when all distances in a distance file are found.
+     * Default {@code findAll = FALSE};
+     */
+    private boolean findAll = false;
+    /**
      * Path to the output file.
      * Default {@code outfile = ""}.
      */
@@ -155,7 +160,7 @@ public class CommandlineArguments {
      * Use local grids for Solvent-Path distance calculations.
      * Default {@code verboseGrid = FALSE};
      */
-    private boolean useLocalGrid = false;
+    private boolean useGlobalGrid = false;
     /**
      * To output all grids that are used to calculate the
      * Solvent-Path distances.
@@ -213,6 +218,7 @@ public class CommandlineArguments {
         this.readHomomericArgument();
         this.readInfileArgument();
         this.readDistanceInfileArgument();
+        this.readFindAllArgument();
         this.readInterMolecularDistanceArgument();
         this.readIntraMolecularDistanceArgument();
         this.readMaximumDistanceArgument();
@@ -225,7 +231,7 @@ public class CommandlineArguments {
         this.readAminoAcidName1Argument();
         this.readAminoAcidName2Argument();
         this.readSolventPathDistanceArgument();
-        this.readLocalGridArgument();
+        this.readGlobalGridArgument();
         this.readTrypsinateArgument();
         this.readExpasyArgument();
         this.readVerboseOutputArgument();
@@ -281,6 +287,9 @@ public class CommandlineArguments {
               + NL
               + "\t-infile\t<path>\tAny PDB file; .tar, .gz and .tar.gz files "
               + "with PDB file content are also accepted [required]."
+              + NL
+              + "\t-dist\t<path>\tAny Xwalk distance file, from which all "
+              + "residue information will be extracted [optional]."
               + NL
               + "\t-out\t<path>\tWrites output to this file, otherwise "
               + "output is directed to the STDOUT channel. If -p is "
@@ -348,9 +357,6 @@ public class CommandlineArguments {
               + "append alternative location ids to a single string, "
               + "e.g. AB [optional]."
               + NL
-              + "\t-sas\t[double]\tMinimum solvent accessibility of "
-              + "both amino acids in % (recommended value 0.25 )."
-              + NL
               + "\t-intra\t[switch]\tOutputs only \"intra-molecular\" "
               + "distances [optional]."
               + NL
@@ -379,13 +385,20 @@ public class CommandlineArguments {
               + "calculation and outputs only Euclidean distances "
               + "[optional]. "
               + NL
+              + "\t-all\t[switch]\tOutputs only distances if all virtual cross-"
+              + "links in a distance file (-dist) can be found."
+              + "only up-to this value (default: 21.0)."
+              + NL
               + NL
               + "SOLVENT-PATH-DISTANCE GRID RELATED:"
               + NL
-              + "\t-local\t[switch]\tCalculates local grids for each "
-              + "cross-link, rather than one single grid for the entire "
-              + "protein structure. For larger protein structures with a size "
-              + "larger than 150 Å this flag is automatically set."
+              + "\t-global\t[switch]\tUses a single large grid to calculate "
+              + "all Solvent-Path distances, rather than using a smaller local "
+              + "grid around each cross-linkable atom. This option will "
+              + "reduce computation time for smaller protein complexes. Note "
+              + "however that the distances might differ by about an Angstroem "
+              + "as compared to a local grid and that you might need to "
+              + "increase the Java heap size to for example 512 MB (-Xmx512m)"
               + NL
               + "Does not calculate the solvent accessible "
               + "surface surface area and thus does not exclude non-accessible "
@@ -575,6 +588,27 @@ public class CommandlineArguments {
         return this.distanceInfile;
     }
     //--------------------------------------------------------------------------
+    /**
+     * Determines whether the argument -all has been set on the commandline.
+     * @see #isFindAllSet()
+     */
+    private void readFindAllArgument() {
+        if (Commandline.get(this.arguments, "-all", false).equals("EXISTS")) {
+            this.findAll = true;
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns whether the all distances in a distance file must be found prior
+     * to their output.
+     * @return {@code TRUE} if all distances must be found, {@code FALSE}
+     * otherwise.
+     * @see #readFindAllArgument()
+     */
+    public final boolean isFindAllSet() {
+        return this.findAll;
+    }
+    //--------------------------------------------------------------------------
 
     /**
      * Determines whether the argument -p has been set on the commandline. Also
@@ -683,7 +717,8 @@ public class CommandlineArguments {
     private void readAminoAcidName1Argument() throws
                                           CommandlineArgumentNotFoundException {
         if (Commandline.get(this.arguments, "-aa1", true).equals("ERROR")) {
-            if (Commandline.get(this.arguments, "-r1", true).equals("ERROR")) {
+          if (Commandline.get(this.arguments, "-r1", true).equals("ERROR")) {
+           if (Commandline.get(this.arguments, "-dist", true).equals("ERROR")) {
                 throw new CommandlineArgumentNotFoundException(NL
                                                              + "ERROR: Could "
                                                              + "NOT find value "
@@ -694,6 +729,7 @@ public class CommandlineArguments {
                                                              + NL
                                                               );
             }
+          }
         } else {
             this.residueType1 = "#"
                               + Commandline.get(this.arguments,
@@ -726,7 +762,8 @@ public class CommandlineArguments {
     private void readAminoAcidName2Argument() throws
                                           CommandlineArgumentNotFoundException {
         if (Commandline.get(this.arguments, "-aa2", true).equals("ERROR")) {
-            if (Commandline.get(this.arguments, "-r2", true).equals("ERROR")) {
+          if (Commandline.get(this.arguments, "-r2", true).equals("ERROR")) {
+           if (Commandline.get(this.arguments, "-dist", true).equals("ERROR")) {
                 throw new CommandlineArgumentNotFoundException(NL
                                                              + "ERROR: Could "
                                                              + "NOT find value "
@@ -737,6 +774,7 @@ public class CommandlineArguments {
                                                              + NL
                                                               );
             }
+          }
         } else {
             this.residueType2 = "#"
                               + Commandline.get(this.arguments,
@@ -771,7 +809,8 @@ public class CommandlineArguments {
     private void readAminoAcidNumber1Argument() throws
                                           CommandlineArgumentNotFoundException {
         if (Commandline.get(this.arguments, "-r1", true).equals("ERROR")) {
-            if (Commandline.get(this.arguments, "-aa1", true).equals("ERROR")) {
+          if (Commandline.get(this.arguments, "-aa1", true).equals("ERROR")) {
+           if (Commandline.get(this.arguments, "-dist", true).equals("ERROR")) {
                  throw new CommandlineArgumentNotFoundException(NL
                                                               + "ERROR: Could "
                                                               + "NOT find "
@@ -782,6 +821,7 @@ public class CommandlineArguments {
                                                               + NL
                                                                );
             }
+          }
         } else {
             this.aa1resNo = "#"
                           + Commandline.get(this.arguments,
@@ -826,7 +866,8 @@ public class CommandlineArguments {
     private void readAminoAcidNumber2Argument() throws
                                           CommandlineArgumentNotFoundException {
         if (Commandline.get(this.arguments, "-r2", true).equals("ERROR")) {
-            if (Commandline.get(this.arguments, "-aa2", true).equals("ERROR")) {
+          if (Commandline.get(this.arguments, "-aa2", true).equals("ERROR")) {
+           if (Commandline.get(this.arguments, "-dist", true).equals("ERROR")) {
                 throw new CommandlineArgumentNotFoundException(NL
                                                              + "ERROR: Could "
                                                              + "NOT find value "
@@ -837,6 +878,7 @@ public class CommandlineArguments {
                                                              + NL
                                                               );
             }
+          }
         } else {
             this.aa2resNo = "#"
                           + Commandline.get(this.arguments,
@@ -1190,24 +1232,24 @@ public class CommandlineArguments {
     }
     //--------------------------------------------------------------------------
     /**
-     * Determines whether the argument -local has been set on the commandline.
-     * @see #isLocalGridSet()
+     * Determines whether the argument -global has been set on the commandline.
+     * @see #isGlobalGridSet()
      */
-    private void readLocalGridArgument() {
-        if (Commandline.get(this.arguments, "-local", false).equals("EXISTS")) {
-            this.useLocalGrid = true;
-        }
+    private void readGlobalGridArgument() {
+       if (Commandline.get(this.arguments, "-global", false).equals("EXISTS")) {
+           this.useGlobalGrid = true;
+       }
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns whether a local grid should be used for Solvent-Path distance
+     * Returns whether a global grid should be used for Solvent-Path distance
      * calculation.
-     * @return {@code TRUE} if local grid should be used,
+     * @return {@code TRUE} if global grid should be used,
      *         {@code FALSE} otherwise.
-     * @see #readLocalGridArgument()
+     * @see #readGlobalGridArgument()
      */
-    public final boolean isLocalGridSet() {
-        return this.useLocalGrid;
+    public final boolean isGlobalGridSet() {
+        return this.useGlobalGrid;
     }
     //--------------------------------------------------------------------------
     /**

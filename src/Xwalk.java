@@ -1,12 +1,14 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.zip.DataFormatException;
 
 import structure.constants.Constants;
 import structure.exceptions.CommandlineArgumentFormatException;
 import structure.exceptions.CommandlineArgumentNotFoundException;
+import structure.matter.protein.PolyPeptideList;
 
 import xwalk.crosslink.CrossLinkParameter;
 import xwalk.crosslink.CrossLinkList;
@@ -79,15 +81,15 @@ public class Xwalk {
         try {
             arguments = new CommandlineArguments(args);
         } catch (FileNotFoundException e) {
-            System.err.print(nl + "FileNotFoundException: " + e.toString());
+            System.err.println(nl + "FileNotFoundException: " + e.toString());
             System.exit(-1);
 
         } catch (CommandlineArgumentNotFoundException e) {
-            System.err.print(nl + "CommandlineArgumentNotFoundException: "
+            System.err.println(nl + "CommandlineArgumentNotFoundException: "
                              + e.toString());
             System.exit(-2);
         } catch (CommandlineArgumentFormatException e) {
-            System.err.print(nl + "CommandlineArgumentFormatException: "
+            System.err.println(nl + "CommandlineArgumentFormatException: "
                              + e.toString());
             System.exit(-3);
         }
@@ -109,7 +111,15 @@ public class Xwalk {
 
         CrossLinkList list = null;
         try {
-            list = CrossLinkUtilities.getVirtualCrossLinks(parameter);
+            // get all protein complex atom coordinates of the user given
+            // inputFile.
+            ArrayList < PolyPeptideList > complexes =
+                                  CrossLinkUtilities.getComplexesCoordinates(
+                                                                       parameter
+                                                                            );
+
+            list = CrossLinkUtilities.getVirtualCrossLinks(complexes,
+                                                           parameter);
         } catch (FileNotFoundException e) {
             System.err.println("ERROR: Infile could not be found" + nl + e);
             System.exit(-4);

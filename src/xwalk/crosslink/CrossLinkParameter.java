@@ -10,7 +10,7 @@ import structure.constants.Constants;
 import xwalk.io.CommandlineArguments;
 
 /**
- * Class that stores and handles parameter for calculating cross-links with
+ * Class that stores and handles param for calculating cross-links with
  * Xwalk.
  * @author Abdullah Kahraman
  * @version 3.0
@@ -21,7 +21,7 @@ public class CrossLinkParameter {
     /**
      * Hashtable that stores all parameters necessary to calculate cross-links.
      */
-    private Hashtable < Parameter, String > parameter =
+    private Hashtable < Parameter, String > param =
                                           new Hashtable < Parameter, String >();
     //--------------------------------------------------------------------------
     /**
@@ -45,11 +45,12 @@ public class CrossLinkParameter {
                             DO_SAS,
                             SOLVENT_RADIUS,
                             MINIMUM_SOLVENT_ACCESSIBILITY_RATIO,
-                            DO_LOCAL_GRID,
+                            DO_GLOBAL_GRID,
                             IS_HOMOMERIC,
                             DO_PYMOL_OUTPUT,
                             INFILE_PATH,
                             DISTANCE_FILE_PATH,
+                            FIND_ALL,
                             OUTFILE_PATH,
                             DO_FORCE_OUTPUT,
                             DO_VERBOSE_OUTPUT,
@@ -98,6 +99,8 @@ public class CrossLinkParameter {
                           arg.getInfileArgument());
         this.setParameter(Parameter.DISTANCE_FILE_PATH,
                           arg.getDistanceInfileArgument());
+        this.setParameter(Parameter.FIND_ALL,
+                          Boolean.toString(arg.isFindAllSet()));
         this.setParameter(Parameter.OUTFILE_PATH,
                           arg.getOutfileArgument());
         this.setParameter(Parameter.IS_HOMOMERIC,
@@ -111,8 +114,8 @@ public class CrossLinkParameter {
                                             arg.getSolventAccessibiltyArgument()
                                           )
                           );
-        this.setParameter(Parameter.DO_LOCAL_GRID,
-                          Boolean.toString(arg.isLocalGridSet()));
+        this.setParameter(Parameter.DO_GLOBAL_GRID,
+                          Boolean.toString(arg.isGlobalGridSet()));
         this.setParameter(Parameter.DO_FORCE_OUTPUT,
                           Boolean.toString(arg.isForceOutputSet()));
         this.setParameter(Parameter.DO_VERBOSE_OUTPUT,
@@ -132,35 +135,35 @@ public class CrossLinkParameter {
     }
     //--------------------------------------------------------------------------
     /**
-     * Sets a cross-link parameter.
+     * Sets a cross-link param.
      * @param xlParameter
      *        Parameter object that holds a list of all relevant cross-link
      *        parameters.
      * @param xlValue
-     *           String object that holds the value of the cross-link parameter
+     *           String object that holds the value of the cross-link param
      */
     public final void setParameter(final Parameter xlParameter,
                                    final String xlValue) {
-        this.parameter.put(xlParameter, xlValue);
+        this.param.put(xlParameter, xlValue);
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns the value of a cross-link parameter.
-     * @param xlParameter
+     * Returns the value of a cross-link param.
+     * @param param
      *        Parameter object that holds a list of all relevant cross-link
      *        parameters.
-     * @return String object that holds the value of the cross-link parameter
+     * @return String object that holds the value of the cross-link param
      */
-    public final String getParameter(final Parameter xlParameter) {
-        return this.parameter.get(xlParameter);
+    public final String getParameter(final Parameter parameter) {
+        return this.param.get(parameter);
     }
     //--------------------------------------------------------------------------
     /**
-     * Outputs all parameter via the STDERR stream to the terminal.
+     * Outputs all param via the STDERR stream to the terminal.
      */
     public final void output() {
         ArrayList < Parameter > pars = new ArrayList < Parameter >();
-        for (Parameter par : this.parameter.keySet()) {
+        for (Parameter par : this.param.keySet()) {
             pars.add(par);
         }
         Collections.sort(pars, new Comparator<Parameter>() {
@@ -172,7 +175,7 @@ public class CrossLinkParameter {
         System.err.println("List of all argument values:");
         for (Parameter par : pars) {
             System.err.println(par.toString() + ": "
-                             + this.parameter.get(par));
+                             + this.param.get(par));
         }
         System.err.print(Constants.LINE_SEPERATOR);
     }

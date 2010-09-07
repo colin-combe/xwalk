@@ -43,9 +43,13 @@ public class DistanceReader {
                 Atom atom1 = new Atom();
                 Atom atom2 = new Atom();
                 int index = 0;
-                int seqDist = 0;
-                double eucDist = 0;
-                double solvDist = 0;
+                int seqDist = Integer.parseInt(Value.DISTANCE.getDefault());
+                double eucDist = Double.parseDouble(
+                                                    Value.DISTANCE.getDefault()
+                                                   );
+                double solvDist = Double.parseDouble(
+                                                     Value.DISTANCE.getDefault()
+                                                    );
                 try {
                     String[] array = line.trim().split("\t");
                     index = Integer.parseInt(array[0]);
@@ -54,9 +58,16 @@ public class DistanceReader {
                     String atom2info = array[3];
                     seqDist = Integer.parseInt(array[4]);
                     eucDist = Double.parseDouble(array[5]);
-                    solvDist = Double.parseDouble(Value.DISTANCE.getDefault());
-                    if (!array[6].equals("-")) {
-                        solvDist = Double.parseDouble(array[6]);
+                    if (array.length > 6) {
+                        solvDist = Double.parseDouble(
+                                                     Value.DISTANCE.getDefault()
+                                                     );
+                        if (!array[6].equals("-")) {
+                            solvDist = Double.parseDouble(array[6]);
+                        }
+                    }
+                    if (array.length > 7) {
+                        String peptideSequence = array[7];
                     }
 
                     array = atom1info.split("-");
@@ -73,8 +84,8 @@ public class DistanceReader {
                                                     ? ' ' : array[2].charAt(0));
                     atom2.setName(array[3].trim());
                 } catch (Exception e) {
-                    System.err.println("Distance file \"" + fileName + "\" "
-                                     + "does not conform to distance file "
+                    System.err.println("WARNING: Distance file \"" + fileName
+                                     + "\" does not conform to distance file "
                                      + "format" + Constants.LINE_SEPERATOR + e);
                 }
                 CrossLink crossLink = new CrossLink(atom1, atom2, seqDist,
