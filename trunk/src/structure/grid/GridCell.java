@@ -372,4 +372,8 @@ public class GridCell {
          }
         return atom;
     }
+    //--------------------------------------------------------------------------
+    public String toString() {
+        return this.toAtom().toString();
+    }
 }

@@ -101,7 +101,6 @@ public class Digestion {
                                                                     useException
                                                                           );
 
-
         ArrayList < PolyPeptide > digestWithCrossLink =
                                                 new ArrayList < PolyPeptide >();
         for (int i = 0; i < fullDigest.size(); i++) {
@@ -273,9 +272,11 @@ public class Digestion {
                 }
                 trypticPeptides.add(new PolyPeptide(peptide));
                 peptide = new ArrayList < AminoAcid >();
+
+            } else if (i == protein.size() - 1) {
+                trypticPeptides.add(new PolyPeptide(peptide));
             }
         }
-        MatterUtilities.sort(trypticPeptides);
         return trypticPeptides;
     }
     //--------------------------------------------------------------------------

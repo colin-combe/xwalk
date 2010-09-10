@@ -65,7 +65,7 @@ public final class CrossLinkUtilities {
     public static CrossLinkList getVirtualCrossLinks(
                                   final ArrayList < PolyPeptideList > complexes,
                                   final CrossLinkParameter parameter
-                                                   )
+                                                    )
                                                   throws IOException,
                                                          DataFormatException {
         //--------------------------------
@@ -109,6 +109,7 @@ public final class CrossLinkUtilities {
                 digest = allDigest.get(i);
             }
 
+            //---------------------------------
             // First find cross-links based on Euclidean distance.
             CrossLinkList crossLinkList =
                             CrossLinkUtilities.crossLinkByEuclideanDistance(
@@ -117,7 +118,16 @@ public final class CrossLinkUtilities {
                                                                       distXl,
                                                                       digest
                                                                            );
+            //---------------------------------
+            // remove redundant cross-links if the complex should be labeled by
+            // the user as homomeric.
+            if (Boolean.parseBoolean(parameter.getParameter(
+                                                          Parameter.IS_HOMOMERIC
+                                                           ))) {
+             CrossLinkUtilities.removeRedundanciesInHomomers(crossLinkList);
+            }
 
+            //---------------------------------
             // If requested by the user check further for Solvent Path distance.
             if (Boolean.parseBoolean(parameter.getParameter(
                                               Parameter.DO_SOLVENT_PATH_DISTANCE
@@ -135,22 +145,18 @@ public final class CrossLinkUtilities {
                 }
             }
 
+            //---------------------------------
             // set file name of each grid to the file name of its protein
             // complex and assign peptide sequences to cross-linked atoms.
             for (CrossLink xlink : crossLinkList) {
                 xlink.setFileName(complex.getName());
             }
 
-            // remove redundant cross-links if the complex should be labeled by
-            // the user as homomeric.
-            if (Boolean.parseBoolean(parameter.getParameter(
-                                                          Parameter.IS_HOMOMERIC
-                                                           ))) {
-             CrossLinkUtilities.removeRedundanciesInHomomers(crossLinkList);
-            }
+            //---------------------------------
             // sort list of cross-links by distance.
             crossLinkList.sort();
 
+            //---------------------------------
             // set indices of cross-links
             CrossLinkUtilities.setCrossLinkIndices(crossLinkList, parameter);
 
@@ -244,10 +250,10 @@ public final class CrossLinkUtilities {
 
         // create CrossLinks object from all relevant atom pairs.
         CrossLinkList crossLinks = new CrossLinkList();
-        PolyPeptide atom1TrypticPeptide = null;
         for (Atom atom1 : relevantAtomPairs.keySet()) {
-            PolyPeptide atom2TrypticPeptide = null;
+            PolyPeptide atom1TrypticPeptide = null;
             for (Atom atom2 : relevantAtomPairs.get(atom1)) {
+                PolyPeptide atom2TrypticPeptide = null;
                 if (digest == null) {
                     CrossLink xl = new CrossLink(atom1, atom2);
                     crossLinks.add(xl);
@@ -256,6 +262,11 @@ public final class CrossLinkUtilities {
                         for (AminoAcid aa : peptide) {
                             if (aa.getAllAtoms().contains(atom1)) {
                                 atom1TrypticPeptide = peptide;
+                                // Added these lines to allow for
+                                // self cross-links within a peptide.
+                                if (aa.getAllAtoms().contains(atom2)) {
+                                    atom2TrypticPeptide = peptide;
+                                }
                                 break;
                             }
                             if (aa.getAllAtoms().contains(atom2)) {
@@ -264,13 +275,13 @@ public final class CrossLinkUtilities {
                             }
                         }
                     }
-                }
-                if (atom1TrypticPeptide != null
-                    &&
-                    atom2TrypticPeptide != null) {
-                    CrossLink xl = new CrossLink(atom1, atom2);
-                    xl.setPeptides(atom1TrypticPeptide, atom2TrypticPeptide);
-                    crossLinks.add(xl);
+                    if (atom1TrypticPeptide != null
+                            &&
+                            atom2TrypticPeptide != null) {
+                            CrossLink xl = new CrossLink(atom1, atom2);
+                            xl.setPeptides(atom1TrypticPeptide, atom2TrypticPeptide);
+                            crossLinks.add(xl);
+                        }
                 }
             }
         }
@@ -376,8 +387,8 @@ public final class CrossLinkUtilities {
      *         coordinates labeled as ATOM up to an END flag or end of file.
      * @throws IOException if input file could not be read.
      * @throws DataFormatException if ATOM or HEATM line does not conform to the
-     *         PDB standards at
-     *         {@link http://www.wwpdb.org/documentation/format32/sect9.html}
+     *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
+     *         PDB standards</a>.
      */
     public static ArrayList < PolyPeptideList > getComplexesCoordinates(
                                              final CrossLinkParameter parameter
@@ -633,6 +644,7 @@ public final class CrossLinkUtilities {
 
         Hashtable < Atom, AtomList > pairs = new Hashtable < Atom, AtomList >();
 
+        // get all cross-link atoms
         AtomList uniqueCrossLinkAtoms = new AtomList();
         for (CrossLink xl : crossLinks) {
              Atom preAtom = xl.getPreAtom();
@@ -645,6 +657,7 @@ public final class CrossLinkUtilities {
              }
         }
 
+        // get all cross-linked atoms from the complex
         AtomList uniqueCrossLinkAtomsInComplex = new AtomList();
         for (Atom atom1 : complex.getAllAtoms()) {
              for (Atom atom2 : uniqueCrossLinkAtoms) {
@@ -665,7 +678,7 @@ public final class CrossLinkUtilities {
                  if (MatterUtilities.equalsResidue(atom, preAtom)
                      &&
                      atom.getName().trim().equals(preAtom.getName().trim())) {
-                         preAtom = atom;
+                     preAtom = atom;
                  }
                  if (MatterUtilities.equalsResidue(atom, postAtom)
                      &&
@@ -1602,6 +1615,9 @@ public final class CrossLinkUtilities {
                                         final Atom atom2,
                                         final AtomGrid grid) {
 
+        if(atom1.getResidueNumber()==100 || atom2.getResidueNumber()==100) {
+            int h=0;
+        }
         if (grid.get(atom1) == null || grid.get(atom2) == null) {
             return false;
         }

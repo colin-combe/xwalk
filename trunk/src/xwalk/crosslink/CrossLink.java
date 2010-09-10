@@ -389,11 +389,30 @@ public class CrossLink extends Bond {
      *        - PolyPeptide object of the preAtom.
      * @param postPeptide
      *        - PolyPeptide object of the postAtom.
+     * @return {@code TRUE} if both peptides contain both cross-linked atoms,
+     *         {@code FALSE} otherwise.
      */
-    public final void setPeptides(final PolyPeptide prePeptide,
-                                  final PolyPeptide postPeptide) {
-        this.preAtomPeptide = prePeptide;
-        this.postAtomPeptide = postPeptide;
+    public final boolean setPeptides(final PolyPeptide prePeptide,
+                                     final PolyPeptide postPeptide) {
+        for (AminoAcid aa : prePeptide) {
+            if (aa.getAllAtoms().contains(this.preAtom)) {
+                this.preAtomPeptide = prePeptide;
+            } else if (aa.getAllAtoms().contains(this.postAtom)) {
+                this.postAtomPeptide = prePeptide;
+            }
+        }
+        for (AminoAcid aa : postPeptide) {
+            if (aa.getAllAtoms().contains(this.preAtom)) {
+                this.preAtomPeptide = postPeptide;
+            } else if (aa.getAllAtoms().contains(this.postAtom)) {
+                this.postAtomPeptide = postPeptide;
+
+            }
+        }
+        if (this.preAtomPeptide != null && this.postAtomPeptide != null) {
+            return true;
+        }
+        return false;
     }
     //--------------------------------------------------------------------------
     /**

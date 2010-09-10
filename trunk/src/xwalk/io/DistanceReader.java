@@ -39,7 +39,7 @@ public class DistanceReader {
         ReadFile read = new ReadFile(fileName);
 
         for (String line : read) {
-            if (!line.startsWith("#")) {
+            if (!line.startsWith("#") && line.trim().length() >= 1) {
                 Atom atom1 = new Atom();
                 Atom atom2 = new Atom();
                 int index = 0;
