@@ -86,6 +86,39 @@ public abstract class MatterUtilities {
     //--------------------------------------------------------------------------
 
     /**
+     * Returns those two atoms that are closest in two AtomList objects.
+     * @param list1
+     *        - AtomList object holding a first list of atom coordinates.
+     * @param list2
+     *        - AtomList object holding a second list of atom coordinates.
+     * @return AtomList object holding the coordinates of the two closest atoms
+     *         in both atom lists.
+     */
+     public static AtomList getClosestAtomPair(final AtomList list1,
+                                               final AtomList list2) {
+        double minDist = Integer.MAX_VALUE;
+        AtomList minList = new AtomList();
+        minList.add(list1.get(0));
+        minList.add(list2.get(0));
+
+        for (Atom atom1 : list1) {
+            for (Atom atom2 : list2) {
+                double dist = Mathematics.distance(atom1.getPoint3d(),
+                                                   atom2.getPoint3d()
+                                                  );
+                if (dist < minDist) {
+                    minDist = dist;
+                    minList.set(0, atom1);
+                    minList.set(1, atom2);
+                }
+            }
+        }
+    return minList;
+    }
+
+    //--------------------------------------------------------------------------
+
+    /**
      * Calculates the maximum Cartesian coordinates of an atom list.
      * @param coords
      *        - AtomList object holding the Cartesian coordinates of a list of
@@ -180,7 +213,7 @@ public abstract class MatterUtilities {
                     if (atom1.getElement() == Element.HYDROGEN
                         ||
                         atom2.getElement() == Element.HYDROGEN) {
-                        maxDist = Constants.BOND_TO_HYDROGEN;
+                        maxDist = Constants.BOND_LENGTH_TO_HYDROGEN;
                     } else {
                         maxDist = (
                                    atom1.getVanDerWaalsRadius()

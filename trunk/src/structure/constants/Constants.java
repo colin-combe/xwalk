@@ -68,7 +68,7 @@ public class Constants {
     /**
      * Bond length between a hydrogen and a non-hydrogen.
      */
-    public static final double BOND_TO_HYDROGEN = 1.2;
+    public static final double BOND_LENGTH_TO_HYDROGEN = 1.2;
     //--------------------------------------------------------------------------
     /**
      * Default van der Waals radius for any atom type.
@@ -84,6 +84,12 @@ public class Constants {
      * Default grid size.
      */
     public static final double SOLVENT_RADIUS = 1.4;
+    //--------------------------------------------------------------------------
+    /**
+     * Atoms from different proteins that are within this radius form the
+     * interface of a protein complex.
+     */
+    public static final double BINDING_INTERFACE_RADIUS = 4;
     //--------------------------------------------------------------------------
     /**
      * Maximum value that fits into the occupancy and temperature factor
