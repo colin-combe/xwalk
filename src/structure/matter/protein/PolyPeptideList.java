@@ -3,6 +3,7 @@ package structure.matter.protein;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import structure.constants.Constants;
 import structure.constants.Constants.ParameterSets;
 import structure.matter.Atom;
 import structure.matter.AtomList;
@@ -98,4 +99,19 @@ public class PolyPeptideList extends ArrayList < PolyPeptide > {
         }
         return null;
     }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns all PDB related information of all atoms in PDB format.
+     * @return String object holding the text information of all atoms in PDB
+     *         format.
+     */
+    public final String toString() {
+        StringBuffer output = new StringBuffer();
+        for (PolyPeptide protein : this) {
+            output.append(protein.toString());
+            output.append("TER" + Constants.LINE_SEPERATOR);
+        }
+    return output.toString();
+    }
+
 }

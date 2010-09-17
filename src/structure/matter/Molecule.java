@@ -217,7 +217,7 @@ public abstract class Molecule {
     public final String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append(this.atoms.toString());
-        buffer.append(this.bonds.toString());
+//        buffer.append(this.bonds.toString());
         buffer.append("END" + Constants.LINE_SEPERATOR);
     return buffer.toString();
     }

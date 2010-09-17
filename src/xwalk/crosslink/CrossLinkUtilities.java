@@ -276,12 +276,13 @@ public final class CrossLinkUtilities {
                         }
                     }
                     if (atom1TrypticPeptide != null
-                            &&
-                            atom2TrypticPeptide != null) {
-                            CrossLink xl = new CrossLink(atom1, atom2);
-                            xl.setPeptides(atom1TrypticPeptide, atom2TrypticPeptide);
-                            crossLinks.add(xl);
-                        }
+                        &&
+                        atom2TrypticPeptide != null) {
+                        CrossLink xl = new CrossLink(atom1, atom2);
+                        xl.setPeptides(atom1TrypticPeptide,
+                                       atom2TrypticPeptide);
+                        crossLinks.add(xl);
+                    }
                 }
             }
         }
@@ -397,7 +398,7 @@ public final class CrossLinkUtilities {
                                                            DataFormatException {
 
         ArrayList < PDBreader > pdbReaders =
-            CrossLinkUtilities.createPDBreaders(parameter.getParameter(
+            PDBreader.createPDBreaders(parameter.getParameter(
                                                            Parameter.INFILE_PATH
                                                                       )
                                                );
@@ -413,52 +414,6 @@ public final class CrossLinkUtilities {
 
     return proteinComplexes;
     }
-    //--------------------------------------------------------------------------
-    /**
-     * Creates list of PDBreader objects from the user given input file, where
-     * the input file can be a list of PDB files in a tar archive (.tar),
-     * compressed by GNU zip (.gz, .tar.gz, .tgz) or simply a PDB file.
-     * @param infile
-     *        - String object holding the path to the input file.
-     * @return List of PDBreader objects each holding the content of a single
-     *         PDB file.
-     * @throws IOException if input file could not be read.
-     * @throws DataFormatException if ATOM or HEATM line does not conform to the
-     *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
-     *         PDB standards</a>.
-     */
-    public static ArrayList < PDBreader > createPDBreaders(final String infile)
-                                       throws IOException, DataFormatException {
-
-        ArrayList < PDBreader > pdbReaders = new ArrayList < PDBreader >();
-        if (infile.endsWith(".tar.gz") || infile.endsWith(".tgz")) {
-            GzipFileReader gzip = new GzipFileReader(infile);
-            TarPDBreader tarPdb = new TarPDBreader(gzip.getGZIPInputStream());
-            pdbReaders.addAll(tarPdb.getPDBreaders());
-
-        } else if (infile.endsWith(".gz")) {
-            GzipPDBreader gzipReader = new GzipPDBreader(infile);
-            pdbReaders.add(gzipReader.getPDBreader());
-        } else if (infile.endsWith(".tar")) {
-            TarPDBreader tarPdb = new TarPDBreader(infile);
-            pdbReaders.addAll(tarPdb.getPDBreaders());
-        } else if (infile.endsWith(".pdb")
-                   ||
-                   infile.endsWith(".pdb1")
-                   ||
-                   infile.endsWith(".ent")
-                   ||
-                   infile.endsWith(".pqs")
-                   ||
-                   infile.endsWith(".mmol")
-                   ||
-                   infile.endsWith(".pisa")) {
-
-            pdbReaders.add(new PDBreader(infile));
-        }
-    return pdbReaders;
-    }
-
     //--------------------------------------------------------------------------
     /**
      * Extracts user set chain and alternative location based PDBcomplex objects
@@ -1209,7 +1164,7 @@ public final class CrossLinkUtilities {
                     continue;
                 } else {
                     AtomList minimumDistanceAtomPair =
-                            CrossLinkUtilities.getClosestAtomPair(list1, list2);
+                            MatterUtilities.getClosestAtomPair(list1, list2);
 
                     double dist =
                                   Mathematics.distance(
@@ -1390,39 +1345,6 @@ public final class CrossLinkUtilities {
             }
         }
     }
-    //--------------------------------------------------------------------------
-
-    /**
-     * Returns those two atoms that are closest in two AtomList objects.
-     * @param list1
-     *        - AtomList object holding a first list of atom coordinates.
-     * @param list2
-     *        - AtomList object holding a second list of atom coordinates.
-     * @return AtomList object holding the coordinates of the two closest atoms
-     *         in both atom lists.
-     */
-    private static AtomList getClosestAtomPair(final AtomList list1,
-                                               final AtomList list2) {
-        double minDist = Integer.MAX_VALUE;
-        AtomList minList = new AtomList();
-        minList.add(list1.get(0));
-        minList.add(list2.get(0));
-
-        for (Atom atom1 : list1) {
-            for (Atom atom2 : list2) {
-                double dist = Mathematics.distance(atom1.getPoint3d(),
-                                                   atom2.getPoint3d()
-                                                  );
-                if (dist < minDist) {
-                    minDist = dist;
-                    minList.set(0, atom1);
-                    minList.set(1, atom2);
-                }
-            }
-        }
-    return minList;
-    }
-
    //--------------------------------------------------------------------------
 
     /**

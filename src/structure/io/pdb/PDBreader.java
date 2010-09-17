@@ -9,6 +9,7 @@ import java.util.Hashtable;
 import java.util.zip.DataFormatException;
 
 import structure.constants.Constants;
+import structure.io.GzipFileReader;
 import structure.io.ReadFile;
 import structure.math.Point3d;
 import structure.matter.Atom;
@@ -89,6 +90,51 @@ public class PDBreader {
     public PDBreader(final ReadFile readFile) throws DataFormatException {
         this.pdbFile = readFile;
         this.readAllAtoms(this.pdbFile);
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Creates list of PDBreader objects from the user given input file, where
+     * the input file can be a list of PDB files in a tar archive (.tar),
+     * compressed by GNU zip (.gz, .tar.gz, .tgz) or simply a PDB file.
+     * @param infile
+     *        - String object holding the path to the input file.
+     * @return List of PDBreader objects each holding the content of a single
+     *         PDB file.
+     * @throws IOException if input file could not be read.
+     * @throws DataFormatException if ATOM or HEATM line does not conform to the
+     *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
+     *         PDB standards</a>.
+     */
+    public static ArrayList < PDBreader > createPDBreaders(final String infile)
+                                       throws IOException, DataFormatException {
+
+        ArrayList < PDBreader > pdbReaders = new ArrayList < PDBreader >();
+        if (infile.endsWith(".tar.gz") || infile.endsWith(".tgz")) {
+            GzipFileReader gzip = new GzipFileReader(infile);
+            TarPDBreader tarPdb = new TarPDBreader(gzip.getGZIPInputStream());
+            pdbReaders.addAll(tarPdb.getPDBreaders());
+
+        } else if (infile.endsWith(".gz")) {
+            GzipPDBreader gzipReader = new GzipPDBreader(infile);
+            pdbReaders.add(gzipReader.getPDBreader());
+        } else if (infile.endsWith(".tar")) {
+            TarPDBreader tarPdb = new TarPDBreader(infile);
+            pdbReaders.addAll(tarPdb.getPDBreaders());
+        } else if (infile.endsWith(".pdb")
+                   ||
+                   infile.endsWith(".pdb1")
+                   ||
+                   infile.endsWith(".ent")
+                   ||
+                   infile.endsWith(".pqs")
+                   ||
+                   infile.endsWith(".mmol")
+                   ||
+                   infile.endsWith(".pisa")) {
+
+            pdbReaders.add(new PDBreader(infile));
+        }
+    return pdbReaders;
     }
     //--------------------------------------------------------------------------
     /**
@@ -347,5 +393,4 @@ public class PDBreader {
     return molecules;
     }
     //--------------------------------------------------------------------------
-
 }
