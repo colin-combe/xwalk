@@ -40,7 +40,8 @@ public class PDBreader {
      */
     private String filePath = "";
     /**
-     * AtomList object, which holds all atoms in the PDB file.
+     * List of AtomList object that hold all atoms of all molecule entities in a
+     * PDB file.
      * @see #readAllAtoms()
      */
     private ArrayList < AtomList > allAtoms = new ArrayList < AtomList >();
