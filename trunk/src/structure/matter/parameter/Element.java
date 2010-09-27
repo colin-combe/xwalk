@@ -31,9 +31,9 @@ public enum Element {
     IODINE("I", ElementTypes.NON_METAL),FLUORINE("F", ElementTypes.NON_METAL),
     CHLORINE("CL", ElementTypes.NON_METAL),
     BROMINE("BR", ElementTypes.NON_METAL),
-    SELENIUM("SE", ElementTypes.NON_METAL),
+    SELENIUM("SE", ElementTypes.NON_METAL);
 
-    // SPECIAL ELEMENT TYPES FOR PARSE
+/*    // SPECIAL ELEMENT TYPES FOR PARSE
     CARBON_AROMATIC("CB", ElementTypes.ORGANIC),
     HYDROGEN_ALIPHATIC("HL", ElementTypes.ORGANIC),
 
@@ -41,6 +41,7 @@ public enum Element {
     HYDROGEN_BOUND_TO_CARBON("HC", ElementTypes.ORGANIC),
     HYDROGEN_BOUND_TO_OXYGEN_OR_NITROGEN("HO", ElementTypes.ORGANIC),
     HYDROGEN_BOUND_TO_SULPHUR("HS", ElementTypes.ORGANIC);
+*/
     //--------------------------------------------------------------------------
 
     /**

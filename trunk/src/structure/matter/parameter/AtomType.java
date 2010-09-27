@@ -8,8 +8,46 @@ package structure.matter.parameter;
  *
  */
 public enum AtomType {
+    CARBON(Element.CARBON, "C"),
     CARBON_ALPHA(Element.CARBON, "CA"),
-    NITROGEN_EPSILON(Element.NITROGEN, "NZ");
+    CARBON_BETA(Element.CARBON, "CB"),
+    CARBON_GAMMA(Element.CARBON, "CG"),
+    CARBON_DELTA(Element.CARBON, "CD"),
+    CARBON_DELTA1(Element.CARBON, "CD1"),
+    CARBON_DELTA2(Element.CARBON, "CD2"),
+    CARBON_GAMMA1(Element.CARBON, "CG1"),
+    CARBON_GAMMA2(Element.CARBON, "CG2"),
+    CARBON_EPSILON(Element.CARBON, "CE"),
+    CARBON_EPSILON1(Element.CARBON, "CE1"),
+    CARBON_EPSILON2(Element.CARBON, "CE2"),
+    CARBON_EPSILON3(Element.CARBON, "CE3"),
+    CARBON_Z(Element.CARBON, "CZ"),
+    CARBON_Z2(Element.CARBON, "CZ2"),
+    CARBON_Z3(Element.CARBON, "CZ3"),
+    CARBON_H2(Element.CARBON, "CH2"),
+
+    NITROGEN(Element.NITROGEN, "N"),
+    NITROGEN_DELTA1(Element.NITROGEN, "ND1"),
+    NITROGEN_DELTA2(Element.NITROGEN, "ND2"),
+    NITROGEN_EPSILON(Element.NITROGEN, "NE"),
+    NITROGEN_EPSILON1(Element.NITROGEN, "NE1"),
+    NITROGEN_EPSILON2(Element.NITROGEN, "NE2"),
+    NITROGEN_H1(Element.NITROGEN, "NH1"),
+    NITROGEN_H2(Element.NITROGEN, "NH2"),
+    NITROGEN_Z(Element.NITROGEN, "NZ"),
+
+    OXYGEN(Element.OXYGEN, "O"),
+    OXYGEN_DELTA1(Element.OXYGEN, "OD1"),
+    OXYGEN_DELTA2(Element.OXYGEN, "OD2"),
+    OXYGEN_EPSILON1(Element.OXYGEN, "OE1"),
+    OXYGEN_EPSILON2(Element.OXYGEN, "OE2"),
+    OXYGEN_GAMMA(Element.OXYGEN, "OG"),
+    OXYGEN_GAMMA1(Element.OXYGEN, "OG1"),
+    OXYGEN_HYDROXYL(Element.OXYGEN, "OH"),
+
+    SULPHUR_GAMMA(Element.SULPHUR, "SG"),
+    SULPHUR_DELTA(Element.SULPHUR, "SD");
+
     //--------------------------------------------------------------------------
     /**
      * Element to which atom belongs.

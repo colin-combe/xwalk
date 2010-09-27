@@ -142,6 +142,13 @@ public class Constants {
 
     //--------------------------------------------------------------------------
     /**
+     * Name of temporary directory which is used for example by the
+     * BindingInterface class.
+     */
+    public static final String TEMPORARY_DIR = "Trash";
+
+    //--------------------------------------------------------------------------
+    /**
      * Cartesian coordinates are given up to a three digit after comma.
      */
     public static final NumberFormat CARTESIAN_DEC_FORMAT =
@@ -159,7 +166,7 @@ public class Constants {
     /**
      * Supported atom parameter sets.
      */
-    public enum ParameterSets { RASMOL, SURFNET, MMFF94, PARSE, CHARMM };
+    public enum ParameterSets { RASMOL, SURFNET, MMFF94, PARSE, CHARMM, XLOGP };
 
     /**
      * Supported element types.

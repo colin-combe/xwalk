@@ -18,15 +18,25 @@ public abstract class Molecule {
      */
     private static final long serialVersionUID = 1L;
     //--------------------------------------------------------------------------
-
     /**
      * List of all bonds within the molecule.
      */
     private ArrayList < Bond > bonds = new ArrayList < Bond >();
+    //--------------------------------------------------------------------------
     /**
      * List of all atoms in the molecule.
      */
     private AtomList atoms = new AtomList();
+    //--------------------------------------------------------------------------
+    /**
+     * Total solvent accessibility of this residue.
+     */
+    private double totalSolventAccessibility;
+    //--------------------------------------------------------------------------
+    /**
+     * Relative solvent accessibility of this residue.
+     */
+    private double relativeSolventAccessibility;
     //--------------------------------------------------------------------------
 
     /**
@@ -138,7 +148,7 @@ public abstract class Molecule {
             } else if (atomName.startsWith(Element.PHOSPHOR.getSymbol())) {
                 atom.setElement(Element.PHOSPHOR);
             }
-            // treat special cases of atom types
+/*            // treat special cases of atom types
             for (Bond bond : this.getBonds()) {
                 if (atom.getElement() == Element.HYDROGEN) {
                     if (bond.getPreAtom().equals(atom)
@@ -173,20 +183,56 @@ public abstract class Molecule {
                                                      Element.SULPHUR.getSymbol()
                                                                        )
                                   ) {
-                            atom.setElement(Element.SULPHUR);
+                            atom.setElement(Element.HYDROGEN_BOUND_TO_SULPHUR);
                         } else if (covalent.getElement() == Element.CARBON
                                    &&
                                    !covalent.isAromatic()) {
                             atom.setElement(Element.HYDROGEN_ALIPHATIC);
                         }
-                    } else if (atom.getElement() == Element.CARBON
-                               &&
-                               atom.isAromatic()) {
-                        atom.setElement(Element.CARBON_AROMATIC);
                     }
                 }
             }
+            if (atom.getElement() == Element.CARBON && atom.isAromatic()) {
+                atom.setElement(Element.CARBON_AROMATIC);
+            }
+*/
         }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the total solvent accessibility of this amino acid.
+     * @return double value value representing this amino acid's total SAS.
+     * @see #setTotalSas(int)
+     */
+    public final double getSas() {
+        return totalSolventAccessibility;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the relative solvent accessibility of this amino acid.
+     * @return double value value representing this amino acid's relative SAS.
+     * @see #setRelativeSas(int)
+     */
+    public final double getRelativeSas() {
+        return relativeSolventAccessibility;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Sets the absolute solvent accessibility of this amino acid.
+     * @param sas
+     *        double value value representing this amino acid's total SAS.
+     */
+    public final void setSas(final double sas) {
+        this.totalSolventAccessibility = sas;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Sets the relative solvent accessibility of this amino acid.
+     * @param sas
+     *        double value value representing this amino acid's relative SAS.
+     */
+    public final void setRelativeSas(final double sas) {
+        this.relativeSolventAccessibility = sas;
     }
     //--------------------------------------------------------------------------
 

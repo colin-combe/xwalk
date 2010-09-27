@@ -346,7 +346,7 @@ public class Digestion {
         if (p1pType != null) {
             if (p1type == AminoAcidType.LYSINE
                 &&
-                p2type == AminoAcidType.TRYPTOPHAN) {
+                p2type == AminoAcidType.TRYPTOPHANE) {
                 return false;
             }
             if (p1type == AminoAcidType.ARGININE

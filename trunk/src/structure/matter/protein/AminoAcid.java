@@ -30,6 +30,11 @@ public class AminoAcid extends Molecule {
     private int number;
     //--------------------------------------------------------------------------
     /**
+     * Conservation grade of this amino acid.
+     */
+    private int conservationGrade;
+    //--------------------------------------------------------------------------
+    /**
      * Constructor. Checks whether all atoms really belong to a single amino
      * acid. Furthermore assigns the amino acid to one of various amino acid
      * types.
@@ -119,6 +124,24 @@ public class AminoAcid extends Molecule {
     }
     //--------------------------------------------------------------------------
     /**
+     * Sets the conservation grade of this amino acid.
+     * @param grade
+     *        - integer value representing this amino acid's conservation grade.
+     */
+    public final void setConservationGrade(final int grade) {
+        this.conservationGrade = grade;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the conservation grade of this amino acid.
+     * @return integer value representing this amino acid's conservation grade.
+     * @see #setConservationGrade(int)
+     */
+    public final int getConservationGrade() {
+        return conservationGrade;
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Creates a copy of this AminoAcid object.
      * @return Copy of this AminoAcid object.
      */
@@ -132,5 +155,45 @@ public class AminoAcid extends Molecule {
         copy.aminoAcidType = this.aminoAcidType;
 
     return copy;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Checks whether this amino acid is likely to be observed at a
+     * protein-protein interface.
+     * @return {@code TRUE} if amino acid is ILE, HIS, CYS, PHE, MET, TYR or
+     *         TRP
+     */
+    public final boolean isInterfaceTypic() {
+        if (this.getType().equals(AminoAcidType.ISOLEUCINE)
+         || this.getType().equals(AminoAcidType.HISTIDINE)
+         || this.getType().equals(AminoAcidType.CYSTEINE)
+         || this.getType().equals(AminoAcidType.PHENYLALANINE)
+         || this.getType().equals(AminoAcidType.METHIONINE)
+         || this.getType().equals(AminoAcidType.TYROSINE)
+         || this.getType().equals(AminoAcidType.TRYPTOPHANE)) {
+            return true;
+        }
+    return false;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Checks whether this amino acid is unlikely to be observed at a
+     * protein-protein interface.
+     * @return {@code TRUE} if amino acid is LYS, GLU, ASP, SER, THR, ALA, PRO
+     *         or GLN
+     */
+    public final boolean isNonInterfaceTypic() {
+        if (this.getType().equals(AminoAcidType.LYSINE)
+         || this.getType().equals(AminoAcidType.GLUTAMIC_ACID)
+         || this.getType().equals(AminoAcidType.ASPARTIC_ACID)
+         || this.getType().equals(AminoAcidType.SERINE)
+         || this.getType().equals(AminoAcidType.THREONINE)
+         || this.getType().equals(AminoAcidType.ALANINE)
+         || this.getType().equals(AminoAcidType.PROLINE)
+         || this.getType().equals(AminoAcidType.GLUTAMINE)
+        ) {
+        return true;
+        }
+    return false;
     }
 }
