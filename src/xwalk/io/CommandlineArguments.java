@@ -169,9 +169,9 @@ public class CommandlineArguments {
     private boolean verboseGrid     = false;
     /**
      * To trypsinate the protein.
-     * Default {@code help = FALSE};
+     * Default {@code help = TRUE};
      */
-    private boolean doTrypsin = false;
+    private boolean doTrypsin = true;
     /**
      * To digest according to the exceptions listed in
      * <a href="http://expasy.org/tools/peptidecutter/
@@ -371,9 +371,9 @@ public class CommandlineArguments {
               + NL
               + "DIGESTION RELATED:"
               + NL
-              + "\t-trypsin\t[switch]\tDigests the protein with trypsin and "
-              + "excludes all peptides from cross-linking that are shorter "
-              + "than 5 AA or larger than 45 AA longs [optional]."
+              + "\t-xtrypsin\t[switch]\tSkips digestion of the protein with "
+              + "trypsin and thus does not excludes peptides that are shorter "
+              + "than 5 AA or larger than 45 AA [optional]."
               + NL
               + NL
               + "DISTANCE RELATED:"
@@ -409,7 +409,7 @@ public class CommandlineArguments {
               + "amino acids [optional]."
               + NL
               + "\t-radius\t[double]\tSolvent radius for calculating the "
-              + "solvent accessible surface area [optional](default 3.0)."
+              + "solvent accessible surface area [optional](default 1.4)."
               + NL
               + "\t-space\t[double]\tSpacing in Angstroem between grid "
               + "cells. [optional](default 1.0)."
@@ -1294,14 +1294,15 @@ public class CommandlineArguments {
     }
     //--------------------------------------------------------------------------
     /**
-     * Determines whether the argument -trypsin has been set on the commandline.
+     * Determines whether the argument -xtrypsin has been set on the
+     * commandline.
      * @see #getTrypsinateArgument()
      */
     private void readTrypsinateArgument() {
         if (Commandline.get(this.arguments,
-                            "-trypsin",
+                            "-xtrypsin",
                             false).equals("EXISTS")) {
-            this.doTrypsin = true;
+            this.doTrypsin = false;
         }
     }
     //--------------------------------------------------------------------------

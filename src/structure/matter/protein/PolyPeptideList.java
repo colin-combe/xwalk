@@ -44,6 +44,20 @@ public class PolyPeptideList extends ArrayList < PolyPeptide > {
     }
     //--------------------------------------------------------------------------
     /**
+     * Returns all amino acids in this complex.
+     * @return List of all amino acids found in this complex.
+     */
+    public final ArrayList<AminoAcid> getAllAminoAcids() {
+        ArrayList<AminoAcid> complexAminoAcids = new ArrayList<AminoAcid>();
+        for (PolyPeptide protein : this) {
+             for (AminoAcid aminoAcid : protein) {
+                  complexAminoAcids.add(aminoAcid);
+             }
+        }
+        return complexAminoAcids;
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Sets the atom radii according to a ParameterSet objectReturns protein
      * atoms found in this complex.
      * @param parameter

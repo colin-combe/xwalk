@@ -22,6 +22,11 @@ public class ParameterReader {
     private Hashtable < Element, Double > vdWradii =
                                            new Hashtable < Element, Double >();
     /**
+     * Holds atomic XlogP values for all standard PDB amino acid atom types.
+     */
+    private Hashtable <AminoAcidType, Hashtable <AtomType, Double >> xlogP =
+                 new Hashtable <AminoAcidType, Hashtable <AtomType, Double >>();
+    /**
      * MMRR94 radius identifier.
      */
     private static final String MMFF94_FILENAME = "MMFF94_radii.txt";
@@ -41,15 +46,34 @@ public class ParameterReader {
      * CHARMM radius identifier.
      */
     private static final String CHARMM_FILENAME = "CHARMM_radii.txt";
+    /**
+     * XLOGP radius identifier.
+     */
+    private static final String XLOGP_FILENAME = "atomic_XlogP.txt";
 
     /**
-     * Column number of element name in parameter files. Should be 0.
+     * Column number of element name in two column parameter files. Should be 0.
      */
     private static int elementNameColumn = 0;
     /**
-     * Column number of van der Waals radius in parameter files. Should be 1.
+     * Column number of van der Waals radius in two column parameter files.
+     * Should be 1.
      */
     private static int vdWradiusColumn = 1;
+    /**
+     * Column number of amino acid name in three column parameter files.
+     * Should be 0.
+     */
+    private static int aminoAcidNameColumn = 0;
+    /**
+     * Column number of atom name in three column parameter files. Should be 1.
+     */
+    private static int atomNameColumn = 1;
+    /**
+     * Column number of xlogP value in a three column parameter files.
+     * Should be 2.
+     */
+    private static int xlogPcolumn = 2;
 
     /**
      * default serialVersionUID.
@@ -80,6 +104,9 @@ public class ParameterReader {
         if (parameter == Constants.ParameterSets.CHARMM) {
             this.readParameterSet(ParameterReader.CHARMM_FILENAME);
         }
+        if (parameter == Constants.ParameterSets.XLOGP) {
+            this.readParameterSet(ParameterReader.XLOGP_FILENAME);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -95,13 +122,40 @@ public class ParameterReader {
         for (String line : read) {
             if (!line.startsWith("#")) {
                 String[] column = line.split("\t");
-                String elementName = column[ParameterReader.elementNameColumn];
-                Double radius = Double.parseDouble(
+                if (column.length == 2) {
+                    String elementName =
+                                      column[ParameterReader.elementNameColumn];
+                    double radius = Double.parseDouble(
                                          column[ParameterReader.vdWradiusColumn]
-                                                  );
-                for (Element e : Element.values()) {
-                    if (e.toString().equals(elementName)) {
-                        this.vdWradii.put(e, radius);
+                                                      );
+                    for (Element e : Element.values()) {
+                        if (e.toString().equals(elementName)) {
+                            this.vdWradii.put(e, radius);
+                        }
+                    }
+                } else if (column.length == 3) {
+                    String aminoAcidName =
+                                    column[ParameterReader.aminoAcidNameColumn];
+                    String atomName = column[ParameterReader.atomNameColumn];
+                    double xlogPvalue = Double.parseDouble(
+                                             column[ParameterReader.xlogPcolumn]
+                                                          );
+
+                    for (AminoAcidType aat : AminoAcidType.values()) {
+                        if (aat.getThreeLetterCode().equals(aminoAcidName)) {
+                            for (AtomType at : AtomType.values()) {
+                                if (at.getAbbreviation().equals(atomName)) {
+                                    if (this.xlogP.get(aat) == null) {
+                                        Hashtable<AtomType, Double> atomXlogP =
+                                              new Hashtable<AtomType, Double>();
+                                        atomXlogP.put(at, xlogPvalue);
+                                        this.xlogP.put(aat, atomXlogP);
+                                    } else {
+                                        this.xlogP.get(aat).put(at, xlogPvalue);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -109,12 +163,19 @@ public class ParameterReader {
     }
 
     //--------------------------------------------------------------------------
-
     /**
-     * Returns parameter set of atom van der Waals radii.
+     * Returns the set of atom van der Waals radius parameter.
      * @return Hashtable with Element keys and double elements as radii.
      */
     public final Hashtable < Element, Double > getVdwRadiusParameterSet() {
         return this.vdWradii;
+    }
+    /**
+     * Returns the set of atomic XlogP values for all protein amino acid atoms.
+     * @return Hashtable with XlogP values for all protein amino acid atoms.
+     */
+    public final Hashtable <AminoAcidType, Hashtable <AtomType, Double >>
+                                                        getXlogPparameterSet() {
+        return this.xlogP;
     }
 }

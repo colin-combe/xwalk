@@ -4,7 +4,6 @@ import java.util.Hashtable;
 import structure.constants.Constants;
 import structure.io.pdb.PDBreader;
 import structure.matter.Atom;
-import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
@@ -23,7 +22,15 @@ public class AvgInterface {
     /**
      * List of Atom objects forming all binding site atoms.
      */
-    private AtomList allInterfacesAtoms = new AtomList();
+    private ArrayList<AminoAcid> allInterfacesAminoAcids =
+                                                     new ArrayList<AminoAcid>();
+    /**
+     * Number of occurrence of an amino acid at an interface. Need to use a
+     * String representation of an amino acid as otherwise identical amino
+     * acids from different conformations wont be recognized.
+     */
+    private Hashtable<String, Integer> interfaceCount =
+                                            new Hashtable<String, Integer>();
 
     //--------------------------------------------------------------------------
     /**
@@ -37,6 +44,21 @@ public class AvgInterface {
     }
     //--------------------------------------------------------------------------
     /**
+     * Returns a string representation of an amino acid.
+     * @param aa
+     *        AminoAcid object
+     * @return String object holding the string representation of the amino
+     *         acid.
+     */
+    public static String getResidueId(final AminoAcid aa) {
+        return "#"
+             + aa.getAtom(0).getResidueName()
+             + aa.getAtom(0).getResidueNumber()
+             + aa.getAtom(0).getChainId()
+             + "#";
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Determines all binding interfaces found in a list of PDB files.
      * @param readers
      *        List of PDBreader objects holding each the content of a single PDB
@@ -47,20 +69,24 @@ public class AvgInterface {
                                             ) {
 
         String allInterfacesIds = "";
-        Hashtable<String, Integer> idsCount = new Hashtable<String, Integer>();
 
 
-        for (PDBreader files : readers) {
+        for (PDBreader file : readers) {
             ArrayList<PolyPeptideList> fileMolecules =
-                                                files.getEntireProteinComplex();
+                                                file.getEntireProteinComplex();
             for (int i = 0; i < fileMolecules.size(); i++) {
                 PolyPeptideList proteinComplex = fileMolecules.get(i);
 
-                AtomList complexInterfaceAtoms = new AtomList();
-                String complexInterfaceAtomsIds = "";
+                ArrayList<AminoAcid> complexInterfaceAminoAcids =
+                                                     new ArrayList<AminoAcid>();
+                String complexInterfaceAminoAcidIds = "";
 
                 for (int j = 0; j < proteinComplex.size(); j++) {
                     for (int k = j + 1; k < proteinComplex.size(); k++) {
+
+                        //------------------------------------------------------
+                        // get binding interface between both proteins
+                        //------------------------------------------------------
                         BindingInterface bi = new BindingInterface(
                                                           proteinComplex.get(j),
                                                           proteinComplex.get(k)
@@ -68,47 +94,41 @@ public class AvgInterface {
                         ArrayList<ArrayList<AminoAcid>> complexInterface =
                                                               bi.getInterface();
 
+                        //------------------------------------------------------
+                        // calculate average number of occurrence of an amino
+                        // acid at the binding interface
+                        //------------------------------------------------------
                         for (ArrayList<AminoAcid> interfaceHalf
                                                            : complexInterface) {
                             for (AminoAcid aa : interfaceHalf) {
-                                for (Atom atom : aa.getAllAtoms()) {
-                                    String id = "#"
-                                              + atom.getName()
-                                              + atom.getResidueNumber()
-                                              + atom.getResidueName()
-                                              + "-"
-                                              + atom.getChainId()
-                                              + "#";
-                                    if (allInterfacesIds.indexOf(id) == -1
-                                        &&
-                                        complexInterfaceAtomsIds.indexOf(id)
-                                                                        == -1) {
-                                        idsCount.put(id, 1);
-                                        atom.setTemperatureFactor(
-                                                                idsCount.get(id)
-                                                                 );
+                                String id = AvgInterface.getResidueId(aa);
 
-                                        complexInterfaceAtoms.add(atom);
-                                        complexInterfaceAtomsIds += id;
-                                    } else if (complexInterfaceAtomsIds.indexOf(
+                                if (allInterfacesIds.indexOf(id) == -1
+                                    &&
+                                    complexInterfaceAminoAcidIds.indexOf(id)
+                                                                        == -1) {
+                                    this.interfaceCount.put(id, 1);
+
+                                    complexInterfaceAminoAcids.add(aa);
+                                    complexInterfaceAminoAcidIds += id;
+                                } else if (complexInterfaceAminoAcidIds.indexOf(
                                                                               id
                                                                                )
                                                                         == -1) {
-                                        idsCount.put(id, idsCount.get(id) + 1);
-                                        atom.setTemperatureFactor(
-                                                                idsCount.get(id)
-                                                                 );
+                                    this.interfaceCount.put(
+                                                 id,
+                                                 this.interfaceCount.get(id) + 1
+                                                               );
 
-                                        complexInterfaceAtoms.add(atom);
-                                        complexInterfaceAtomsIds += id;
-                                    }
+                                    complexInterfaceAminoAcids.add(aa);
+                                    complexInterfaceAminoAcidIds += id;
                                 }
                             }
                         }
                     }
                 }
-                allInterfacesIds += complexInterfaceAtomsIds;
-                this.allInterfacesAtoms.addAll(complexInterfaceAtoms);
+                allInterfacesIds += complexInterfaceAminoAcidIds;
+                this.allInterfacesAminoAcids.addAll(complexInterfaceAminoAcids);
             }
         }
     }
@@ -119,8 +139,17 @@ public class AvgInterface {
      * @return List of AminoAcid objects that are found at the interface of the
      *         dimer.
      */
-    public final AtomList getInterfacesAtoms() {
-        return this.allInterfacesAtoms;
+    public final ArrayList<AminoAcid> getInterfacesAminoAcids() {
+        return this.allInterfacesAminoAcids;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the number of occurrences for each interfacial amino acid.
+     * @return Hashtable with keys being the amino acid identifier, where the
+     *         identifier consist of chainId, residueNumber and residueName.
+     */
+    public final Hashtable<String, Integer> getInterfacesCounts() {
+        return this.interfaceCount;
     }
 
     //--------------------------------------------------------------------------
@@ -133,6 +162,9 @@ public class AvgInterface {
      */
     public static void main(final String[] args) {
         String nL = Constants.LINE_SEPERATOR;
+        //----------------------------------------------------------------------
+        // output small USAGE information if no commandline argument is given.
+        //----------------------------------------------------------------------
         if (args.length < 2) {
             System.err.print(nL
                           + "Usage: " + nL
@@ -143,6 +175,10 @@ public class AvgInterface {
             System.exit(1);
         }
 
+        //----------------------------------------------------------------------
+        // read tar.gz file with all complexes to be analysed for amino acid
+        // occurrences at binding interfaces.
+        //----------------------------------------------------------------------
         ArrayList<PDBreader> readers = null;
         try {
             readers = PDBreader.createPDBreaders(args[0]);
@@ -151,6 +187,9 @@ public class AvgInterface {
             System.err.print(e + nL);
         }
 
+        //----------------------------------------------------------------------
+        // determine number of complexes in the tar.gz file
+        //----------------------------------------------------------------------
         int complexCount = 0;
         for (PDBreader files : readers) {
             for (int i = 0; i < files.getEntireProteinComplex().size(); i++) {
@@ -158,16 +197,27 @@ public class AvgInterface {
              }
         }
 
+        //----------------------------------------------------------------------
+        // calculate occurrence numbers for each amino acid at an interface
+        //----------------------------------------------------------------------
         AvgInterface avgInterface = new AvgInterface(readers);
-        AtomList allInterfacesAtoms = avgInterface.getInterfacesAtoms();
+        ArrayList<AminoAcid> allInterfacesAminoAcids =
+                                         avgInterface.getInterfacesAminoAcids();
+        Hashtable<String, Integer> interfaceCounts =
+                                             avgInterface.getInterfacesCounts();
 
+        //----------------------------------------------------------------------
+        // read map protein
+        //----------------------------------------------------------------------
         PDBreader map = null;
         try {
             map = new PDBreader(args[1]);
         } catch (Exception e) {
             System.err.print(e + nL);
         }
-        // init occupancy and temperature factor values to 0.0.
+        //----------------------------------------------------------------------
+        // initialize occupancy and temperature factor values to 0.0.
+        //----------------------------------------------------------------------
         ArrayList<PolyPeptideList> complexes = map.getEntireProteinComplex();
         for (PolyPeptideList complex : complexes) {
             for (PolyPeptide protein : complex) {
@@ -180,23 +230,24 @@ public class AvgInterface {
             }
         }
 
+        //----------------------------------------------------------------------
+        // assign residues of map protein the occurrence numbers.
+        //----------------------------------------------------------------------
         for (PolyPeptideList complex : complexes) {
             for (PolyPeptide protein : complex) {
-                for (AminoAcid aa : protein) {
-                    for (Atom atom1 : aa.getAllAtoms()) {
+                for (AminoAcid aa1 : protein) {
+                    String id = AvgInterface.getResidueId(aa1);
+                    for (AminoAcid aa2 : allInterfacesAminoAcids) {
 
-                        for (Atom atom2 : allInterfacesAtoms) {
-                            if (MatterUtilities.equalsResidue(atom1, atom2)
-                                &&
-                                atom1.getName().equals(atom2.getName())) {
-                                    atom1.setOccupancy(
-                                                    atom2.getTemperatureFactor()
-                                                      );
-                                    atom1.setTemperatureFactor(
-                                                    atom2.getTemperatureFactor()
-                                                               /
-                                                    complexCount
-                                                              );
+                        if (MatterUtilities.equalsResidue(aa1.getAtom(0),
+                                                          aa2.getAtom(0))) {
+
+                            int count = interfaceCounts.get(id);
+                            for (Atom atom : aa1.getAllAtoms()) {
+                                atom.setOccupancy(count);
+                                atom.setTemperatureFactor((double) count
+                                                          /
+                                                          complexCount);
                             }
                         }
                     }

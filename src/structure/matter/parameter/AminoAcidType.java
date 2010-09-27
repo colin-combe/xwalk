@@ -16,7 +16,7 @@ public enum AminoAcidType {
     ISOLEUCINE ('I', "ILE"),
     PHENYLALANINE ('F', "PHE"),
     PROLINE ('P', "PRO"),
-    TRYPTOPHAN ('W', "TRP"),
+    TRYPTOPHANE ('W', "TRP"),
     // amino acids containing a nitrogen atom
     ASPARAGINE ('N', "ASN"),
     GLUTAMINE ('Q', "GLN"),

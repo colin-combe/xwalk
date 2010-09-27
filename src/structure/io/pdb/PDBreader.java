@@ -16,6 +16,8 @@ import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
 import structure.matter.hetgroups.SmallMolecule;
+import structure.matter.parameter.AminoAcidType;
+import structure.matter.parameter.AtomType;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
 import structure.matter.protein.PolyPeptideList;
@@ -225,6 +227,15 @@ public class PDBreader {
 
             double tempFact = Double.parseDouble(line.substring(60,66).trim());
             atom.setTemperatureFactor(tempFact);
+
+            // set type of atom
+            for (AtomType atomType : AtomType.values()) {
+                if (atomType.getAbbreviation().trim().equals(
+                                                       atom.getName().trim())) {
+                    atom.setType(atomType);
+                    break;
+                }
+            }
         } catch (Exception e) {
             throw new DataFormatException("ERROR: " + line + "; does not seem "
                                         + "to have PDB format: " + e
@@ -295,7 +306,7 @@ public class PDBreader {
             complex.setName(new File(this.filePath).getName());
             complexes.add(complex);
         }
-       return complexes;
+        return complexes;
     }
     //--------------------------------------------------------------------------
     /**
@@ -349,18 +360,22 @@ public class PDBreader {
     private ArrayList < AminoAcid > getAllAminoAcids(final AtomList atomList) {
         ArrayList < AminoAcid > aminoAcids = new ArrayList < AminoAcid >();
         Atom preAtom = atomList.get(0);
-        AtomList residue = new AtomList();
+        AtomList residueAtoms = new AtomList();
         for (Atom atom : atomList) {
              if (!MatterUtilities.equalsResidue(atom, preAtom)) {
-                aminoAcids.add(new AminoAcid(residue));
-                preAtom = atom;
-                residue = new AtomList();
-                residue.add(atom);
-            } else {
-                residue.add(atom);
+                 AminoAcid aa = new AminoAcid(residueAtoms);
+                 aa.setElement();
+                 aminoAcids.add(aa);
+                 preAtom = atom;
+                 residueAtoms = new AtomList();
+                 residueAtoms.add(atom);
+             } else {
+                 residueAtoms.add(atom);
             }
         }
-        aminoAcids.add(new AminoAcid(residue));
+        AminoAcid aa = new AminoAcid(residueAtoms);
+        aa.setElement();
+        aminoAcids.add(aa);
     return aminoAcids;
     }
     //--------------------------------------------------------------------------
@@ -382,15 +397,19 @@ public class PDBreader {
         AtomList mol = new AtomList();
         for (Atom atom : atomList) {
              if (!MatterUtilities.equalsResidue(atom, preAtom)) {
-                molecules.add(new SmallMolecule(mol));
-                preAtom = atom;
-                mol = new AtomList();
-                mol.add(atom);
-            } else {
-                mol.add(atom);
-            }
+                 SmallMolecule sm = new SmallMolecule(mol);
+                 sm.setElement();
+                 molecules.add(sm);
+                 preAtom = atom;
+                 mol = new AtomList();
+                 mol.add(atom);
+             } else {
+                 mol.add(atom);
+             }
         }
-        molecules.add(new SmallMolecule(mol));
+        SmallMolecule sm = new SmallMolecule(mol);
+        sm.setElement();
+        molecules.add(sm);
     return molecules;
     }
     //--------------------------------------------------------------------------

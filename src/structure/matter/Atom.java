@@ -1,4 +1,4 @@
-package structure.matter;
+    package structure.matter;
 
 import java.io.IOException;
 import java.util.Hashtable;
@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import structure.constants.Constants;
 import structure.io.pdb.PDBwriter;
 import structure.math.Point3d;
+import structure.matter.parameter.AtomType;
 import structure.matter.parameter.Element;
 import structure.matter.parameter.ParameterReader;
 
@@ -268,6 +269,10 @@ public class Atom {
     //--------------------------------------------------------------------------
     //--------------------------------------------------------------------------
     /**
+     * PDB type of atom
+     */
+    private AtomType type;
+    /**
      * Rank of the amino acid within the PDB sequence.
      */
     private int rank;
@@ -287,12 +292,17 @@ public class Atom {
      * metal state of atom.
      */
     private boolean isMetalic;
+    /**
+     * XlogP hydrophobicity value of atom.
+     */
+    private double xlogP;
 
     //--------------------------------------------------------------------------
     /**
      * Constructor sets all the fields to defaults (mainly 0 and "").
      */
     public Atom() {
+        this.type = AtomType.CARBON;
         this.flag = "ATOM  ";
         this.serialNumber = 0;
         this.name = "";
@@ -311,6 +321,7 @@ public class Atom {
         this.weight = 1;
         this.isAromatic = false;
         this.isMetalic = false;
+        this.xlogP = 0;
     }
     //--------------------------------------------------------------------------
     /**
@@ -319,6 +330,7 @@ public class Atom {
      */
     public final Atom copy() {
         Atom atom = new Atom();
+        atom.type = this.getType();
         atom.setFlag(new String(this.getFlag()));
         atom.setSerialNumber((new Integer(this.getSerialNumber())).intValue());
         atom.setName(new String(this.getName()));
@@ -347,7 +359,25 @@ public class Atom {
                            new Double(this.getVanDerWaalsRadius()).doubleValue()
                                  );
         atom.setWeight(new Double(this.getWeight()).doubleValue());
+        atom.setXlogP(new Double(this.getXlogP()).doubleValue());
     return atom;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Sets the PDB associated type of this atom.
+     * @param atomType
+     *        AtomType object representing the PDB type of this atom.
+     */
+    public final void setType(final AtomType atomType) {
+        this.type = atomType;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the PDB associated type of this atom.
+     * @return AtomType object representing the PDB type of this atom.
+     */
+    public final AtomType getType() {
+        return this.type;
     }
     //--------------------------------------------------------------------------
     /**
@@ -697,11 +727,13 @@ public class Atom {
      * factor value by
      * Bj= 8  * Math.pow(Math.PI,2) * Math.pow(avgDis,2)
      * Bj= 79 * Math.pow(avgDis,2)
-     * @return double value representing the average dislocation of the atoms 
+     * @return double value representing the average dislocation of the atoms
      *         position.
      */
     public final double getAverageDislocation() {
-        return Math.sqrt(this.temperaturFactor/79);
+        return Math.sqrt(this.temperaturFactor
+                         /
+                         79);
     }
     //--------------------------------------------------------------------------
     /**
@@ -865,6 +897,25 @@ public class Atom {
      */
     public final boolean isMetalic() {
         return this.isMetalic;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Sets the XlogP hydrophobicity of the atom.
+     * @param xlogP
+     *        double value representing the atom's XlogP hydrophobicity.
+     * @see #getXlogP
+     */
+    public final void setXlogP(double xlogP) {
+        this.xlogP = xlogP;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Gets the XlogP hydrophobicity of the atom.
+     * @return double value representing the atoms XlogP value.
+     * @see #setXlogP(double)
+     */
+    public final double getXlogP() {
+        return this.xlogP;
     }
     //--------------------------------------------------------------------------
     /**
