@@ -1,14 +1,12 @@
 package structure.sas;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 import external.Naccess;
 
 import structure.constants.Constants;
 import structure.io.pdb.PDBwriter;
-import structure.math.Mathematics;
-import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
@@ -24,16 +22,6 @@ public class BindingInterface {
 
     //--------------------------------------------------------------------------
     /**
-     * First protein of two to which interface is to be calculated.
-     */
-    private PolyPeptide proteinA;
-    //--------------------------------------------------------------------------
-    /**
-     * Second protein of two to which interface is to be calculated.
-     */
-    private PolyPeptide proteinB;
-    //--------------------------------------------------------------------------
-    /**
      * The binding interface consists of two list of amino acids, where each
      * list comes from one protein partner.
      */
@@ -41,53 +29,124 @@ public class BindingInterface {
                                          new ArrayList<ArrayList<AminoAcid>>(2);
     //--------------------------------------------------------------------------
     /**
+     * Buried surface area of this interface.
+     */
+    private double bsa;
+    //--------------------------------------------------------------------------
+    /**
      * Constructor to calculate the amino acids at the binding interface
      * between two protein structures.
-     * @param protein1
+     * @param proteinA
      *        First protein of two to which interface is to be calculated.
-     * @param protein2
+     * @param proteinB
      *        Second protein of two to which interface is to be calculated.
+     * @param naccess
+     *        Naccess object to extract SASA for a protein complex and its
+     *        components.
      */
-    public BindingInterface(final PolyPeptide protein1,
-                            final PolyPeptide protein2) {
-        this.proteinA = protein1;
-        this.proteinB = protein2;
-        this.setInterface();
+    public BindingInterface(final PolyPeptide proteinA,
+                            final PolyPeptide proteinB,
+                            final Naccess naccess) {
+
+        //----------------------------------------------------------------------
+        // initiate bindingInterface object.
+        //----------------------------------------------------------------------
+        ArrayList<AminoAcid> interfaceHalf1 = new ArrayList<AminoAcid>();
+        ArrayList<AminoAcid> interfaceHalf2 = new ArrayList<AminoAcid>();
+        this.bindingInterface.add(interfaceHalf1);
+        this.bindingInterface.add(interfaceHalf2);
+
+        this.setInterface(proteinA, proteinB, naccess);
     }
 
     //--------------------------------------------------------------------------
     /**
-     * Determines all amino acids at the binding interface of two proteins.
+     * Determines all amino acids at the binding interface of two proteins,
+     * where the interface is defined by a absolute change in the total SASA of
+     * an amino acid by > 0.1 Angstroem upon protein complex formation.
+     *
+     * @param proteinA
+     *        First protein of two to which interface is to be calculated.
+     * @param proteinB
+     *        Second protein of two to which interface is to be calculated.
+     * @param naccess
+     *        Naccess object to extract SASA for a protein complex and its
+     *        components.
      */
-    private void setInterface() {
+    private void setInterface(final PolyPeptide proteinA,
+                              final PolyPeptide proteinB,
+                              final Naccess naccess) {
 
-        this.bindingInterface = new ArrayList<ArrayList<AminoAcid>>();
+        //----------------------------------------------------------------------
+        // Extract amino acids on the protein surface
+        //----------------------------------------------------------------------
+        String tempFileName = "proteinA.pdb";
+        PDBwriter write = new PDBwriter();
+        write.setFile(tempFileName);
+        write.write(proteinA);
+        naccess.run(tempFileName);
+        naccess.setSolventAccessibility(proteinA);
+        double sasaA = naccess.getTotalSolventAccessibility();
 
-        ArrayList<AminoAcid> aa1 = new ArrayList<AminoAcid>();
-        ArrayList<AminoAcid> aa2 = new ArrayList<AminoAcid>();
+        tempFileName = "proteinB.pdb";
+        write.setFile(tempFileName);
+        write.write(proteinB);
+        naccess.run(tempFileName);
+        naccess.setSolventAccessibility(proteinB);
+        double sasaB = naccess.getTotalSolventAccessibility();
 
-        for (AminoAcid aminoAcid1 : this.proteinA) {
-            for (AminoAcid aminoAcid2 : this.proteinB) {
-                AtomList atomPair = MatterUtilities.getClosestAtomPair(
-                                                       aminoAcid1.getAllAtoms(),
-                                                       aminoAcid2.getAllAtoms()
-                                                                      );
-                if (Mathematics.distance(atomPair.get(0).getPoint3d(),
-                                         atomPair.get(1).getPoint3d())
-                    <
-                    Constants.BINDING_INTERFACE_RADIUS) {
-                    if (!aa1.contains(aminoAcid1)) {
-                        aa1.add(aminoAcid1);
-                    }
-                    if (!aa2.contains(aminoAcid2)) {
-                        aa2.add(aminoAcid2);
+        tempFileName = "proteinAB.pdb";
+        write.setFile(tempFileName);
+        write.write(proteinA);
+        write.setFile(tempFileName, true);
+        write.write(proteinB);
+        naccess.run(tempFileName);
+        ArrayList<AminoAcid> aminoAcidsAB = new ArrayList<AminoAcid>();
+        aminoAcidsAB.addAll(proteinA.copy());
+        aminoAcidsAB.addAll(proteinB.copy());
+        PolyPeptide proteinAB = new PolyPeptide(aminoAcidsAB);
+        naccess.setSolventAccessibility(proteinAB);
+        double sasaAB = naccess.getTotalSolventAccessibility();
+
+        //----------------------------------------------------------------------
+        // Calculate buried surface area from SASA of single proteins & complex
+        //----------------------------------------------------------------------
+        this.bsa = sasaA + sasaB - sasaAB;
+
+        //----------------------------------------------------------------------
+        // Put surface of protein A+B into a hash
+        //----------------------------------------------------------------------
+        Hashtable<Character, PolyPeptide> surfaces =
+                                        new Hashtable<Character, PolyPeptide>();
+        char chainIdA = proteinA.get(0).getAtom(0).getChainId();
+        char chainIdB = proteinB.get(0).getAtom(0).getChainId();
+        surfaces.put(chainIdA, proteinA);
+        surfaces.put(chainIdB, proteinB);
+
+        char minChainId = Character.toChars(Math.min(chainIdA, chainIdB))[0];
+
+        //----------------------------------------------------------------------
+        // Determine binding interface
+        //----------------------------------------------------------------------
+        for (AminoAcid aa1 : proteinAB) {
+            char chainId = aa1.getAtom(0).getChainId();
+            for (AminoAcid aa2 : surfaces.get(chainId)) {
+                if (MatterUtilities.equalsResidue(aa1.getAtom(0),
+                                                  aa2.getAtom(0))) {
+                    double sasDiff = aa1.getTotalSas() - aa2.getTotalSas();
+                    if (Math.abs(sasDiff)
+                        >
+                        Constants.MINUMUM_SASA_DIFFERECE_FOR_INTERFACE) {
+
+                        if (minChainId == chainId) {
+                            this.bindingInterface.get(0).add(aa1);
+                        } else {
+                            this.bindingInterface.get(1).add(aa2);
+                        }
                     }
                 }
             }
         }
-
-        this.bindingInterface.add(aa1);
-        this.bindingInterface.add(aa2);
     }
     //--------------------------------------------------------------------------
     /**
@@ -100,38 +159,11 @@ public class BindingInterface {
     }
     //--------------------------------------------------------------------------
     /**
-     * Calculates the buried surface area at this interface using the
-     * Simon Hubbard's NACCESS application.
-     * @param naccessPath
-     *        String holding the path to the NACCESS application.
+     * Returns the buried buried surface area at this interface.
      * @return double value representing the buried surface area.
-     * @throws IOException
-     *         if error occurs while executing the NACCESS application.
      */
-    public final double calculateBSA(final String naccessPath)
-                                                            throws IOException {
-        String proteinAname = "proteinA.pdb";
-        String proteinBname = "proteinB.pdb";
-        String proteinABname = "proteinAB.pdb";
-
-        PDBwriter writer = new PDBwriter();
-        writer.setFile(proteinAname);
-        writer.write(this.proteinA);
-
-        Naccess naccess = new Naccess(naccessPath);
-        double bsaA = naccess.getTotalSurfaceArea(proteinAname);
-
-        writer.setFile(proteinBname);
-        writer.write(this.proteinB);
-        double bsaB = naccess.getTotalSurfaceArea(proteinBname);
-
-        writer.setFile(proteinABname);
-        writer.write(this.proteinA);
-        writer.setFile(proteinABname, true);
-        writer.write(this.proteinB);
-        double bsaAB = naccess.getTotalSurfaceArea(proteinABname);
-
-        return bsaA + bsaB - bsaAB;
+    public final double getBSA() {
+        return bsa;
     }
     //--------------------------------------------------------------------------
 }

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.zip.DataFormatException;
@@ -290,9 +291,16 @@ public class PDBreader {
             PolyPeptideList complex = new PolyPeptideList();
             // Get for each protein chain all amino acids.
             int rank = 1;
+            char[] chains = new char[selection.size()];
+            int i = 0;
             for (Enumeration < Character > e = selection.keys();
                  e.hasMoreElements();) {
-                AtomList atomList = selection.get(e.nextElement());
+                chains[i++] = e.nextElement();
+            }
+            Arrays.sort(chains);
+
+            for (char chain : chains) {
+                AtomList atomList = selection.get(chain);
                 ArrayList < AminoAcid > aminoAcids = this.getAllAminoAcids(
                                                                         atomList
                                                                           );

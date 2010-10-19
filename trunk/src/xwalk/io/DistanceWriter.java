@@ -116,6 +116,8 @@ public class DistanceWriter extends WriteFile {
 //        output.append("disable " + infileWithoutExtension + nl);
         output.append("hide everything, " + infileWithoutExtension + nl);
         output.append("set dash_radius, 1, " + infileWithoutExtension + nl);
+        output.append("set dash_width, 15, " + infileWithoutExtension + nl);
+        output.append("set dash_gap, 0, " + infileWithoutExtension + nl);
         output.append("bg_color white" + nl);
         output.append("util.cbc" + nl);
         output.append("create het, hetatm and " + infileWithoutExtension + nl);
@@ -124,9 +126,15 @@ public class DistanceWriter extends WriteFile {
         output.append("disable het" + nl);
 
         boolean emptyChainId = false;
+        // maximum index number of cross-links, which will be used to set the
+        // final iteration step in the for loops applied to color the
+        // cross-links in PyMOL.
+        int maxIndex = -1;
 
-        int i = 1;
         for (CrossLink crossLink : crossLinkList) {
+
+            maxIndex = Math.max(maxIndex, crossLink.getIndex());
+
             Atom atom1 = crossLink.getPreAtom();
             Atom atom2 = crossLink.getPostAtom();
 
@@ -155,7 +163,7 @@ public class DistanceWriter extends WriteFile {
                               + " and name " + atom1.getName().trim() + " and "
                               + infileWithoutExtension + "\"";
 
-            String distName = i++ + "_";
+            String distName = crossLink.getIndex() + "_";
             if (Boolean.parseBoolean(parameter.getParameter(
                                               Parameter.DO_SOLVENT_PATH_DISTANCE
                                                            )
@@ -199,14 +207,13 @@ public class DistanceWriter extends WriteFile {
           ) {
             String pathFileName = infileWithoutExtension
                                 + "_solventPathDistances.pdb";
-            i = 1;
 
             WriteFile.deleteFile(pathFileName);
 
             for (CrossLink crossLink : crossLinkList) {
                 Atom atom1 = crossLink.getPreAtom();
                 Atom atom2 = crossLink.getPostAtom();
-                String distName = i + "_"
+                String distName = crossLink.getIndex() + "_"
                                 + decFormat.format(
                                               crossLink.getSolventPathDistance()
                                                   ) + "_"
@@ -224,8 +231,8 @@ public class DistanceWriter extends WriteFile {
                 WriteFile file = new WriteFile();
                 file.setFile(pathFileName, true);
                 file.write("HEADER " + distName + nl
-                           + crossLink.getPath().toString(i) + "END" + nl);
-                i++;
+                           + crossLink.getPath().toString(crossLink.getIndex())
+                           + "END" + nl);
             }
             output.append("load " + pathFileName + ", solventPaths" + nl);
             output.append("hide everything, *solvent*" + nl);
@@ -247,14 +254,19 @@ public class DistanceWriter extends WriteFile {
         } else {
             output.append("set transparency, 0.5, chain*" + nl);
         }
-        output.append("for i in range(1," + crossLinkList.size() + "): "
-                    + "cmd.set(\"sphere_color\",\"auto\",\"*_*-*\",i)"
+
+        output.append("for i in range(1,100): "
+                    + "cmd.set_color(\"col\"+str(i), "
+                    + "[1-float((i*20)%100/100), float((i*30)%100)/100,"
+                    + "0])" + nl);
+        output.append("for i in range(1," + (maxIndex + 1) + "): "
+                    + "cmd.set(\"sphere_color\",\"col\"+str(i),str(i)+\"_*-*\")"
                     + nl
-                    + "for i in range(1," + crossLinkList.size() + "): "
-                    + "cmd.set(\"dash_color\",\"auto\",\"*_*-*\",i)"
+                    + "for i in range(1," + (maxIndex + 1) + "): "
+                    + "cmd.set(\"dash_color\",\"col\"+str(i),str(i)+\"_*-*\")"
                     + nl
-                    + "for i in range(1," + crossLinkList.size() + "): "
-                    + "cmd.set(\"label_color\",\"auto\",\"*_*-*\",i)"
+                    + "for i in range(1," + (maxIndex + 1) + "): "
+                    + "cmd.set(\"label_color\",\"col\"+str(i),str(i)+\"_*-*\")"
                     + nl);
         output.append("reset" + nl);
 

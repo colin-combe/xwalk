@@ -204,7 +204,7 @@ public abstract class Molecule {
      * @return double value value representing this amino acid's total SAS.
      * @see #setTotalSas(int)
      */
-    public final double getSas() {
+    public final double getTotalSas() {
         return totalSolventAccessibility;
     }
     //--------------------------------------------------------------------------
@@ -222,7 +222,7 @@ public abstract class Molecule {
      * @param sas
      *        double value value representing this amino acid's total SAS.
      */
-    public final void setSas(final double sas) {
+    public final void setTotalSas(final double sas) {
         this.totalSolventAccessibility = sas;
     }
     //--------------------------------------------------------------------------

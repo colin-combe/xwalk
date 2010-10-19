@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import sun.security.pkcs11.wrapper.Constants;
+
 /**
  * Class for handling commandline arguments.
  * @author Abdullah Kahraman
@@ -44,6 +46,8 @@ public class Commandline {
             }
         }
         if (c > 1) {
+            System.err.print("WARNING: " + param + " is ambigous."
+                           + Constants.NEWLINE);
             return "AMBIGUOUS";
         }
 
