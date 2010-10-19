@@ -1,5 +1,8 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+
+import external.Naccess;
 
 import structure.constants.Constants;
 import structure.io.pdb.PDBreader;
@@ -38,9 +41,13 @@ public class AvgInterface {
      * @param readers
      *        List of PDBreader objects holding each the content of a single PDB
      *        file. The PDB files might be compressed into a tar or gzip file.
+     * @param naccess
+     *        Naccess object to extract SASA for a protein complex and its
+     *        components.
      */
-    public AvgInterface(final ArrayList<PDBreader> readers) {
-        this.setUnionOfBindingInterfaces(readers);
+    public AvgInterface(final ArrayList<PDBreader> readers,
+                        final Naccess naccess) {
+        this.setUnionOfBindingInterfaces(readers, naccess);
     }
     //--------------------------------------------------------------------------
     /**
@@ -63,9 +70,13 @@ public class AvgInterface {
      * @param readers
      *        List of PDBreader objects holding each the content of a single PDB
      *        file. The PDB files might be compressed into a tar or gzip file.
+     * @param naccess
+     *        Naccess object to extract SASA for a protein complex and its
+     *        components.
      */
     private void setUnionOfBindingInterfaces(
-                                             final ArrayList<PDBreader> readers
+                                             final ArrayList<PDBreader> readers,
+                                             final Naccess naccess
                                             ) {
 
         String allInterfacesIds = "";
@@ -89,7 +100,8 @@ public class AvgInterface {
                         //------------------------------------------------------
                         BindingInterface bi = new BindingInterface(
                                                           proteinComplex.get(j),
-                                                          proteinComplex.get(k)
+                                                          proteinComplex.get(k),
+                                                          naccess
                                                                   );
                         ArrayList<ArrayList<AminoAcid>> complexInterface =
                                                               bi.getInterface();
@@ -165,12 +177,13 @@ public class AvgInterface {
         //----------------------------------------------------------------------
         // output small USAGE information if no commandline argument is given.
         //----------------------------------------------------------------------
-        if (args.length < 2) {
+        if (args.length < 3) {
             System.err.print(nL
                           + "Usage: " + nL
                           + nL
                           +  "java " + BindingInterface.class.getName()
-                          + " decoys.tar.gz map.pdb " + nL
+                          + " decoys.tar.gz map.pdb "
+                          + "/Application/naccess/naccess" + nL
                           + nL);
             System.exit(1);
         }
@@ -198,9 +211,21 @@ public class AvgInterface {
         }
 
         //----------------------------------------------------------------------
+        // initiate NACCESS
+        //----------------------------------------------------------------------
+        Naccess naccess = null;
+        try {
+            naccess = new Naccess(args[2]);
+        } catch (IOException e) {
+            System.err.println("ERROR: Problems encounted while executing "
+                             + "NACCESS " + e);
+            System.exit(-1);
+        }
+
+        //----------------------------------------------------------------------
         // calculate occurrence numbers for each amino acid at an interface
         //----------------------------------------------------------------------
-        AvgInterface avgInterface = new AvgInterface(readers);
+        AvgInterface avgInterface = new AvgInterface(readers, naccess);
         ArrayList<AminoAcid> allInterfacesAminoAcids =
                                          avgInterface.getInterfacesAminoAcids();
         Hashtable<String, Integer> interfaceCounts =

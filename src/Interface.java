@@ -4,6 +4,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 
 import external.ExternCommand;
+import external.Naccess;
 
 import mm.evolution.Consurf;
 import mm.hydrophobicity.Hydrophobicity;
@@ -15,8 +16,6 @@ import structure.io.pdb.PDBreader;
 import structure.math.Point3d;
 import structure.matter.Atom;
 import structure.matter.AtomList;
-import structure.matter.MatterUtilities;
-import structure.matter.parameter.AminoAcidType;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
 import structure.matter.protein.PolyPeptideList;
@@ -92,6 +91,12 @@ public class Interface {
                            + "Parameters:" + nL
                            + "\t-in <path>\tany structure file in PDB format "
                            + "(required)." + nL
+                           + "\t-naccess <string>\tPath to the naccess "
+                           + "executable, which will be used to calculate "
+                           + "the buried surface area at the interfaces and "
+                           + "the average HES and conservation grades for "
+                           + "non-interface surface amino acids (required)."
+                           + nL
                            + "\t-hes [switch]\tAssings the hydrophobic "
                            + "enviroment score for each interface atom "
                            + "to the occupancy column (optional)." + nL
@@ -104,22 +109,15 @@ public class Interface {
                            + "grade files to all protein components of the "
                            + "structure file (optional)." + nL
                            + "\t-id [string]\tPDB Id of structure file, if "
-                           + "name of file is not its PDB id "
-                           + nL
-                           + "\t-naccess <string>\tPath to the naccess "
-                           + "executable, which will be used to calculate "
-                           + "the buried surface area at the interfaces and "
-                           + "the average HES and conservation grades for "
-                           + "non-interface surface amino acids (optional)."
-                           + nL
+                           + "name of file is not its PDB id " + nL
                            );
             System.exit(0);
         }
 
         //----------------------------------------------------------------------
         if (Commandline.get(args, "-in", true).equals("ERROR")) {
-            System.err.print("\nError while reading in parameter \"-in\""
-                           + "!!!\n\n");
+            System.err.println(nL + "Error while reading in parameter \"-in\""
+                           + "!!!" + nL);
             System.exit(1);
         } else {
 
@@ -129,6 +127,19 @@ public class Interface {
                 System.err.print(nL
                               + "Couldn't open infile \"" + this.pdbFile
                               + "\" !!!" + nL + nL);
+                System.exit(1);
+            }
+        }
+        //----------------------------
+        if (Commandline.get(args, "-naccess", true).equals("ERROR")) {
+            System.err.println(nL + "Error while reading in parameter"
+                             + "\"-naccess\" !!!" + nL);
+            System.exit(1);
+        } else {
+            this.naccessPath = Commandline.get(args, "-naccess", true);
+            if (!ExternCommand.exists(this.naccessPath)) {
+                System.err.print("ERROR: " + this.naccessPath + " is not "
+                               + "executable" + nL);
                 System.exit(1);
             }
         }
@@ -149,15 +160,6 @@ public class Interface {
         //----------------------------
         if (!Commandline.get(args, "-id", true).equals("ERROR")) {
             this.pdbId = Commandline.get(args, "-id", true);
-        }
-        //----------------------------
-        if (!Commandline.get(args, "-naccess", true).equals("ERROR")) {
-            this.naccessPath = Commandline.get(args, "-naccess", true);
-            if (!ExternCommand.exists(this.naccessPath)) {
-                System.err.print("ERROR: " + this.naccessPath + " is not "
-                               + "executable" + nL);
-                System.exit(1);
-            }
         }
     }
     //--------------------------------------------------------------------------
@@ -225,19 +227,22 @@ public class Interface {
      * complex.
      * @param proteinComplex
      *        Protein complex from which binding sites will be extracted.
+     * @param naccess
+     *        Naccess object to extract SASA for a protein complex and its
+     *        components.
      * @return List of BindingInterface object found in the protein complex.
      */
     private ArrayList<BindingInterface> getInterfaces(
-                                            final PolyPeptideList proteinComplex
-                                                     ) {
+                                           final PolyPeptideList proteinComplex,
+                                           final Naccess naccess) {
         ArrayList<BindingInterface> complexInterfaces =
                                               new ArrayList<BindingInterface>();
         for (int j = 0; j < proteinComplex.size(); j++) {
             for (int k = j + 1; k < proteinComplex.size(); k++) {
                 BindingInterface bi = new BindingInterface(
                                                           proteinComplex.get(j),
-                                                          proteinComplex.get(k)
-                                                          );
+                                                          proteinComplex.get(k),
+                                                          naccess);
                 complexInterfaces.add(bi);
             }
         }
@@ -250,79 +255,217 @@ public class Interface {
      * See Janin, Miller, Chothia (1988), JMB.
      * @param proteinComplex
      *        ProteinComplex object
-     * @return List of Aminoacid where each amino acid is found at the surface
-     *         as given by its relative ASA.
+     * @return List of AminoAcid objects where each amino acid is found at the
+     *         surface as given by its relative ASA.
+     * @throws IOException if an error occurs while executing NACCESS.
      */
     private ArrayList<AminoAcid> getSurfaceAminoAcids(
                                             final PolyPeptideList proteinComplex
-                                                     ) {
+                                                     ) throws IOException {
         ArrayList<AminoAcid> surfaceAminoAcids = new ArrayList<AminoAcid>();
 
         if (this.naccessPath != null) {
-            String fileName = new File(this.pdbFile).getName();
-            ExternCommand.execute(this.naccessPath + " " + this.pdbFile, false);
-            String fileNameBase = fileName.replaceAll("\\..*$", "");
+            Naccess naccess = new Naccess(this.naccessPath);
+            naccess.run(this.pdbFile);
+            naccess.setSolventAccessibility(proteinComplex.getAllAminoAcids());
 
-            try {
-                ReadFile read = new ReadFile(fileNameBase + ".rsa");
-                int i = -1;
-                for (String line : read) {
-                    if (line.startsWith("RES")) {
-                        i++;
-                        Atom dummy = new Atom();
-                        dummy.setResidueName(line.substring(4,7).trim());
-                        dummy.setResidueNumber(Integer.parseInt(
-                                                    line.substring(9, 13).trim()
-                                                               ));
-                        dummy.setChainId(line.substring(8, 9).charAt(0));
-                        double relAsa = Double.parseDouble(
-                                line.substring(22, 28).trim()
-                                       );
-                        if (relAsa < 5) {
-                            continue;
-                        }
-                        AminoAcid protAminoAcid =
-                                       proteinComplex.getAllAminoAcids().get(i);
-
-                        if (MatterUtilities.equalsResidue(
-                                                       dummy,
-                                                       protAminoAcid.getAtom(0))
-                                                         ) {
-                            protAminoAcid.setSas(relAsa);
-                        } else {
-                            boolean found = false;
-                            for (PolyPeptide protein : proteinComplex) {
-                                for (AminoAcid aa : protein) {
-                                    if (MatterUtilities.equalsResidue(
-                                                                  dummy,
-                                                                  aa.getAtom(0))
-                                                                     ) {
-                                        aa.setSas(relAsa);
-                                        protAminoAcid = aa;
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                                if (found) {
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                System.err.println("WARNING: Could not find "
-                                                 + "ASA amino acid " + line
-                                                 + " in the PDB file");
-                            }
-                        }
-                        surfaceAminoAcids.add(protAminoAcid);
-                    }
+            for (AminoAcid aa : proteinComplex.getAllAminoAcids()) {
+                if (aa.getRelativeSas()
+                                      > Constants.MINIMUM_REL_SASA_ON_SURFACE) {
+                    surfaceAminoAcids.add(aa);
                 }
-            } catch (IOException e) {
-                System.err.println("ERROR: Failed to open " + fileNameBase
-                                 + ".rsa : " + e);
-                System.exit(1);
             }
         }
         return surfaceAminoAcids;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns REMARK lines with statistics on the non-interface part of a
+     * protein surface.
+     * @param nonInterfaceSurfaceAminoAcids
+     *        List of AminoAcids that form the non-interface surface of a
+     *        protein complex.
+     * @param hesSurfaceCoords
+     *        List of double values for the nonInterfaceSurfaceAminoAcids
+     *        object, where each double value represents the HES value for the
+     *        same amino acid.
+     * @return String object holding PDB-like REMARK lines with statistics on
+     *         the non-interface part of the protein surface.
+     */
+    private String getRemarksOnNonInterface(
+                       final ArrayList<AminoAcid> nonInterfaceSurfaceAminoAcids,
+                       final ArrayList<Double> hesSurfaceCoords) {
+        String nL = Constants.LINE_SEPERATOR;
+        NumberFormat dec = xwalk.constants.Constants.DISTANCE_DEC_FORMAT;
+        StringBuffer output = new StringBuffer();
+
+        int nonInterfaceAaCount = 0;
+        int nonInterfaceAtomCount = 0;
+        double nonInterfaceSumHes = 0;
+        int nonInterfaceSumConservation = 0;
+        int nonInterfaceSumTypicInterfaceAA = 0;
+        int nonInterfaceSumTypicNonInterfaceAA = 0;
+
+        int i = 0;
+        for (AminoAcid aa : nonInterfaceSurfaceAminoAcids) {
+            nonInterfaceAaCount++;
+            nonInterfaceSumConservation += aa.getConservationGrade();
+            if (aa.isInterfaceTypic()) {
+                nonInterfaceSumTypicInterfaceAA++;
+            }
+            if (aa.isNonInterfaceTypic()) {
+                nonInterfaceSumTypicNonInterfaceAA++;
+            }
+            for (Atom atom : aa.getAllAtoms()) {
+                nonInterfaceAtomCount++;
+                nonInterfaceSumHes += hesSurfaceCoords.get(i++);
+            }
+        }
+
+        output.append("HEADER   " + new File(this.pdbFile).getName()
+                    + nL);
+        output.append("REMARK   0  AMINO ACID COUNT AT NON-INTERFACE: "
+                    + nonInterfaceAaCount + nL);
+        output.append("REMARK   0  ATOM COUNT AT NON-INTERFACE: "
+                    + nonInterfaceAtomCount + nL);
+        output.append("REMARK   0  INTERFACE TYPIC RESIDUES AT "
+                    + "NON-INTERFACE: " + nonInterfaceSumTypicInterfaceAA + nL);
+        output.append("REMARK   0  NON-INTERFACE TYPIC RESIDUES AT "
+                    + "NON-INTERFACE: "
+                    + nonInterfaceSumTypicNonInterfaceAA + nL);
+        output.append("REMARK   0  AVERATE INTERFACE TYPIC RESIDUES AT "
+                    + "NON-INTERFACE: "
+                    + dec.format((double) nonInterfaceSumTypicInterfaceAA
+                                 /
+                                 nonInterfaceAaCount) + nL);
+        output.append("REMARK   0  AVERAGE NON-INTERFACE TYPIC RESIDUES AT "
+                    + "NON-INTERFACE: "
+                    + dec.format((double) nonInterfaceSumTypicNonInterfaceAA
+                                 /
+                                 nonInterfaceAaCount) + nL);
+        output.append("REMARK   0  HES SUM AT NON-INTERFACE: "
+                    + dec.format(nonInterfaceSumHes) + nL);
+        output.append("REMARK   0  CONSERVATION SUM AT NON-INTERFACE: "
+                    + nonInterfaceSumConservation + nL);
+        output.append("REMARK   0  AVERAGE HES AT NON-INTERFACE: "
+                    + dec.format(nonInterfaceSumHes / nonInterfaceAtomCount)
+                    + nL);
+        output.append("REMARK   0  AVERAGE CONSERVATION AT NON-INTERFACE: "
+                    + dec.format((double) nonInterfaceSumConservation
+                                 /
+                                 nonInterfaceAaCount) + nL);
+        output.append("REMARK" + nL);
+        output.append("REMARK   Occupancy Column: HES value" + nL);
+        output.append("REMARK   B-factor Column: Conservation grade" + nL);
+        output.append("REMARK" + nL);
+    return output.toString();
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns REMARK lines with statistics on the interfaces of a protein
+     * complexes.
+     * @param complexInterfaces
+     *        List of BindingInterface objects found in a protein complex.
+     * @param hesInterfaceCoords
+     *        List of double values for all AminoAcids in the BindingInterface
+     *        objects of the complexInterfaces object, where each double value
+     *        represents the HES value for the same amino acid.
+     * @return String object holding PDB-like REMARK lines with statistics on
+     *         the protein interfaces.
+     */
+    private String getRemarksOnInterface(
+                       final ArrayList<BindingInterface> complexInterfaces,
+                       final ArrayList<Double> hesInterfaceCoords) {
+
+        StringBuffer output = new StringBuffer();
+        String nL = Constants.LINE_SEPERATOR;
+        NumberFormat dec = xwalk.constants.Constants.DISTANCE_DEC_FORMAT;
+
+        int j = 0;
+        int k = 1;
+        for (BindingInterface bi : complexInterfaces) {
+            int interfaceAaCount = 0;
+            int interfaceAtomCount = 0;
+            double interfaceSumHes = 0;
+            int interfaceSumConservation = 0;
+            int interfaceTypicInterfaceAA = 0;
+            int interfaceTypicNonInterfaceAA = 0;
+            AtomList atoms = new AtomList();
+
+            for (ArrayList<AminoAcid> halfInterface : bi.getInterface()) {
+                for (AminoAcid aa : halfInterface) {
+                    interfaceAaCount++;
+                    interfaceSumConservation += aa.getConservationGrade();
+                    if (aa.isInterfaceTypic()) {
+                        interfaceTypicInterfaceAA++;
+                    }
+                    if (aa.isNonInterfaceTypic()) {
+                        interfaceTypicNonInterfaceAA++;
+                    }
+                    for (Atom atom : aa.getAllAtoms()) {
+                        interfaceAtomCount++;
+                        if (this.doHes) {
+                            atom.setOccupancy(hesInterfaceCoords.get(j++));
+                            interfaceSumHes += atom.getOccupancy();
+                        }
+                        if (this.doConsurf) {
+                            atom.setTemperatureFactor(
+                                                       aa.getConservationGrade()
+                                                     );
+                        }
+                        atoms.add(atom);
+                    }
+                }
+            }
+            double bsa = -1;
+            if (this.naccessPath != null) {
+                bsa = bi.getBSA();
+            }
+
+            output.append("REMARK   " + k + "  TITLE " + " "
+                       + bi.getInterface().get(0).get(0).getAtom(0).getChainId()
+                       + "-"
+                       + bi.getInterface().get(1).get(0).getAtom(0).getChainId()
+                       + nL);
+            output.append("REMARK   " + k + "  AMINO ACID COUNT AT INTERFACE: "
+                        + interfaceAaCount + nL);
+            output.append("REMARK   " + k + "  ATOM COUNT AT INTERFACE: "
+                        + interfaceAtomCount + nL);
+            output.append("REMARK   " + k + "  BURIED SURFACE AREA AT "
+                        + "INTERFACE: "
+                        + dec.format(bsa) + nL);
+            output.append("REMARK   " + k + "  INTERFACE TYPIC RESIDUES AT "
+                        + "INTERFACE: " + interfaceTypicInterfaceAA + nL);
+            output.append("REMARK   " + k + "  NON-INTERFACE TYPIC RESIDUES AT "
+                        + "INTERFACE: " + interfaceTypicNonInterfaceAA + nL);
+            output.append("REMARK   " + k + "  AVERAGE INTERFACE TYPIC "
+                        + "RESIDUES AT INTERFACE: "
+                        + dec.format((double) interfaceTypicInterfaceAA
+                                     /
+                                     interfaceAaCount) + nL);
+        output.append("REMARK   " + k + "  AVERAGE NON-INTERFACE TYPIC "
+                        + "RESIDUES AT INTERFACE: "
+                        + dec.format((double) interfaceTypicNonInterfaceAA
+                                     /
+                                     interfaceAaCount) + nL);
+            output.append("REMARK   " + k + "  HES SUM AT INTERFACE: "
+                        + dec.format(interfaceSumHes) + nL);
+            output.append("REMARK   " + k + "  CONSERVATION SUM AT INTERFACE: "
+                        + interfaceSumConservation + nL);
+            output.append("REMARK   " + k + "  AVERAGE HES AT INTERFACE: "
+                        + dec.format(interfaceSumHes / interfaceAtomCount)
+                        + nL);
+            output.append("REMARK   " + k + "  AVERAGE CONSERVATION AT "
+                        + "INTERFACE: "
+                        + dec.format((double) interfaceSumConservation
+                                     /
+                                     interfaceAaCount) + nL);
+            output.append("REMARK" + nL);
+            output.append(atoms.toString() + "END" + nL);
+
+            k++;
+        }
+    return output.toString();
     }
     //--------------------------------------------------------------------------
     /**
@@ -349,11 +492,34 @@ public class Interface {
 
         PolyPeptideList proteinComplex =
                                 readers.get(0).getEntireProteinComplex().get(0);
+
+        if (interfase.doConsurf) {
+            //------------------------------------------------------------------
+            // Determine conservation grade for all amino acids in the complex.
+            //------------------------------------------------------------------
+            try {
+                interfase.setConservation(proteinComplex);
+            } catch (IOException e) {
+                System.err.println("ERROR: Problems while assigning "
+                                 + "conservation grades: " + e);
+            }
+        }
+
         //----------------------------------------------------------------------
         // Calculate interface
         //----------------------------------------------------------------------
+        Naccess naccess = null;
+        try {
+            naccess = new Naccess(interfase.naccessPath);
+        } catch (IOException e) {
+            System.err.println("ERROR while executing NACCESS: " + e);
+            System.exit(-1);
+        }
         ArrayList<BindingInterface> complexInterfaces =
-                                        interfase.getInterfaces(proteinComplex);
+                                                interfase.getInterfaces(
+                                                                proteinComplex,
+                                                                naccess
+                                                                       );
         ArrayList<AminoAcid> interfaceAminoAcids =
                                                      new ArrayList<AminoAcid>();
         for (BindingInterface bi : complexInterfaces) {
@@ -368,8 +534,13 @@ public class Interface {
                                                      new ArrayList<AminoAcid>();
 
         if (interfase.naccessPath != null) {
-            ArrayList<AminoAcid> surfaceAminoAcids =
+            ArrayList<AminoAcid> surfaceAminoAcids = null;
+            try {
+                surfaceAminoAcids =
                                  interfase.getSurfaceAminoAcids(proteinComplex);
+            } catch (IOException e) {
+                System.err.println("ERROR: while executing NACCESS: " + e);
+            }
 
             for (AminoAcid surfaceAA : surfaceAminoAcids) {
                 boolean found = false;
@@ -419,173 +590,18 @@ public class Interface {
                                                         );
             }
         }
-        if (interfase.doConsurf) {
-            //------------------------------------------------------------------
-            // Determine conservation grade for all amino acids in the complex.
-            //------------------------------------------------------------------
-            try {
-                interfase.setConservation(proteinComplex);
-            } catch (IOException e) {
-                System.err.println("ERROR: Problems while assigning "
-                                 + "conservation grades: " + e);
-            }
-        }
 
         //------------------------------------------------------------------
         // Output interface with HES and conservation grades listed in the
         // occupancy and temperature factor columns.
         //------------------------------------------------------------------
-        int nonInterfaceAaCount = 0;
-        int nonInterfaceAtomCount = 0;
-        double nonInterfaceSumHes = 0;
-        int nonInterfaceSumConservation = 0;
-        int nonInterfaceSumTypicInterfaceAA = 0;
-        int nonInterfaceSumTypicNonInterfaceAA = 0;
 
-        int i = 0;
-        for (AminoAcid aa : nonInterfaceSurfaceAminoAcids) {
-            nonInterfaceAaCount++;
-            nonInterfaceSumConservation += aa.getConservationGrade();
-            if (aa.isInterfaceTypic()) {
-                nonInterfaceSumTypicInterfaceAA++;
-            }
-            if (aa.isNonInterfaceTypic()) {
-                nonInterfaceSumTypicNonInterfaceAA++;
-            }
-            for (Atom atom : aa.getAllAtoms()) {
-                nonInterfaceAtomCount++;
-                nonInterfaceSumHes += hesSurfaceCoords.get(i++);
-            }
-        }
-
-        String nL = Constants.LINE_SEPERATOR;
-        NumberFormat dec = xwalk.constants.Constants.DISTANCE_DEC_FORMAT;
-        StringBuffer output = new StringBuffer();
-        output.append("HEADER   " + new File(interfase.pdbFile).getName()
-                    + nL);
-        output.append("REMARK   0  AMINO ACID COUNT AT NON-INTERFACE: "
-                    + nonInterfaceAaCount + nL);
-        output.append("REMARK   0  ATOM COUNT AT NON-INTERFACE: "
-                    + nonInterfaceAtomCount + nL);
-        output.append("REMARK   0  INTERFACE TYPIC RESIDUES AT "
-                    + "NON-INTERFACE: " + nonInterfaceSumTypicInterfaceAA + nL);
-        output.append("REMARK   0  NON-INTERFACE TYPIC RESIDUES AT "
-                    + "NON-INTERFACE: "
-                    + nonInterfaceSumTypicNonInterfaceAA + nL);
-        output.append("REMARK   0  AVERATE INTERFACE TYPIC RESIDUES AT "
-                    + "NON-INTERFACE: "
-                    + dec.format((double) nonInterfaceSumTypicInterfaceAA
-                                 /
-                                 nonInterfaceAaCount) + nL);
-        output.append("REMARK   0  AVERAGE NON-INTERFACE TYPIC RESIDUES AT "
-                    + "NON-INTERFACE: "
-                    + dec.format((double) nonInterfaceSumTypicNonInterfaceAA
-                                 /
-                                 nonInterfaceAaCount) + nL);
-        output.append("REMARK   0  HES SUM AT NON-INTERFACE: "
-                    + dec.format(nonInterfaceSumHes) + nL);
-        output.append("REMARK   0  CONSERVATION SUM AT NON-INTERFACE: "
-                    + nonInterfaceSumConservation + nL);
-        output.append("REMARK   0  AVERAGE HES AT NON-INTERFACE: "
-                    + dec.format(nonInterfaceSumHes / nonInterfaceAtomCount)
-                    + nL);
-        output.append("REMARK   0  AVERAGE CONSERVATION AT NON-INTERFACE: "
-                    + dec.format((double) nonInterfaceSumConservation
-                                 /
-                                 nonInterfaceAaCount) + nL);
-        output.append("REMARK" + nL);
-        output.append("REMARK   Occupancy Column: HES value" + nL);
-        output.append("REMARK   B-factor Column: Conservation grade" + nL);
-        output.append("REMARK" + nL);
-
-        int j = 0;
-        int k = 1;
-        for (BindingInterface bi : complexInterfaces) {
-            int interfaceAaCount = 0;
-            int interfaceAtomCount = 0;
-            double interfaceSumHes = 0;
-            int interfaceSumConservation = 0;
-            int interfaceTypicInterfaceAA = 0;
-            int interfaceTypicNonInterfaceAA = 0;
-            AtomList atoms = new AtomList();
-
-            for (ArrayList<AminoAcid> halfInterface : bi.getInterface()) {
-                for (AminoAcid aa : halfInterface) {
-                    interfaceAaCount++;
-                    interfaceSumConservation += aa.getConservationGrade();
-                    if (aa.isInterfaceTypic()) {
-                        interfaceTypicInterfaceAA++;
-                    }
-                    if (aa.isNonInterfaceTypic()) {
-                        interfaceTypicNonInterfaceAA++;
-                    }
-                    for (Atom atom : aa.getAllAtoms()) {
-                        interfaceAtomCount++;
-                        if (interfase.doHes) {
-                            atom.setOccupancy(hesInterfaceCoords.get(j++));
-                            interfaceSumHes += atom.getOccupancy();
-                        }
-                        if (interfase.doConsurf) {
-                            atom.setTemperatureFactor(
-                                                       aa.getConservationGrade()
-                                                     );
-                        }
-                        atoms.add(atom);
-                    }
-                }
-            }
-            double bsa = -1;
-            if (interfase.naccessPath != null) {
-                try {
-                    bsa = bi.calculateBSA(interfase.naccessPath);
-                } catch (IOException e) {
-                    System.err.println("WARNING: Failed to successfully run "
-                                   + "NACCESS: " + e);
-                }
-            }
-            output.append("REMARK   " + k + "  TITLE " + " "
-                       + bi.getInterface().get(0).get(0).getAtom(0).getChainId()
-                       + "-"
-                       + bi.getInterface().get(1).get(0).getAtom(0).getChainId()
-                       + nL);
-            output.append("REMARK   " + k + "  AMINO ACID COUNT AT INTERFACE: "
-                        + interfaceAaCount + nL);
-            output.append("REMARK   " + k + "  ATOM COUNT AT INTERFACE: "
-                        + interfaceAtomCount + nL);
-            output.append("REMARK   " + k + "  BURIED SURFACE AREA AT "
-                        + "INTERFACE: "
-                        + dec.format(bsa) + nL);
-            output.append("REMARK   " + k + "  INTERFACE TYPIC RESIDUES AT "
-                        + "INTERFACE: " + interfaceTypicInterfaceAA + nL);
-            output.append("REMARK   " + k + "  NON-INTERFACE TYPIC RESIDUES AT "
-                        + "INTERFACE: " + interfaceTypicNonInterfaceAA + nL);
-            output.append("REMARK   " + k + "  AVERAGE INTERFACE TYPIC "
-                        + "RESIDUES AT INTERFACE: "
-                        + dec.format((double) interfaceTypicInterfaceAA
-                                     /
-                                     interfaceAaCount) + nL);
-        output.append("REMARK   " + k + "  AVERAGE NON-INTERFACE TYPIC "
-                        + "RESIDUES AT INTERFACE: "
-                        + dec.format((double) interfaceTypicNonInterfaceAA
-                                     /
-                                     interfaceAaCount) + nL);
-            output.append("REMARK   " + k + "  HES SUM AT INTERFACE: "
-                        + dec.format(interfaceSumHes) + nL);
-            output.append("REMARK   " + k + "  CONSERVATION SUM AT INTERFACE: "
-                        + interfaceSumConservation + nL);
-            output.append("REMARK   " + k + "  AVERAGE HES AT INTERFACE: "
-                        + dec.format(interfaceSumHes / interfaceAtomCount)
-                        + nL);
-            output.append("REMARK   " + k + "  AVERAGE CONSERVATION AT "
-                        + "INTERFACE: "
-                        + dec.format((double) interfaceSumConservation
-                                     /
-                                     interfaceAaCount) + nL);
-            output.append("REMARK" + nL);
-            output.append(atoms.toString() + "END" + nL);
-
-            k++;
-        }
-        System.out.print(output.toString());
+        String output = interfase.getRemarksOnNonInterface(
+                                                  nonInterfaceSurfaceAminoAcids,
+                                                  hesSurfaceCoords
+                                                          );
+        output += interfase.getRemarksOnInterface(complexInterfaces,
+                                                  hesInterfaceCoords);
+        System.out.print(output);
     }
 }

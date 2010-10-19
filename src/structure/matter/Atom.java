@@ -1,4 +1,4 @@
-    package structure.matter;
+package structure.matter;
 
 import java.io.IOException;
 import java.util.Hashtable;

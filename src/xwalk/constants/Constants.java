@@ -30,7 +30,7 @@ public class Constants {
     /**
      * Default cross-linker length.
      */
-    public static final double DEFAULT_CROSS_LINKER_LENGTH = 21;
+    public static final double DEFAULT_CROSS_LINKER_LENGTH = 27;
     //--------------------------------------------------------------------------
     /**
      * Minimum length of peptide in order to be detected by xQuest.

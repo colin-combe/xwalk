@@ -101,7 +101,7 @@ public class CommandlineArguments {
     private String atomType2 = "";
     /**
      * Maximal distance that is span by the cross-linker.
-     * Default {@code maxDist = 21Å}.
+     * Default {@code maxDist = 27Å}.
      */
     private double maximumDistance =
                           xwalk.constants.Constants.DEFAULT_CROSS_LINKER_LENGTH;
@@ -379,7 +379,7 @@ public class CommandlineArguments {
               + "DISTANCE RELATED:"
               + NL
               + "\t-max\t[double]\tCalculates distances in Angstroem "
-              + "only up-to this value (default: 21.0)."
+              + "only up-to this value (default: 27.0)."
               + NL
               + "\t-euc\t[switch]\tSkips Solvent-Path-Distance "
               + "calculation and outputs only Euclidean distances "

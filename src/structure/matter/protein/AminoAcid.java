@@ -76,6 +76,23 @@ public class AminoAcid extends Molecule {
     }
     //--------------------------------------------------------------------------
     /**
+     * Creates a copy of this AminoAcid object.
+     * @return Copy of this AminoAcid object.
+     */
+    public final AminoAcid copy() {
+        AtomList atomListCopy = new AtomList();
+        for (Atom atom : this.getAllAtoms()) {
+            atomListCopy.add(atom.copy());
+        }
+        AminoAcid copy = new AminoAcid(atomListCopy);
+        copy.number = this.number;
+        copy.aminoAcidType = this.aminoAcidType;
+        copy.conservationGrade = this.conservationGrade;
+
+    return copy;
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Returns the type of this amino acid.
      * @return AminoAcidType object holding the type of this amino acid.
      */
@@ -139,22 +156,6 @@ public class AminoAcid extends Molecule {
      */
     public final int getConservationGrade() {
         return conservationGrade;
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Creates a copy of this AminoAcid object.
-     * @return Copy of this AminoAcid object.
-     */
-    public final AminoAcid copy() {
-        AtomList atomListCopy = new AtomList();
-        for (Atom atom : this.getAllAtoms()) {
-            atomListCopy.add(atom.copy());
-        }
-        AminoAcid copy = new AminoAcid(atomListCopy);
-        copy.number = this.number;
-        copy.aminoAcidType = this.aminoAcidType;
-
-    return copy;
     }
     //--------------------------------------------------------------------------
     /**

@@ -86,10 +86,16 @@ public class Constants {
     public static final double SOLVENT_RADIUS = 1.4;
     //--------------------------------------------------------------------------
     /**
-     * Atoms from different proteins that are within this radius form the
-     * interface of a protein complex.
+     * Minimum difference in the solvent accessible surface area of an atom
+     * upon protein complexation in order to be counted at a binding interface.
      */
-    public static final double BINDING_INTERFACE_RADIUS = 4;
+    public static final double MINUMUM_SASA_DIFFERECE_FOR_INTERFACE = 0.1;
+    //--------------------------------------------------------------------------
+    /**
+     * Minimum relative solvent accessibility of an amino acid in order to be
+     * considered to be on the surface of a protein molecule.
+     */
+    public static final double MINIMUM_REL_SASA_ON_SURFACE = 5;
     //--------------------------------------------------------------------------
     /**
      * Maximum value that fits into the occupancy and temperature factor
