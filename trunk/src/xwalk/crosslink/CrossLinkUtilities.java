@@ -13,14 +13,12 @@ import structure.grid.AtomGrid;
 import structure.grid.GridUtilities;
 import structure.grid.Path;
 import structure.grid.GridCell.Value;
-import structure.io.GzipFileReader;
-import structure.io.pdb.GzipPDBreader;
 import structure.io.pdb.PDBreader;
-import structure.io.pdb.TarPDBreader;
 import structure.math.Mathematics;
 import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
+import structure.matter.parameter.AtomType;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.Digestion;
 import structure.matter.protein.PolyPeptide;
@@ -132,6 +130,13 @@ public final class CrossLinkUtilities {
             if (Boolean.parseBoolean(parameter.getParameter(
                                               Parameter.DO_SOLVENT_PATH_DISTANCE
                                                            ))) {
+                if (Boolean.parseBoolean(parameter.getParameter(
+                                                     Parameter.DO_VERBOSE_OUTPUT
+                                                               ))) {
+                    System.err.print("Checking \"" + crossLinkList.size() + "\""
+                                   + " Euclidean distances for becoming solvent"
+                                   + " accessible surface distances.\n");
+                }
                 crossLinkList =
                            CrossLinkUtilities.calculatesSolventPathDistance(
                                                                    parameter,
@@ -400,9 +405,7 @@ public final class CrossLinkUtilities {
         ArrayList < PDBreader > pdbReaders =
             PDBreader.createPDBreaders(parameter.getParameter(
                                                            Parameter.INFILE_PATH
-                                                                      )
-                                               );
-
+                                                             ));
 
         ArrayList < PolyPeptideList > proteinComplexes =
               CrossLinkUtilities.extractProteinComplexes(pdbReaders, parameter);
@@ -464,6 +467,33 @@ public final class CrossLinkUtilities {
                                 );
             }
         }
+
+        if (Boolean.parseBoolean(parameter.getParameter(
+                                                 Parameter.DO_BACKBONE_READ))) {
+            // replace full atom coordinates of protein with backbone and
+            // beta-carbon only coordinates
+            for (PolyPeptideList proteinComplex : proteinComplexes) {
+                for (PolyPeptide protein : proteinComplex) {
+                    for (int i = 0; i < protein.size(); i++) {
+                        AtomList backbone = new AtomList();
+                        for (Atom atom : protein.get(i).getAllAtoms()) {
+                            if (atom.getType() == AtomType.CARBON_ALPHA
+                               ||
+                               atom.getType() == AtomType.CARBON_BETA
+                               ||
+                               atom.getType() == AtomType.NITROGEN
+                               ||
+                               atom.getType() == AtomType.OXYGEN) {
+                                backbone.add(atom);
+                            }
+                        }
+                        AminoAcid bb = new AminoAcid(backbone);
+                        protein.set(i, bb);
+                    }
+                }
+            }
+        }
+
         return proteinComplexes;
     }
 
@@ -643,13 +673,23 @@ public final class CrossLinkUtilities {
              }
 
              if (preAtom == xl.getPreAtom() || postAtom == xl.getPostAtom()) {
-                 if (Boolean.parseBoolean(parameter.getParameter(
-                                                     Parameter.DO_VERBOSE_OUTPUT
-                                                                ))) {
-                     System.err.print("Cross-linked atom in distance file"
-                                      + "could not be found : "
-                                      + xl.toString());
+                 // Output a WARNING message that atoms in distance files could
+                 // not be found in the input file
+                 xl.setFileName(parameter.getParameter(Parameter.INFILE_PATH));
+                 System.err.print("WARNING: ");
+                 if (preAtom == xl.getPreAtom()
+                     &&
+                     postAtom != xl.getPostAtom()) {
+                     System.err.print("1st atom ");
+                 } else if (preAtom != xl.getPreAtom()
+                            &&
+                            postAtom == xl.getPostAtom()) {
+                     System.err.print("2nd atom ");
+                 } else {
+                     System.err.print("Both atoms ");
                  }
+                 System.err.print("could not be found : " + xl.getIndex() + "\t"
+                                + xl.toString());
                  continue;
              }
 
@@ -1409,6 +1449,13 @@ public final class CrossLinkUtilities {
                                         Constants.getCoordinateUncertainty(
                                                                      pairedAtoms
                                                                           ));
+                if (Boolean.parseBoolean(parameter.getParameter(
+                                                        Parameter.DO_GRID_OUTPUT
+                                                               )
+                                        )) {
+                    System.out.print(grid.toString());
+                }
+
             }
             for (int i = 0; i < pairedAtoms.size(); i++) {
 
@@ -1509,15 +1556,6 @@ public final class CrossLinkUtilities {
 
         CrossLinkUtilities.cleanAtomPairs(paths, atoms2, maxDist);
 
-        if (atoms2.size() != 0
-            &&
-            Boolean.parseBoolean(parameter.getParameter(
-                                                        Parameter.DO_GRID_OUTPUT
-                                                       )
-                                )
-           ) {
-            System.out.print(grid.toString(atom1));
-        }
     return paths;
     }
     //--------------------------------------------------------------------------
@@ -1537,9 +1575,6 @@ public final class CrossLinkUtilities {
                                         final Atom atom2,
                                         final AtomGrid grid) {
 
-        if(atom1.getResidueNumber()==100 || atom2.getResidueNumber()==100) {
-            int h=0;
-        }
         if (grid.get(atom1) == null || grid.get(atom2) == null) {
             return false;
         }

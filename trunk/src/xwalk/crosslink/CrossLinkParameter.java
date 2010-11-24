@@ -56,7 +56,8 @@ public class CrossLinkParameter {
                             DO_VERBOSE_OUTPUT,
                             DO_GRID_OUTPUT,
                             DO_TRYPSIN_DIGEST,
-                            DO_EXPASY_RULE
+                            DO_EXPASY_RULE,
+                            DO_BACKBONE_READ
     };
     //--------------------------------------------------------------------------
     /**
@@ -86,49 +87,41 @@ public class CrossLinkParameter {
         this.setParameter(Parameter.DO_INTERMOLECULAR_DISTANCE,
                           Boolean.toString(arg.isInterMolecularDistanceSet()));
         this.setParameter(Parameter.DO_INTRAMOLECULAR_DISTANCE,
-                          Boolean.toString(arg.isIntraMolecularDistanceSet()));
-        this.setParameter(Parameter.DO_PYMOL_OUTPUT,
-                          Boolean.toString(arg.isPymolOutputSet()));
-        this.setParameter(Parameter.DO_SOLVENT_PATH_DISTANCE,
-                          Boolean.toString(
-                                      arg.isSolventPathDistanceCalculationSet())
-                                          );
-        this.setParameter(Parameter.GRID_CELL_SIZE,
-                          Double.toString(arg.getGridCellSizeArgument()));
-        this.setParameter(Parameter.INFILE_PATH,
-                          arg.getInfileArgument());
+                           Boolean.toString(arg.isIntraMolecularDistanceSet()));
+        this.setParameter(Parameter.DO_PYMOL_OUTPUT, Boolean.toString(
+                                                       arg.isPymolOutputSet()));
+        this.setParameter(Parameter.DO_SOLVENT_PATH_DISTANCE, Boolean.toString(
+                                    arg.isSolventPathDistanceCalculationSet()));
+        this.setParameter(Parameter.GRID_CELL_SIZE, Double.toString(
+                                                arg.getGridCellSizeArgument()));
+        this.setParameter(Parameter.INFILE_PATH, arg.getInfileArgument());
+        this.setParameter(Parameter.DO_BACKBONE_READ, Boolean.toString(
+                                              arg.isBackboneOnlyArgumentSet()));
         this.setParameter(Parameter.DISTANCE_FILE_PATH,
-                          arg.getDistanceInfileArgument());
-        this.setParameter(Parameter.FIND_ALL,
-                          Boolean.toString(arg.isFindAllSet()));
-        this.setParameter(Parameter.OUTFILE_PATH,
-                          arg.getOutfileArgument());
-        this.setParameter(Parameter.IS_HOMOMERIC,
-                          Boolean.toString(arg.isHomomericSet()));
-        this.setParameter(Parameter.MAXIMUM_DISTANCE,
-                          Double.toString(arg.getMaximumDistanceArgument()));
-        this.setParameter(Parameter.SOLVENT_RADIUS,
-                          Double.toString(arg.getSolventRadiusArgument()));
-        this.setParameter(Parameter.DO_SAS,
-                          Boolean.toString(
-                                            arg.getSolventAccessibiltyArgument()
-                                          )
-                          );
-        this.setParameter(Parameter.DO_GLOBAL_GRID,
-                          Boolean.toString(arg.isGlobalGridSet()));
-        this.setParameter(Parameter.DO_FORCE_OUTPUT,
-                          Boolean.toString(arg.isForceOutputSet()));
-        this.setParameter(Parameter.DO_VERBOSE_OUTPUT,
-                          Boolean.toString(arg.isVerboseOutputSet()));
-        this.setParameter(Parameter.DO_GRID_OUTPUT,
-                          Boolean.toString(arg.isGridOutputSet()));
+                                               arg.getDistanceInfileArgument());
+        this.setParameter(Parameter.FIND_ALL, Boolean.toString(
+                                                           arg.isFindAllSet()));
+        this.setParameter(Parameter.OUTFILE_PATH, arg.getOutfileArgument());
+        this.setParameter(Parameter.IS_HOMOMERIC, Boolean.toString(
+                                                         arg.isHomomericSet()));
+        this.setParameter(Parameter.MAXIMUM_DISTANCE, Double.toString(
+                                             arg.getMaximumDistanceArgument()));
+        this.setParameter(Parameter.SOLVENT_RADIUS, Double.toString(
+                                               arg.getSolventRadiusArgument()));
+        this.setParameter(Parameter.DO_SAS, Boolean.toString(
+                                         arg.getSolventAccessibiltyArgument()));
+        this.setParameter(Parameter.DO_GLOBAL_GRID, Boolean.toString(
+                                                        arg.isGlobalGridSet()));
+        this.setParameter(Parameter.DO_FORCE_OUTPUT, Boolean.toString(
+                                                       arg.isForceOutputSet()));
+        this.setParameter(Parameter.DO_VERBOSE_OUTPUT, Boolean.toString(
+                                                     arg.isVerboseOutputSet()));
+        this.setParameter(Parameter.DO_GRID_OUTPUT, Boolean.toString(
+                                                        arg.isGridOutputSet()));
         this.setParameter(Parameter.DO_TRYPSIN_DIGEST, Boolean.toString(
-                                                  arg.isTrypsinateArgumentSet())
-                                                               );
+                                                arg.isTrypsinateArgumentSet()));
         this.setParameter(Parameter.DO_EXPASY_RULE, Boolean.toString(
-                                                      arg.isExpasyArgumentSet())
-                                                               );
-
+                                                    arg.isExpasyArgumentSet()));
         if (arg.isVerboseOutputSet()) {
             this.output();
         }
@@ -149,7 +142,7 @@ public class CrossLinkParameter {
     //--------------------------------------------------------------------------
     /**
      * Returns the value of a cross-link param.
-     * @param param
+     * @param parameter
      *        Parameter object that holds a list of all relevant cross-link
      *        parameters.
      * @return String object that holds the value of the cross-link param

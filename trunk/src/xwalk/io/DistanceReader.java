@@ -43,22 +43,20 @@ public class DistanceReader {
                 Atom atom1 = new Atom();
                 Atom atom2 = new Atom();
                 int index = 0;
-                int seqDist = Integer.parseInt(Value.DISTANCE.getDefault());
-                double eucDist = Double.parseDouble(
-                                                    Value.DISTANCE.getDefault()
-                                                   );
-                double solvDist = Double.parseDouble(
-                                                     Value.DISTANCE.getDefault()
-                                                    );
+                int seqDist = -1;
+                double eucDist = -1;
+                double solvDist = -1;
                 try {
                     String[] array = line.trim().split("\t");
                     index = Integer.parseInt(array[0]);
                     String file = array[1];
                     String atom1info = array[2];
                     String atom2info = array[3];
-                    seqDist = Integer.parseInt(array[4]);
-                    eucDist = Double.parseDouble(array[5]);
-                    if (array.length > 6) {
+                    if (array.length > 4) {
+                        seqDist = Integer.parseInt(array[4]);
+                    } else if (array.length > 5) {
+                        eucDist = Double.parseDouble(array[5]);
+                    } else if (array.length > 6) {
                         solvDist = Double.parseDouble(
                                                      Value.DISTANCE.getDefault()
                                                      );

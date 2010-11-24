@@ -35,6 +35,10 @@ public class CommandlineArguments {
      */
     private String distanceInfile = "";
     /**
+     * To read in only atoms in the backbone of the atom plus beta-carbon.
+     */
+    private boolean doBackboneReadOnly = false;
+    /**
      * Output only when all distances in a distance file are found.
      * Default {@code findAll = FALSE};
      */
@@ -217,6 +221,7 @@ public class CommandlineArguments {
         this.readGridOutputArgument();
         this.readHomomericArgument();
         this.readInfileArgument();
+        this.readBackBoneOnlyArgument();
         this.readDistanceInfileArgument();
         this.readFindAllArgument();
         this.readInterMolecularDistanceArgument();
@@ -287,6 +292,12 @@ public class CommandlineArguments {
               + NL
               + "\t-infile\t<path>\tAny PDB file; .tar, .gz and .tar.gz files "
               + "with PDB file content are also accepted [required]."
+              + NL
+              + "\t-bb\t[switch]\tReads in only backbone and beta carbon "
+              + "atom coordinates from the input file. This might be "
+              + "of value when virtual cross-links are to be created "
+              + "between backbone or beta-carbon atoms [optional]. Consider "
+              + "increasing -radius to 2.0."
               + NL
               + "\t-dist\t<path>\tAny Xwalk distance file, from which all "
               + "residue information will be extracted [optional]."
@@ -387,7 +398,6 @@ public class CommandlineArguments {
               + NL
               + "\t-all\t[switch]\tOutputs only distances if all virtual cross-"
               + "links in a distance file (-dist) can be found."
-              + "only up-to this value (default: 21.0)."
               + NL
               + NL
               + "SOLVENT-PATH-DISTANCE GRID RELATED:"
@@ -399,10 +409,6 @@ public class CommandlineArguments {
               + "however that the distances might differ by about an Angstroem "
               + "as compared to a local grid and that you might need to "
               + "increase the Java heap size to for example 512 MB (-Xmx512m)"
-              + NL
-              + "Does not calculate the solvent accessible "
-              + "surface surface area and thus does not exclude non-accessible "
-              + "amino acids [optional]."
               + NL
               + "\t-xsas\t[switch]\tDoes not calculate the solvent accessible "
               + "surface surface area and thus does not exclude non-accessible "
@@ -1319,7 +1325,7 @@ public class CommandlineArguments {
     //--------------------------------------------------------------------------
     /**
      * Determines whether the argument -expasy has been set on the commandline.
-     * @see #getExpasyArgument()
+     * @see #isExpasyArgumentSet()
      */
     private void readExpasyArgument() {
         if (Commandline.get(this.arguments,
@@ -1335,10 +1341,33 @@ public class CommandlineArguments {
      * peptidecutter/peptidecutter_enzymes.html">ExPASy</a>.
      * @return {@code TRUE} if ExPASy rules should be used, {@code FALSE}
      * otherwise.
-     * @see #getTrypsinateArgument
+     * @see #readExpasyArgument()
      */
     public final boolean isExpasyArgumentSet() {
         return this.doExpasy;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Determines whether the argument -bb has been set on the commandline.
+     * @see #isBackboneOnlyArgumentSet()
+     */
+    private void readBackBoneOnlyArgument() {
+        if (Commandline.get(this.arguments, "-bb", false).equals("EXISTS")) {
+            this.doBackboneReadOnly = true;
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the a boolean expression whether only backbone and beta-carbon
+     * coordinates should be read in from the input file. This might be
+     * interesting if virtual cross-links are to be created between backbone
+     * or beta carbon atoms.
+     * @return {@code TRUE} if only backbone and beta-carbon atoms should be
+     * read in, {@code FALSE} otherwise.
+     * @see #readBackBoneOnlyArgument()
+     */
+    public final boolean isBackboneOnlyArgumentSet() {
+        return this.doBackboneReadOnly;
     }
     //--------------------------------------------------------------------------
 }

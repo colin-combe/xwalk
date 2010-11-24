@@ -120,12 +120,12 @@ public class BreadthFirstSearch {
                   double newDist = Integer.MIN_VALUE;
 
                   if (!neighbour.isOccupied()) {
-                      // The distance of the neighbouring grid cell is the
-                      // distance of the current active cell + the distance
-                      // between the active and the neighbouring cell.
                       currentDist = Double.parseDouble(
                                               neighbour.getValue(Value.DISTANCE)
                                                       );
+                      // The distance of the neighbouring grid cell is the
+                      // distance of the current active cell + the distance
+                      // between the active and the neighbouring cell.
                       newDist = Double.parseDouble(active.getValue(
                                                                  Value.DISTANCE)
                                                                   )
