@@ -600,7 +600,15 @@ public class CommandlineArguments {
      */
     private void readFindAllArgument() {
         if (Commandline.get(this.arguments, "-all", false).equals("EXISTS")) {
-            this.findAll = true;
+            if (!Commandline.get(
+                                  this.arguments, "-dist", true).equals("ERROR")
+                                ) {
+                this.findAll = true;
+            } else {
+                System.err.println(NL + "WARNING: Ommiting -all argument. "
+                                 + "Please specify -dist argument otherwise."
+                                 + NL);
+            }
         }
     }
     //--------------------------------------------------------------------------

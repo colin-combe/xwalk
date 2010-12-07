@@ -39,8 +39,8 @@ public class Constants {
      * @see #getCoordinateUncertainty(AtomList)
      */
     public static double getCoordinateUncertainty(final Atom atom) {
-        double errorRange = atom.getAverageDislocation()
-                          + Constants.COORDINATE_UNCERTAINTY;
+        double errorRange = atom.getAverageDislocation();
+        //  + Constants.COORDINATE_UNCERTAINTY
     return errorRange;
     }
     //--------------------------------------------------------------------------

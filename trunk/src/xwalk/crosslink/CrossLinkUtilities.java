@@ -69,16 +69,11 @@ public final class CrossLinkUtilities {
         //--------------------------------
         // read in cross-links from distance file
         CrossLinkList distXl = null;
-        boolean findAll = false;
         if (!parameter.getParameter(Parameter.DISTANCE_FILE_PATH).equals("")) {
             distXl = DistanceReader.getCrossLinks(parameter.getParameter(
                                                     Parameter.DISTANCE_FILE_PATH
                                                                         )
                                                  );
-            if (Boolean.parseBoolean(parameter.getParameter(
-                                                        Parameter.FIND_ALL))) {
-                findAll = true;
-            }
         }
         //--------------------------------
         // digest protein
@@ -144,12 +139,6 @@ public final class CrossLinkUtilities {
                                                                    crossLinkList
                                                                            );
             }
-            if (findAll) {
-                if (distXl.size() != crossLinkList.size()) {
-                    continue;
-                }
-            }
-
             //---------------------------------
             // set file name of each grid to the file name of its protein
             // complex and assign peptide sequences to cross-linked atoms.
@@ -1449,6 +1438,17 @@ public final class CrossLinkUtilities {
                                         Constants.getCoordinateUncertainty(
                                                                      pairedAtoms
                                                                           ));
+
+                if (CrossLinkUtilities.cleanAtomPairs(paths,
+                                                      pairedAtoms,
+                                                      maxDist)
+                    &&
+                    Boolean.parseBoolean(parameter.getParameter(
+                                                            Parameter.FIND_ALL))
+                                                               ) {
+                    paths = new ArrayList <Path>();
+                }
+
                 if (Boolean.parseBoolean(parameter.getParameter(
                                                         Parameter.DO_GRID_OUTPUT
                                                                )
@@ -1457,12 +1457,23 @@ public final class CrossLinkUtilities {
                 }
 
             }
+            // in case no shortest path could be found. Can happen e.g. when
+            // distance file is supplied and all distances are to be found but
+            // not all distances could be found.
+            if (paths.size() == 0
+                &&
+                Boolean.parseBoolean(
+                                     parameter.getParameter(Parameter.FIND_ALL))
+                                    ) {
+                return new CrossLinkList();
+            }
+
             for (int i = 0; i < pairedAtoms.size(); i++) {
 
                 CrossLink crossLink = crossLinksByEuclideanDistance.get(
-                        atom,
-                        pairedAtoms.get(i)
-                                 );
+                                                              atom,
+                                                              pairedAtoms.get(i)
+                                                                       );
 
                 double dist = SolventPathDistance.extractTargetDistances(
                                                                     paths.get(i)
@@ -1485,7 +1496,7 @@ public final class CrossLinkUtilities {
     }
     //--------------------------------------------------------------------------
     /**
-     * Calculates solvent path distances using a global grid.
+     * Calculates solvent path distances using a local grid.
      * Note, that all atom objects in atoms2 which have a distance larger than
      * maxDist to atom1 will removed from atoms2.
      * @param complex
@@ -1554,7 +1565,11 @@ public final class CrossLinkUtilities {
                                                                );
         ArrayList < Path > paths = solvDist.getShortestPath(maxDist);
 
-        CrossLinkUtilities.cleanAtomPairs(paths, atoms2, maxDist);
+        if (CrossLinkUtilities.cleanAtomPairs(paths, atoms2, maxDist)
+            &&
+            Boolean.parseBoolean(parameter.getParameter(Parameter.FIND_ALL))) {
+                paths = new ArrayList <Path>();
+        }
 
     return paths;
     }
@@ -1600,8 +1615,10 @@ public final class CrossLinkUtilities {
      * @param maxDist
      *        - double value representing the maximum distance beyond which
      *          atom pairs and path objects will be removed.
+     * @return {@code TRUE} if elements in paths and atoms2 object had to be
+     *         removed, {@code FALSE} otherwise.
      */
-    private static void cleanAtomPairs(final ArrayList < Path > paths,
+    private static boolean cleanAtomPairs(final ArrayList < Path > paths,
                                        final AtomList atoms2,
                                        final double maxDist) {
         // remove all atoms that have a distance larger than maxDist.
@@ -1622,6 +1639,11 @@ public final class CrossLinkUtilities {
         }
         atoms2.removeAll(toBremoved);
         paths.removeAll(paths2beRemoved);
+
+        if (toBremoved.size() > 0 || paths2beRemoved.size() > 0) {
+            return true;
+        }
+        return false;
     }
     //--------------------------------------------------------------------------
 }

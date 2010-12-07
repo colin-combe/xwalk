@@ -16,12 +16,6 @@ public class ConversionException extends Exception {
 
     //--------------------------------------------------------------------------
     /**
-     * Error message.
-     */
-    private String message;
-
-    //--------------------------------------------------------------------------
-    /**
      * Constructor.
      * @param errorMessage
      *        - String object holding the error message, ideally some text that
@@ -29,13 +23,5 @@ public class ConversionException extends Exception {
      */
     public ConversionException(final String errorMessage) {
         super(errorMessage);
-    }
-
-    //--------------------------------------------------------------------------
-    /**
-     * @return String object that holds the error message.
-     */
-    public final String toString() {
-        return this.message;
     }
 }
