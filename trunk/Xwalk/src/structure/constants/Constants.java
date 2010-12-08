@@ -25,7 +25,7 @@ public class Constants {
     //--------------------------------------------------------------------------
     /**
      * The average coordinate uncertainty in PDB crystal structures is about
-     * 0.28 Å. See Laskowski, R.A. (2003) "Structural Quality Assurance",
+     * 0.28 Angstroem. See Laskowski, R.A. (2003) "Structural Quality Assurance",
      * Structural Bioinformatics, 273-303.
      */
     public static final double COORDINATE_UNCERTAINTY = 0.28;

@@ -202,19 +202,10 @@ public abstract class Molecule {
     /**
      * Returns the total solvent accessibility of this amino acid.
      * @return double value value representing this amino acid's total SAS.
-     * @see #setTotalSas(int)
+     * @see #setTotalSas(double)
      */
     public final double getTotalSas() {
         return totalSolventAccessibility;
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Returns the relative solvent accessibility of this amino acid.
-     * @return double value value representing this amino acid's relative SAS.
-     * @see #setRelativeSas(int)
-     */
-    public final double getRelativeSas() {
-        return relativeSolventAccessibility;
     }
     //--------------------------------------------------------------------------
     /**
@@ -224,6 +215,15 @@ public abstract class Molecule {
      */
     public final void setTotalSas(final double sas) {
         this.totalSolventAccessibility = sas;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the relative solvent accessibility of this amino acid.
+     * @return double value value representing this amino acid's relative SAS.
+     * @see #setRelativeSas(double)
+     */
+    public final double getRelativeSas() {
+        return relativeSolventAccessibility;
     }
     //--------------------------------------------------------------------------
     /**

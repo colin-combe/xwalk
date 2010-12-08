@@ -194,10 +194,10 @@ public abstract class MatterUtilities {
      */
     public static ArrayList < Bond > calculateBonds(final AtomList atoms) {
         // Covalent bonds in organic molecules should have a distance less than
-        // 1.54 Å between both atom centers.
+        // 1.54 Angstroem between both atom centers.
         // (see http://en.wikipedia.org/wiki/Bond_length).
         // To account for resolution error distance is taken to be less than
-        // 1.8 (0.28 Å estimated standard error for X-ray structures)
+        // 1.8 (0.28 Angstroem estimated standard error for X-ray structures)
         ArrayList < Bond > bonds = new ArrayList < Bond >();
         for (Atom atom1 : atoms) {
             for (Atom atom2 : atoms) {

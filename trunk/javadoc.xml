@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="public" author="true" classpath="." destdir="Xwalk/doc" doctitle="Xwalk - Accurate Distance Calculation on Protein Structures." nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="structure.matter,structure.exceptions,structure.matter.parameter,external,structure.matter.protein,xwalk.io,com.ice.tar,structure.matter.hetgroups,structure.sas,mm.constants,structure.grid,structure.io.pdb,xwalk.constants,structure.constants,structure.math.algorithms,xwalk.math,structure.math,structure.math.pdb,xwalk.crosslink,structure.io,mm.evolution,mm.hydrophobicity" source="1.5" sourcefiles="Xwalk/src/AvgInterface.java,Xwalk/src/Interface.java,Xwalk/src/package-info.java,Xwalk/src/Xwalk.java" sourcepath="Xwalk/src" splitindex="true" use="true" version="true"/>
+    </target>
+</project>
