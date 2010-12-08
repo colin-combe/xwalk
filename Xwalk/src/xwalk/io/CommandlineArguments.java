@@ -105,7 +105,7 @@ public class CommandlineArguments {
     private String atomType2 = "";
     /**
      * Maximal distance that is span by the cross-linker.
-     * Default {@code maxDist = 27Å}.
+     * Default {@code maxDist = 27 Angstroem}.
      */
     private double maximumDistance =
                           xwalk.constants.Constants.DEFAULT_CROSS_LINKER_LENGTH;
@@ -1310,7 +1310,7 @@ public class CommandlineArguments {
     /**
      * Determines whether the argument -xtrypsin has been set on the
      * commandline.
-     * @see #getTrypsinateArgument()
+     * @see #isTrypsinateArgumentSet()
      */
     private void readTrypsinateArgument() {
         if (Commandline.get(this.arguments,
@@ -1325,7 +1325,7 @@ public class CommandlineArguments {
      * not.
      * @return {@code TRUE} if digestion is to be performed, {@code FALSE}
      * otherwise.
-     * @see #getTrypsinateArgument
+     * @see #readTrypsinateArgument()
      */
     public final boolean isTrypsinateArgumentSet() {
         return this.doTrypsin;
