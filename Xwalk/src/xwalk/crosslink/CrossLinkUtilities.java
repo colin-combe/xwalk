@@ -120,6 +120,15 @@ public final class CrossLinkUtilities {
              CrossLinkUtilities.removeRedundanciesInHomomers(crossLinkList);
             }
 
+            // stop calculation if all distances are to be found, but
+            // cross-links failed already to comply with Euclidean distance.
+            if (Boolean.parseBoolean(parameter.getParameter(
+                                                           Parameter.FIND_ALL
+                                                          ))) {
+                if (distXl.size() != crossLinkList.size()) {
+                    return new CrossLinkList();
+                }
+            }
             //---------------------------------
             // If requested by the user check further for Solvent Path distance.
             if (Boolean.parseBoolean(parameter.getParameter(
@@ -138,6 +147,15 @@ public final class CrossLinkUtilities {
                                                                    complex,
                                                                    crossLinkList
                                                                            );
+            }
+            // stop calculation if all distances are to be found, but
+            // cross-links failed to comply with SASD.
+            if (Boolean.parseBoolean(parameter.getParameter(
+                                                           Parameter.FIND_ALL
+                                                          ))) {
+                if (distXl.size() != crossLinkList.size()) {
+                    return new CrossLinkList();
+                }
             }
             //---------------------------------
             // set file name of each grid to the file name of its protein
