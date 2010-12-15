@@ -10,6 +10,7 @@ import java.util.Hashtable;
 import java.util.zip.DataFormatException;
 
 import structure.constants.Constants;
+import structure.exceptions.FileFormatException;
 import structure.io.GzipFileReader;
 import structure.io.ReadFile;
 import structure.math.Point3d;
@@ -17,7 +18,6 @@ import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
 import structure.matter.hetgroups.SmallMolecule;
-import structure.matter.parameter.AminoAcidType;
 import structure.matter.parameter.AtomType;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
@@ -54,12 +54,12 @@ public class PDBreader {
      * @param  fileName
      *         - Path to PDB file.
      * @throws IOException if error occurs while reading infile.
-     * @throws DataFormatException if ATOM or HEATM line does not conform to the
+     * @throws FileFormatException if ATOM or HEATM line does not conform to the
      *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
      *         PDB standards</a>.
      */
     public PDBreader(final String fileName) throws IOException,
-                                                   DataFormatException {
+                                                   FileFormatException {
         this.setFileName(fileName);
         this.pdbFile = new ReadFile(fileName);
         this.readAllAtoms(this.pdbFile);
@@ -72,13 +72,13 @@ public class PDBreader {
      *         - BufferedReader object holding the PDB file.
      * @throws IOException if an error occurs while reading the BufferedReader
      *         object.
-     * @throws DataFormatException if ATOM or HEATM line does not conform to the
+     * @throws FileFormatException if ATOM or HEATM line does not conform to the
      *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
      *         PDB standards</a>.
      */
     public PDBreader(final BufferedReader bufferedReader)
                                                     throws IOException,
-                                                           DataFormatException {
+                                                           FileFormatException {
         this.pdbFile = new ReadFile(bufferedReader);
         this.readAllAtoms(this.pdbFile);
     }
@@ -87,11 +87,11 @@ public class PDBreader {
      * Constructor; Reads in all ATOM and HETATM entries from a PDB file.
      * @param  readFile
      *         - ReadFile object holding the content of a PDB file.
-     * @throws DataFormatException if ATOM or HEATM line does not conform to the
+     * @throws FileFormatException if ATOM or HEATM line does not conform to the
      *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
      *         PDB standards</a>.
      */
-    public PDBreader(final ReadFile readFile) throws DataFormatException {
+    public PDBreader(final ReadFile readFile) throws FileFormatException {
         this.pdbFile = readFile;
         this.readAllAtoms(this.pdbFile);
     }
@@ -105,12 +105,14 @@ public class PDBreader {
      * @return List of PDBreader objects each holding the content of a single
      *         PDB file.
      * @throws IOException if input file could not be read.
-     * @throws DataFormatException if ATOM or HEATM line does not conform to the
+     * @throws FileFormatException if ATOM or HEATM line does not conform to the
      *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
      *         PDB standards</a>.
+     * @throws DataFormatException if .gz format is unknown.
      */
     public static ArrayList < PDBreader > createPDBreaders(final String infile)
-                                       throws IOException, DataFormatException {
+                                       throws IOException, FileFormatException, 
+                                              DataFormatException {
 
         ArrayList < PDBreader > pdbReaders = new ArrayList < PDBreader >();
         if (infile.endsWith(".tar.gz") || infile.endsWith(".tgz")) {
@@ -124,18 +126,7 @@ public class PDBreader {
         } else if (infile.endsWith(".tar")) {
             TarPDBreader tarPdb = new TarPDBreader(infile);
             pdbReaders.addAll(tarPdb.getPDBreaders());
-        } else if (infile.endsWith(".pdb")
-                   ||
-                   infile.endsWith(".pdb1")
-                   ||
-                   infile.endsWith(".ent")
-                   ||
-                   infile.endsWith(".pqs")
-                   ||
-                   infile.endsWith(".mmol")
-                   ||
-                   infile.endsWith(".pisa")) {
-
+        } else {
             pdbReaders.add(new PDBreader(infile));
         }
     return pdbReaders;
@@ -163,13 +154,13 @@ public class PDBreader {
      * @param fileContent
      *        - List of String object holding each a line of a PDB file to be
      *          read in.
-     * @throws DataFormatException if ATOM or HEATM line does not conform to the
+     * @throws FileFormatException if ATOM or HEATM line does not conform to the
      *         PDB standards at
      *         {@link http://www.wwpdb.org/documentation/format32/sect9.html}
      * @see #parseAtom(String)
      */
     private void readAllAtoms(final ArrayList < String > fileContent)
-                                                    throws DataFormatException {
+                                                    throws FileFormatException {
            int i = 0;
            AtomList atoms = new AtomList();
            for (String line : fileContent) {
@@ -190,6 +181,10 @@ public class PDBreader {
            }
            if (atoms.size() > 0) {
                this.allAtoms.add(atoms);
+           } else {
+               throw new FileFormatException(
+                                         "No ATOM or HETATM found in input file"
+                                            );
            }
     }
     //--------------------------------------------------------------------------
@@ -200,11 +195,11 @@ public class PDBreader {
      *         - String object holding ATOM or HETATM line text in the PDB file
      * @return AtomRadius object that holds all information of the ATOM or
      *         HETATM entry line.
-     * @throws DataFormatException if ATOM or HEATM line does not conform to the
+     * @throws FileFormatException if ATOM or HEATM line does not conform to the
      *         PDB standards at
      *         {@link http://www.wwpdb.org/documentation/format32/sect9.html}
      */
-    private Atom parseAtom(final String line) throws DataFormatException {
+    private Atom parseAtom(final String line) throws FileFormatException {
         Atom atom = new Atom();
         try {
             atom.setFlag(line.substring(0,6));
@@ -238,7 +233,7 @@ public class PDBreader {
                 }
             }
         } catch (Exception e) {
-            throw new DataFormatException("ERROR: " + line + "; does not seem "
+            throw new FileFormatException("ERROR: " + line + "; does not seem "
                                         + "to have PDB format: " + e
                                         + Constants.LINE_SEPERATOR);
         }

@@ -49,6 +49,11 @@ public class CommandlineArguments {
      */
     private String outfile = "";
     /**
+     * To determine whether output file is to be created.
+     * Default {@code doOutputFile = false}.
+     */
+    private boolean doOutputFile = false;
+    /**
      * Force output into a file without checking whether file already exists.
      * Default {@code force = FALSE}.
      */
@@ -228,7 +233,7 @@ public class CommandlineArguments {
         this.readIntraMolecularDistanceArgument();
         this.readMaximumDistanceArgument();
         this.readSolventAccessibiltyArgument();
-        this.readOutfileArgument();
+        this.doOutputFile = this.readOutfileArgument();
         this.readPymolArgument();
         this.readSolventRadiusArgument();
         this.readAminoAcidNumber1Argument();
@@ -678,9 +683,10 @@ public class CommandlineArguments {
      * Determines whether the argument -out has been set on the commandline.
      * If the output file already exists, then the user is asked whether
      * the existing file should be overwritten.
-     * @return {@code TRUE} if output file should be written,
+     * @return {@code TRUE} if output file should be created,
      * {@code FALSE} otherwise.
      * @see #getOutfileArgument()
+     * @see #isOutputFileToBeCreated()
      */
     private boolean readOutfileArgument() {
         if (!Commandline.get(this.arguments, "-out", true).equals("ERROR")) {
@@ -694,6 +700,8 @@ public class CommandlineArguments {
                                   + "File \"" + outfile + "\" already exists. "
                                   + "Overwrite? [y/n]: ");
                     String respond = Commandline.get();
+                    System.err.print(NL);
+
                     if (!respond.equalsIgnoreCase("y")
                         &&
                         !respond.equalsIgnoreCase("yes")) {
@@ -716,6 +724,17 @@ public class CommandlineArguments {
      */
     public final String getOutfileArgument() {
         return this.outfile;
+    }
+    //--------------------------------------------------------------------------
+
+    /**
+     * Returns whether an output file should be created.
+     * @return {@code TRUE} if output file is to be created, {@code FALSE}
+     * otherwise.
+     * @see #readOutfileArgument()
+     */
+    public final boolean isOutputFileToBeCreated() {
+        return this.doOutputFile;
     }
     //--------------------------------------------------------------------------
 

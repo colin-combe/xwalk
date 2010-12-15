@@ -8,6 +8,7 @@ import java.util.zip.DataFormatException;
 import structure.constants.Constants;
 import structure.exceptions.CommandlineArgumentFormatException;
 import structure.exceptions.CommandlineArgumentNotFoundException;
+import structure.exceptions.FileFormatException;
 import structure.matter.protein.PolyPeptideList;
 
 import xwalk.crosslink.CrossLinkParameter;
@@ -121,15 +122,26 @@ public class Xwalk {
             list = CrossLinkUtilities.getVirtualCrossLinks(complexes,
                                                            parameter);
         } catch (FileNotFoundException e) {
-            System.err.println("ERROR: Infile could not be found" + nl + e);
+            System.err.println(nl
+                               + "ERROR: Infile could not be found" + nl + e
+                               + nl);
             System.exit(-4);
         } catch (IOException e) {
-            System.err.println("ERROR: Could not read infile" + nl + e);
+            System.err.println(nl
+                               + "ERROR: Could not read infile" + nl + e
+                               + nl);
             System.exit(-5);
-        } catch (DataFormatException e) {
-            System.err.println("ERROR: Format exception" + nl + e);
+        } catch (FileFormatException e) {
+            System.err.println(nl
+                               + "ERROR: Format exception in input file" + nl
+                               + e + nl);
             System.exit(-6);
-        }
+        } catch (DataFormatException e) {
+            System.err.println(nl
+                               + "ERROR: GnuZip format exception in" + nl + e
+                               + nl);
+            System.exit(-7);
+    }
     return list;
     }
     //--------------------------------------------------------------------------
@@ -184,6 +196,12 @@ public class Xwalk {
 
         CommandlineArguments arguments = Xwalk.readCommandline(args);
         CrossLinkParameter parameter = new CrossLinkParameter(arguments);
+        // stop calculation if output is declined.
+        if (!parameter.getParameter(Parameter.OUTFILE_PATH).equals("")
+            &&
+            !arguments.isOutputFileToBeCreated()) {
+            System.exit(0);
+        }
         CrossLinkList list = Xwalk.createVirtualCrossLinks(parameter);
         Xwalk.outputVirtualCrossLinks(arguments, parameter, list);
     }

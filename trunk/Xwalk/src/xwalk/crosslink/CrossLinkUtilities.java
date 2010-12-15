@@ -9,6 +9,7 @@ import java.util.zip.DataFormatException;
 
 import structure.constants.Constants;
 import structure.constants.Constants.ParameterSets;
+import structure.exceptions.FileFormatException;
 import structure.grid.AtomGrid;
 import structure.grid.GridUtilities;
 import structure.grid.Path;
@@ -399,15 +400,17 @@ public final class CrossLinkUtilities {
      * @return List of PolyPeptideList objects, each holding all protein
      *         coordinates labeled as ATOM up to an END flag or end of file.
      * @throws IOException if input file could not be read.
-     * @throws DataFormatException if ATOM or HEATM line does not conform to the
+     * @throws FileFormatException if ATOM or HEATM line does not conform to the
      *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
      *         PDB standards</a>.
+     * @throws DataFormatException if .gz format is unknown.
      */
     public static ArrayList < PolyPeptideList > getComplexesCoordinates(
                                              final CrossLinkParameter parameter
                                                                        )
                                                    throws IOException,
-                                                           DataFormatException {
+                                                          FileFormatException,
+                                                          DataFormatException {
 
         ArrayList < PDBreader > pdbReaders =
             PDBreader.createPDBreaders(parameter.getParameter(

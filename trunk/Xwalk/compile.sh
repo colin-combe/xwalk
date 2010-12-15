@@ -1,4 +1,5 @@
 #!/bin/bash
+# requires SUN java 1.6
 if [ ! -d bin ]
 then
     mkdir bin

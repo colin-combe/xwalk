@@ -726,14 +726,18 @@ public class Atom {
      * Gets the atom's average dislocation, calculated from the temperature
      * factor value by
      * Bj= 8  * Math.pow(Math.PI,2) * Math.pow(avgDis,2)
-     * Bj= 79 * Math.pow(avgDis,2)
+     * Bj= 79 * Math.pow(avgDis,2).
      * @return double value representing the average dislocation of the atoms
      *         position.
      */
     public final double getAverageDislocation() {
-        return Math.sqrt(this.temperaturFactor
-                         /
-                         79);
+        if (this.temperaturFactor > 0) {
+            return Math.sqrt(this.temperaturFactor
+                             /
+                             79);
+        } else {
+            return 0;
+        }
     }
     //--------------------------------------------------------------------------
     /**
