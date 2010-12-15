@@ -8,6 +8,7 @@ import java.util.zip.DataFormatException;
 
 import com.ice.tar.TarInputStream;
 
+import structure.exceptions.FileFormatException;
 import structure.io.ReadFile;
 import structure.io.TarFileReader;
 
@@ -52,12 +53,12 @@ public class TarPDBreader {
      * that was gzipped.
      * @return PDBreader object.
      * @throws IOException if an error occurs while reading in the gzipped file.
-     * @throws DataFormatException if ATOM or HEATM line does not conform to the
+     * @throws FileFormatException if ATOM or HEATM line does not conform to the
      *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
      *         PDB standards</a>.
      */
     public final ArrayList < PDBreader > getPDBreaders() throws IOException,
-                                                           DataFormatException {
+                                                           FileFormatException {
 
         ArrayList < PDBreader > pdbReaders = new ArrayList < PDBreader >();
 
