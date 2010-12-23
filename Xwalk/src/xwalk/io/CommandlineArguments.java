@@ -299,10 +299,9 @@ public class CommandlineArguments {
               + "with PDB file content are also accepted [required]."
               + NL
               + "\t-bb\t[switch]\tReads in only backbone and beta carbon "
-              + "atom coordinates from the input file. This might be "
-              + "of value when virtual cross-links are to be created "
-              + "between backbone or beta-carbon atoms [optional]. Consider "
-              + "increasing -radius to 2.0."
+              + "atom coordinates from the input file and sets -radius to 2.0. "
+              + "This might be of value when virtual cross-links are to be "
+              + "created between backbone or beta-carbon atoms [optional]."
               + NL
               + "\t-dist\t<path>\tAny Xwalk distance file, from which all "
               + "residue information will be extracted [optional]."
@@ -322,8 +321,9 @@ public class CommandlineArguments {
               + "\t-v\t[switch]\tOutputs various information other "
               + "than distances [optional]."
               + NL
-              + "\t-grid\t[switch]\tOutputs on STDOUT channel the "
-              + "Solvent-Path-Distance grids in PDB format with "
+              + "\t-grid\t[switch]\tOutputs on STDOUT channel the grid, which"
+              + "is used to calculate the Solvent Accessible Surface Distance. "
+              + "Requires the option -global. The grid is in PDB format with "
               + "distances in the B-factor column [optional]."
               + NL
               + NL
@@ -415,10 +415,12 @@ public class CommandlineArguments {
               + "as compared to a local grid and that you might need to "
               + "increase the Java heap size to for example 512 MB (-Xmx512m)"
               + NL
-              + "\t-xsas\t[switch]\tDoes not calculate the solvent accessible "
-              + "surface surface area and thus does not exclude non-accessible "
-              + "amino acids [optional]."
-              + NL
+// No need for -xsas parameter anymore, as SASD makes no sense without checking
+// for SAS. 
+//              + "\t-xsas\t[switch]\tDoes not calculate the solvent accessible "
+//              + "surface surface area and thus does not exclude non-accessible "
+//              + "amino acids [optional]."
+//              + NL
               + "\t-radius\t[double]\tSolvent radius for calculating the "
               + "solvent accessible surface area [optional](default 1.4)."
               + NL
@@ -1376,11 +1378,13 @@ public class CommandlineArguments {
     //--------------------------------------------------------------------------
     /**
      * Determines whether the argument -bb has been set on the commandline.
+     * If it has been set, than solvent radius is automatically set to 2.0 too.
      * @see #isBackboneOnlyArgumentSet()
      */
     private void readBackBoneOnlyArgument() {
         if (Commandline.get(this.arguments, "-bb", false).equals("EXISTS")) {
             this.doBackboneReadOnly = true;
+            this.solventRadius = 2.0;
         }
     }
     //--------------------------------------------------------------------------
