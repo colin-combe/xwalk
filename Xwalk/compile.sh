@@ -4,4 +4,6 @@ if [ ! -d bin ]
 then
     mkdir bin
 fi
-javac -sourcepath src/ -d bin/ src/Xwalk.java
+
+SRC=$(find | grep ".java$")
+javac -d bin $SRC
