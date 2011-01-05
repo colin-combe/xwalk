@@ -1,0 +1,28 @@
+# Help with information on the available parameter
+java -cp ../bin/ Xwalk -help
+
+# Example executions on the barnase-barstar complex 1brs.pdb. 	
+	# Calculate Euclidean distance (-euc)
+	# between lysine residues. (-aa1 lys -aa2 lys)
+java -cp ../bin/ Xwalk -infile 1brs.pdb -aa1 lys -aa2 lys -euc
+
+	# Calcuate Euclidean distance (-euc)
+	# between aspartic (-aa1 asp) and glutamic (-aa2 glu) acid residues.
+java -cp ../bin/ Xwalk -infile 1brs.pdb -aa1 asp -aa2 glu -euc
+
+     	# Calculate SASD 
+	# between beta-carbon atoms (-a1 cb -a2 cb)
+	# of lysine residues (-aa1 lys -aa2 lys).
+	# that have a maximum distance of 21.4 Angstroem (-max 21.4).
+	# and remove prior to calculation all side chains (-bb)
+java -Xmx256m -cp ../bin/ Xwalk -infile 1brs.pdb -aa1 lys -aa2 lys -a1 cb -a2 cb -max 21.4 -bb
+
+     	# Calculate SASD of intermolecular cross-links (-inter)
+	# between the epsilon-nitrogen atoms (-a1 nz -a2 nz)
+	# of lysine residues (-aa1 lys -aa2 lys).
+	# that have a maximum distance of 11.4 Angstroem (-max 11.4).
+	# and remove prior to calculation all side chains (-bb)
+	# and output PyMOL script to visualise the SASD path (-p)
+java -Xmx256m -cp ../bin/ Xwalk -infile 1brs.pdb -aa1 lys -aa2 lys -a1 nz -a2 nz -max 11.4 -inter -p
+
+
