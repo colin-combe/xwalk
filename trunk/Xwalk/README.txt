@@ -6,11 +6,6 @@ INTRODUCTION
 Chemical cross-linking of proteins or protein complexes and the mass spectrometry based localization of the cross-linked amino acids is a powerful method for generating distance restraints on the substrate’s topology. Here we introduce the algorithm Xwalk for predicting and validating these cross-links on existing protein structures. Xwalk calculates and displays non-linear distances between chemically cross-linked amino acids on protein surfaces, while mimicking the flexibility and non-linearity of cross-linker molecules. It returns a “Solvent Accessible Surface Distance” (SASD), which corresponds to the length of the shortest path between two amino acids, where the path leads through solvent occupied space without penetrating the protein surface.
 
 
-COMPILATION
------------
-UNIX: Execute the compile.sh script, which will create a directory bin/ with all JAVA binaries necessary for Xwalk. 
-
-
 TEST
 -----
 Test examples to execute Xwalk can be found in the test subdirectory.
