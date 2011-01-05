@@ -100,7 +100,7 @@ public class Hydrophobicity {
         // Initialize xlogPpotential list
         for (int i = 0; i < points.size(); i++) { xlogPpotential.add(0.0); }
 
-        // get all protein residues that are within 9 
+        // get all protein residues that are within 9 Angstroem.
         Hashtable<Atom, ArrayList<Point3d>> env =
                                       new Hashtable<Atom, ArrayList<Point3d>>();
 

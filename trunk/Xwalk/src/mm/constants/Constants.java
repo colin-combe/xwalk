@@ -93,7 +93,7 @@ public class Constants {
          */
         private double fuzzyOilDropHydrophobicity;
         /**
-         * Fauchère and Pliska hydrophobicity value.
+         * Fauchere and Pliska hydrophobicity value.
          */
         private double faucherePliskaHydrophobicity;
         /**
@@ -117,7 +117,7 @@ public class Constants {
          *        Fuzzy Oil Drop method</a>.
          * @param faucherePliska
          *        double value representing the amino acids hydrophobicity
-         *        value as defined by Fauchère and Pliska, European Journal
+         *        value as defined by Fauchere and Pliska, European Journal
          *        of Medicinal Chemistry (1983) vol. 18 (4) pp. 369-375.
          * @param xlogP
          *        double value representing the amino acids hydrophobicity
