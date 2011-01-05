@@ -1,5 +1,6 @@
 package structure.matter.parameter;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 
@@ -26,6 +27,13 @@ public class ParameterReader {
      */
     private Hashtable <AminoAcidType, Hashtable <AtomType, Double >> xlogP =
                  new Hashtable <AminoAcidType, Hashtable <AtomType, Double >>();
+    /**
+     * Location of parameter files
+     */
+    private static final String PARAMETER_DIR = "mm"
+                                              + File.separatorChar
+                                              + "parameter"
+                                              + File.separatorChar;
     /**
      * MMRR94 radius identifier.
      */
@@ -90,22 +98,28 @@ public class ParameterReader {
     public ParameterReader(final Constants.ParameterSets parameter)
                                                             throws IOException {
         if (parameter == Constants.ParameterSets.RASMOL) {
-            this.readParameterSet(ParameterReader.RASMOL_FILENAME);
+            this.readParameterSet(ParameterReader.PARAMETER_DIR
+                                + ParameterReader.RASMOL_FILENAME);
         }
         if (parameter == Constants.ParameterSets.SURFNET) {
-            this.readParameterSet(ParameterReader.SURFNET_FILENAME);
+            this.readParameterSet(ParameterReader.PARAMETER_DIR
+                                + ParameterReader.SURFNET_FILENAME);
         }
         if (parameter == Constants.ParameterSets.MMFF94) {
-            this.readParameterSet(ParameterReader.MMFF94_FILENAME);
+            this.readParameterSet(ParameterReader.PARAMETER_DIR
+                                + ParameterReader.MMFF94_FILENAME);
         }
         if (parameter == Constants.ParameterSets.PARSE) {
-            this.readParameterSet(ParameterReader.PARSE_FILENAME);
+            this.readParameterSet(ParameterReader.PARAMETER_DIR
+                                + ParameterReader.PARSE_FILENAME);
         }
         if (parameter == Constants.ParameterSets.CHARMM) {
-            this.readParameterSet(ParameterReader.CHARMM_FILENAME);
+            this.readParameterSet(ParameterReader.PARAMETER_DIR
+                                + ParameterReader.CHARMM_FILENAME);
         }
         if (parameter == Constants.ParameterSets.XLOGP) {
-            this.readParameterSet(ParameterReader.XLOGP_FILENAME);
+            this.readParameterSet(ParameterReader.PARAMETER_DIR
+                                + ParameterReader.XLOGP_FILENAME);
         }
     }
 
