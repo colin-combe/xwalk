@@ -11,11 +11,16 @@ TEST
 Test examples to execute Xwalk can be found in the test subdirectory.
 
 
+CLASSPATH
+---------
+You might want to consider adding the bin directory into the CLASSPATH environment of your SHELL, which avoids the usage of the -cp flag when executing Xwalk.
+ 
+
 OUTPUT
 ------
 Distance information will be printed out to the STDOUT channel or via -out to a local file in the following tab delimeted format:
 ...
-1	1brs.pdb	LYS-108-A-CB	LYS-98-B-CB	100	10.7	13.9	TTDHYQTFTKIR-ILYSSDWLIYKTTDHYQTFTK
+1	1brs_1.mmol	LYS-108-A-CB	LYS-98-B-CB	100	10.7	13.9	TTDHYQTFTKIR-ILYSSDWLIYKTTDHYQTFTK
 ...
 1st column: index
 2nd column: filename
@@ -40,8 +45,7 @@ NOTES
 - As the SASD is based on a grid calculation, the default heap size of the Java VM with 64MB is likely to be too small. You can increase the heap size with "java -Xmx512m"
 - You can obtain PyMOL for free at the webpage: http://pymol.org/
 - Beware that in order for PyMOL to recognize the script file, the file must have the name ending .pml
-- You can load the script into PyMOL directly at the startup of PyMOL, i.e.
-$> pymol 1TAB_c.pml
+- You can load the script directly at the startup of PyMOL, i.e. with the command pymol 1brs_1.mmol
 
 
 CONTACT
