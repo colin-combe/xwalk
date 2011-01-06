@@ -1,13 +1,26 @@
-package structure.math;
+/*
+ * (C) 2010 Abdullah Kahraman
+ *
+ * This software is part of the open-source project "Xwalk". You can use this
+ * software under the terms of the
+ * Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License
+ * (http://creativecommons.org/licenses/by-nc-sa/3.0/).
+ * This means that you
+ * 1.) can copy, modify, distribute the software
+ * 2.) must give credit to the author
+ * 3.) must not use this work for commercial purposes
+ * 4.) must license derivative works under the same or a similar license.
+ *
+ */
 
-import structure.constants.Constants;
+package structure.math;
 
 /**
  * Simple class for handling Cartesian coordinates in 3 dimensional space with
  * integer numbers.
  * @author Abdullah Kahraman
- * @version 3.0
- * @since 3.0
+ * @version 0.1
+ * @since 0.1
  * @see Point3d
  */
 public class Point3i {
