@@ -160,9 +160,9 @@ public class CrossLink extends Bond {
      */
     private void setSequenceDistance() {
 
-        this.seqDist = Math.abs(
-                                         postAtom.getRank() - preAtom.getRank()
-                                        );
+        this.seqDist = Math.abs(this.postAtom.getRank()
+                                -
+                                this.preAtom.getRank());
     }
     //--------------------------------------------------------------------------
 
@@ -171,9 +171,8 @@ public class CrossLink extends Bond {
      */
     private void setEuclideanDistance() {
 
-        this.eucDist = Mathematics.distance(preAtom.getPoint3d(),
-                                                      postAtom.getPoint3d()
-                                           );
+        this.eucDist = Mathematics.distance(this.preAtom.getPoint3d(),
+                                            this.postAtom.getPoint3d());
     }
     //--------------------------------------------------------------------------
 
@@ -412,16 +411,21 @@ public class CrossLink extends Bond {
         for (AminoAcid aa : prePeptide) {
             if (aa.getAllAtoms().contains(this.preAtom)) {
                 this.preAtomPeptide = prePeptide;
-            } else if (aa.getAllAtoms().contains(this.postAtom)) {
+            }
+            if (aa.getAllAtoms().contains(this.postAtom)) {
                 this.postAtomPeptide = prePeptide;
             }
         }
+        // here the order must be inverse, i.e. first check for post than for
+        // pre atom to allow for "self-cross-links". Self-cross-links are
+        // cross-links between two identical atom, which is physically
+        // incorrect but might be requested over a distance file.
         for (AminoAcid aa : postPeptide) {
+            if (aa.getAllAtoms().contains(this.postAtom)) {
+                this.postAtomPeptide = postPeptide;
+            }
             if (aa.getAllAtoms().contains(this.preAtom)) {
                 this.preAtomPeptide = postPeptide;
-            } else if (aa.getAllAtoms().contains(this.postAtom)) {
-                this.postAtomPeptide = postPeptide;
-
             }
         }
         if (this.preAtomPeptide != null && this.postAtomPeptide != null) {

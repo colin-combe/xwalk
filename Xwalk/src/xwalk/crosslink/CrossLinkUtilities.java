@@ -263,6 +263,8 @@ public final class CrossLinkUtilities {
             new Hashtable < Atom, AtomList >();
 
         if (distanceFileCrossLinks == null) {
+            // find all atom pairs in the complex that fulfill the user set
+            // criteria and have a Euclidean distance < max.
             relevantAtomPairs = CrossLinkUtilities.findRelevantPairs(
                                                                   parameter,
                                                                   complex
@@ -307,7 +309,7 @@ public final class CrossLinkUtilities {
                         &&
                         atom2TrypticPeptide != null) {
                         CrossLink xl = new CrossLink(atom1, atom2);
-                        xl.setPeptides(atom1TrypticPeptide,
+                        boolean test = xl.setPeptides(atom1TrypticPeptide,
                                        atom2TrypticPeptide);
                         crossLinks.add(xl);
                     }
@@ -634,6 +636,82 @@ public final class CrossLinkUtilities {
     }
     //--------------------------------------------------------------------------
     /**
+     * Returns the list of non-redundant/unique cross-linked atoms.
+     * @param crossLinks
+     *        - List of CrossLink objects extracted from the distance file.
+     * @return List of non-redundant/unique cross-linked atoms.
+     */
+    private static AtomList uniqueXlAtomList(final CrossLinkList crossLinks) {
+        // get all cross-linked atoms
+        AtomList uniqueCrossLinkAtoms = new AtomList();
+        for (CrossLink xl : crossLinks) {
+             Atom preAtom = xl.getPreAtom();
+             Atom postAtom = xl.getPostAtom();
+             if (!uniqueCrossLinkAtoms.contains(preAtom)) {
+                 uniqueCrossLinkAtoms.add(preAtom);
+             }
+             if (!uniqueCrossLinkAtoms.contains(postAtom)) {
+                 uniqueCrossLinkAtoms.add(postAtom);
+             }
+        }
+        return uniqueCrossLinkAtoms;
+    }
+
+    //--------------------------------------------------------------------------
+    /**
+     * Returns all atoms from the complex that match a cross-linked atom.
+     * @param complex -
+     *        Protein complex object.
+     * @param crossLinkAtom -
+     *        Atom object found to be cross-linked in the complex.
+     * @return List of atoms in the complex matching the cross-linked atom.
+     */
+    private static ArrayList<AtomList> proteinAtomsMatchingXLatom(
+                                             final PolyPeptideList complex,
+                                             final Atom crossLinkAtom
+                                                                   ) {
+        ArrayList<AtomList> candidate = new ArrayList<AtomList>();
+        for (AminoAcid aa1 : complex.getAllAminoAcids()) {
+            // if atom2 could originate from residue aa1 than continue
+            if (aa1.getType().getThreeLetterCode().equals(
+                                                  crossLinkAtom.getResidueName()
+                                                         )
+                &&
+                aa1.getNumber() == crossLinkAtom.getResidueNumber()) {
+                // if user hasn't specified any atom name in the distance
+                // file than simply consider all atoms from the residue
+                if (crossLinkAtom.getName().equals("")) {
+                    if (crossLinkAtom.getChainId() == ' ') {
+                       candidate.add(aa1.getAllAtoms());
+                    } else if (
+                       crossLinkAtom.getChainId() == aa1.getAtom(0).getChainId()
+                            ) {
+                         candidate.add(aa1.getAllAtoms());
+                    }
+                } else {
+                    for (Atom atom : aa1.getAllAtoms()) {
+                        if (atom.getName().trim().equals(
+                                                  crossLinkAtom.getName().trim()
+                                                         )) {
+                            AtomList list = new AtomList();
+                            if (crossLinkAtom.getChainId() == ' ') {
+                                list.add(atom);
+                                candidate.add(list);
+                            } else if (
+                                 crossLinkAtom.getChainId() == atom.getChainId()
+                                     ) {
+                                list.add(atom);
+                                candidate.add(list);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return candidate;
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Extracts all relevant pairs of atoms from a user given distance file.
      * @param complex -
      *        Protein complex object.
@@ -652,63 +730,64 @@ public final class CrossLinkUtilities {
                                                                     )
                                                             throws IOException {
 
+        // The idea is: 1.) get a non-redundant list of XL atoms form the
+        // distance file. 2.) find all possible atoms in the complex that could
+        // match to the list of non-redundant XL atoms in (1.) and place them
+        // in a hash. 3.) Go through the list of cross-links in the distance
+        // file, get the possible atoms from the hash and determine the pair of
+        // atoms that are closest according to their Euclidean distance. 4.)
+        // Return back the list of the closest atom pairs.
+
         Hashtable < Atom, AtomList > pairs = new Hashtable < Atom, AtomList >();
 
-        // get all cross-link atoms
-        AtomList uniqueCrossLinkAtoms = new AtomList();
-        for (CrossLink xl : crossLinks) {
-             Atom preAtom = xl.getPreAtom();
-             Atom postAtom = xl.getPostAtom();
-             if (!uniqueCrossLinkAtoms.contains(preAtom)) {
-                 uniqueCrossLinkAtoms.add(preAtom);
-             }
-             if (!uniqueCrossLinkAtoms.contains(postAtom)) {
-                 uniqueCrossLinkAtoms.add(postAtom);
-             }
-        }
+        AtomList uniqueCrossLinkAtoms =
+                                CrossLinkUtilities.uniqueXlAtomList(crossLinks);
 
-        // get all cross-linked atoms from the complex
-        AtomList uniqueCrossLinkAtomsInComplex = new AtomList();
-        for (Atom atom1 : complex.getAllAtoms()) {
-             for (Atom atom2 : uniqueCrossLinkAtoms) {
-                  if (MatterUtilities.equalsResidue(atom1, atom2)
-                      &&
-                      atom1.getName().trim().equals(atom2.getName().trim())) {
-                          uniqueCrossLinkAtomsInComplex.add(atom1);
-                          break;
-                  }
-             }
+        Hashtable<Atom, ArrayList<AtomList>> xlAtomMatchingComplexAtoms =
+                                     new Hashtable<Atom, ArrayList<AtomList>>();
+        for (Atom xlAtom : uniqueCrossLinkAtoms) {
+            ArrayList<AtomList> candidates =
+                            CrossLinkUtilities.proteinAtomsMatchingXLatom(
+                                                                        complex,
+                                                                        xlAtom
+                                                                         );
+            if (candidates.size() != 0) {
+                xlAtomMatchingComplexAtoms.put(xlAtom, candidates);
+            }
         }
-
+        // Assign atoms from complex to the cross-links found in the distance
+        // file
         for (CrossLink xl : crossLinks) {
              Atom preAtom = xl.getPreAtom();
              Atom postAtom = xl.getPostAtom();
 
-             for (Atom atom : uniqueCrossLinkAtomsInComplex) {
-                 if (MatterUtilities.equalsResidue(atom, preAtom)
-                     &&
-                     atom.getName().trim().equals(preAtom.getName().trim())) {
-                     preAtom = atom;
+             // find both cross-link atoms in the xlAtomMatchingComplexAtoms
+             // object
+             boolean foundPreAtom = false;
+             boolean foundPostAtom = false;
+             for (Atom xlAtom : xlAtomMatchingComplexAtoms.keySet()) {
+                 if (xlAtom.equals(preAtom)) {
+                     preAtom = xlAtom;
+                     foundPreAtom = true;
                  }
-                 if (MatterUtilities.equalsResidue(atom, postAtom)
-                     &&
-                     atom.getName().trim().equals(postAtom.getName().trim())) {
-                     postAtom = atom;
+                 if (xlAtom.equals(postAtom)) {
+                     postAtom = xlAtom;
+                     foundPostAtom = true;
+                 }
+                 if (foundPreAtom && foundPostAtom) {
+                     break;
                  }
              }
-
-             if (preAtom == xl.getPreAtom() || postAtom == xl.getPostAtom()) {
+             // if either of both could not be found, then either of both
+             // has no coordinates in the protein complex.
+             if (!foundPreAtom || !foundPostAtom) {
                  // Output a WARNING message that atoms in distance files could
                  // not be found in the input file
                  xl.setFileName(parameter.getParameter(Parameter.INFILE_PATH));
                  System.err.print("WARNING: ");
-                 if (preAtom == xl.getPreAtom()
-                     &&
-                     postAtom != xl.getPostAtom()) {
+                 if (!foundPreAtom && foundPostAtom) {
                      System.err.print("1st atom ");
-                 } else if (preAtom != xl.getPreAtom()
-                            &&
-                            postAtom == xl.getPostAtom()) {
+                 } else if (foundPreAtom && !foundPostAtom) {
                      System.err.print("2nd atom ");
                  } else {
                      System.err.print("Both atoms ");
@@ -718,34 +797,54 @@ public final class CrossLinkUtilities {
                  continue;
              }
 
-             double dist = Double.parseDouble(
-                     xwalk.constants.Constants.DISTANCE_DEC_FORMAT.format(
-                                                     Mathematics.distance(
-                                                           preAtom.getPoint3d(),
-                                                           postAtom.getPoint3d()
-                                                                         )
-                                                                 ));
-             double errorRange = Constants.getCoordinateUncertainty(preAtom)
+             ArrayList<AtomList> preAtomCandidates =
+                                        xlAtomMatchingComplexAtoms.get(preAtom);
+             ArrayList<AtomList> postAtomCandidates =
+                                       xlAtomMatchingComplexAtoms.get(postAtom);
+
+             double minDist = Integer.MAX_VALUE;
+             Atom minPreAtom = null;
+             Atom minPostAtom = null;
+             for (AtomList preAtoms : preAtomCandidates) {
+                 for (Atom preAtomCandidate : preAtoms) {
+                     for (AtomList postAtoms : postAtomCandidates) {
+                         for (Atom postAtomCandidate : postAtoms) {
+                             double dist = Mathematics.distance(
+                                                  preAtomCandidate.getPoint3d(),
+                                                  postAtomCandidate.getPoint3d()
+                                                               );
+                             if (dist < minDist) {
+                                 minDist = dist;
+                                 minPreAtom = preAtomCandidate;
+                                 minPostAtom = postAtomCandidate;
+                             }
+                         }
+                     }
+                 }
+             }
+
+             double errorRange = Constants.getCoordinateUncertainty(minPreAtom)
                                  +
-                                 Constants.getCoordinateUncertainty(postAtom);
+                                Constants.getCoordinateUncertainty(minPostAtom);
 
              // check whether both cross-linked atoms in the distance file
              // have in this complex a distance smaller than maxDist.
-             if (dist > Double.parseDouble(parameter.getParameter(
+             if (minDist > Double.parseDouble(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                                                  )
                                           ) + errorRange
                 ) {
                  continue;
              }
-             AtomList pair = pairs.get(preAtom);
+
+             AtomList pair = pairs.get(minPreAtom);
              if (pair == null) {
                  pair = new AtomList();
-                 pair.add(postAtom);
-                 pairs.put(preAtom, pair);
+                 pair.add(minPostAtom);
+                 pairs.put(minPreAtom, pair);
              } else {
-                 pair.add(postAtom);
-                 pairs.put(preAtom, pair);
+                 pair.add(minPostAtom);
+                 pairs.put(minPreAtom, pair);
              }
         }
         return pairs;
@@ -829,9 +928,85 @@ public final class CrossLinkUtilities {
             if (distanceFileCrossLinks.size() != 0) {
                 for (CrossLink dxl : distanceFileCrossLinks) {
                     for (CrossLink xl : crossLinkList) {
-                        if (dxl.equals(xl)) {
-                            xl.setIndex(dxl.getIndex());
+                        int reverse = -1;
+                        // first adapt the order of the cross-link atoms in
+                        // the vXL and the XL in the distance file.
+                        if (dxl.getPreAtom().getResidueName().equals(
+                                                xl.getPreAtom().getResidueName()
+                                                                    )
+                           &&
+                           dxl.getPostAtom().getResidueName().equals(
+                                               xl.getPostAtom().getResidueName()
+                                                                    )
+                           &&
+                           dxl.getPreAtom().getResidueNumber()
+                               ==
+                           xl.getPreAtom().getResidueNumber()
+                           &&
+                           dxl.getPostAtom().getResidueNumber()
+                               ==
+                           xl.getPostAtom().getResidueNumber()
+                        ) {
+                            reverse = 0;
+                        } else if (dxl.getPreAtom().getResidueName().equals(
+                                               xl.getPostAtom().getResidueName()
+                                                                           )
+                                &&
+                                dxl.getPostAtom().getResidueName().equals(
+                                                xl.getPreAtom().getResidueName()
+                                                                         )
+                                &&
+                                dxl.getPreAtom().getResidueNumber()
+                                    ==
+                                xl.getPostAtom().getResidueNumber()
+                                &&
+                                dxl.getPostAtom().getResidueNumber()
+                                    ==
+                                xl.getPreAtom().getResidueNumber()
+                        ) {
+                                 reverse = 1;
                         }
+                        Atom preAtom = null;
+                        Atom postAtom = null;
+                        switch (reverse) {
+                            case -1 : continue;
+                            case  0 : {
+                                preAtom = dxl.getPreAtom();
+                                postAtom = dxl.getPostAtom();
+                            }
+                            case  1 : {
+                                preAtom = dxl.getPostAtom();
+                                postAtom = dxl.getPreAtom();
+                            }
+                        }
+                        // Now find vXL in the distance file and assign index
+                        // in the distance file to vXL.
+                        if (preAtom.getChainId() != ' ') {
+                            if (preAtom.getChainId()
+                                !=
+                                xl.getPreAtom().getChainId()) {
+                                continue;
+                            }
+                        } else if (postAtom.getChainId() != ' ') {
+                            if (postAtom.getChainId()
+                                !=
+                                xl.getPostAtom().getChainId()) {
+                                continue;
+                            }
+                        } else if (!preAtom.getName().equals("")) {
+                            if (!preAtom.getName().equals(
+                                                      xl.getPreAtom().getName())
+                                                         ) {
+                                continue;
+                            }
+                        } else if (!postAtom.getName().equals("")) {
+                            if (!postAtom.getName().equals(
+                                                     xl.getPostAtom().getName())
+                                                          ) {
+                                continue;
+                            }
+                        }
+                        xl.setIndex(dxl.getIndex());
                     }
                 }
             }
@@ -1231,8 +1406,7 @@ public final class CrossLinkUtilities {
                     AtomList minimumDistanceAtomPair =
                             MatterUtilities.getClosestAtomPair(list1, list2);
 
-                    double dist =
-                                  Mathematics.distance(
+                    double dist = Mathematics.distance(
                                     minimumDistanceAtomPair.get(0).getPoint3d(),
                                     minimumDistanceAtomPair.get(1).getPoint3d()
                                                       );
@@ -1255,8 +1429,8 @@ public final class CrossLinkUtilities {
                         // The distance between these two amino acids would
                         // indicate that both could be cross-linked, at least in
                         // terms of their Euclidean distance.
-                        // At a later stage, these potential candidates can be
-                        // checked further to have a Solvent-Path distance that
+                        // At a later stage, these potential candidates should
+                        // be checked further to have a SASD that
                         // conforms to the length of the cross-linker.
                         Atom atom0 = minimumDistanceAtomPair.get(0);
                         Atom atom1 = minimumDistanceAtomPair.get(1);

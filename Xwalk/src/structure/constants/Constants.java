@@ -39,8 +39,8 @@ public class Constants {
     //--------------------------------------------------------------------------
     /**
      * The average coordinate uncertainty in PDB crystal structures is about
-     * 0.28 Angstroem. See Laskowski, R.A. (2003) "Structural Quality Assurance",
-     * Structural Bioinformatics, 273-303.
+     * 0.28 Angstroem. See Laskowski, R.A. (2003) "Structural Quality
+     * Assurance", Structural Bioinformatics, 273-303.
      */
     public static final double COORDINATE_UNCERTAINTY = 0.28;
     //--------------------------------------------------------------------------
@@ -92,7 +92,7 @@ public class Constants {
     /**
      * Default grid size.
      */
-    public static final double DEFAULT_GRID_SIZE = 1.0;
+    public static final double DEFAULT_GRID_CELL_SIZE = 1.0;
     //--------------------------------------------------------------------------
     /**
      * Default grid size.

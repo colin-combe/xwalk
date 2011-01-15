@@ -52,7 +52,6 @@ public class DistanceReader {
         CrossLinkList set = new CrossLinkList();
 
         ReadFile read = new ReadFile(fileName);
-
         for (String line : read) {
             if (!line.startsWith("#") && line.trim().length() >= 1) {
                 Atom atom1 = new Atom();
@@ -84,18 +83,44 @@ public class DistanceReader {
                     }
 
                     array = atom1info.split("-");
-                    atom1.setResidueName(array[0].trim());
-                    atom1.setResidueNumber(Integer.parseInt(array[1].trim()));
-                    atom1.setChainId(array[2].trim().charAt(0) == '_'
+                    if (array.length < 2) {
+                        System.err.println("WARNING: First atom of cross-link "
+                                         + "number " + index + " must list a "
+                                         + "residue name and residue "
+                                         + "number.");
+                    } else {
+                        atom1.setResidueName(array[0].trim());
+                        atom1.setResidueNumber(
+                                               Integer.parseInt(array[1].trim())
+                                              );
+                    }
+                    if (array.length >= 3) {
+                        atom1.setChainId(array[2].trim().charAt(0) == '_'
                                                     ? ' ' : array[2].charAt(0));
-                    atom1.setName(array[3].trim());
+                    }
+                    if (array.length >= 4) {
+                            atom1.setName(array[3].trim());
+                    }
 
                     array = atom2info.split("-");
-                    atom2.setResidueName(array[0].trim());
-                    atom2.setResidueNumber(Integer.parseInt(array[1].trim()));
-                    atom2.setChainId(array[2].trim().charAt(0) == '_'
+                    if (array.length < 2) {
+                        System.err.println("WARNING: Second atom of cross-link "
+                                         + "number " + index + " must list a "
+                                         + "residue name and residue "
+                                         + "number.");
+                    } else {
+                        atom2.setResidueName(array[0].trim());
+                        atom2.setResidueNumber(
+                                               Integer.parseInt(array[1].trim())
+                                              );
+                    }
+                    if (array.length >= 3) {
+                        atom2.setChainId(array[2].trim().charAt(0) == '_'
                                                     ? ' ' : array[2].charAt(0));
-                    atom2.setName(array[3].trim());
+                    }
+                    if (array.length >= 4) {
+                        atom2.setName(array[3].trim());
+                    }
                 } catch (Exception e) {
                     System.err.println("WARNING: Distance file \"" + fileName
                                      + "\" does not conform to distance file "

@@ -126,7 +126,8 @@ public class CommandlineArguments {
     private String atomType2 = "";
     /**
      * Maximal distance that is span by the cross-linker.
-     * Default {@code maxDist = 27 Angstroem}.
+     * Default {@code maxDist =
+     * xwalk.constants.Constants.DEFAULT_CROSS_LINKER_LENGTH}.
      */
     private double maximumDistance =
                           xwalk.constants.Constants.DEFAULT_CROSS_LINKER_LENGTH;
@@ -143,9 +144,9 @@ public class CommandlineArguments {
     /**
      * Length of a cubic grid cell edge. Grids are used to calculate
      * Solvent-Path-Distances.
-     * Default {@code templateRadius = 1.0}.
+     * Default {@code gridCellLength = Constants.DEFAULT_GRID_CELL_SIZE}.
      */
-    private double gridCellLength = Constants.DEFAULT_GRID_SIZE;
+    private double gridCellLength = Constants.DEFAULT_GRID_CELL_SIZE;
     /**
      * To calculate solvent accessible surface areas and allow only cross-links
      * between residues that are accessible to a solvent molecule with radius
@@ -194,9 +195,9 @@ public class CommandlineArguments {
     private boolean verboseGrid     = false;
     /**
      * To trypsinate the protein.
-     * Default {@code help = TRUE};
+     * Default {@code help = FALSE};
      */
-    private boolean doTrypsin = true;
+    private boolean doTrypsin = false;
     /**
      * To digest according to the exceptions listed in
      * <a href="http://expasy.org/tools/peptidecutter/
@@ -282,7 +283,7 @@ public class CommandlineArguments {
               + NL
               + "ABOUT"
               + NL
-              + "Version 3.0"
+              + "Version 0.1"
               + NL
               + "Xwalk calculates and outputs distances in Angstroem "
               + "for potential cross-links "
@@ -403,15 +404,22 @@ public class CommandlineArguments {
               + NL
               + "DIGESTION RELATED:"
               + NL
-              + "\t-xtrypsin\t[switch]\tSkips digestion of the protein with "
-              + "trypsin and thus does not excludes peptides that are shorter "
-              + "than 5 AA or larger than 45 AA [optional]."
+              + "\t-trypsin\t[switch]\tDigests in silico the protein with "
+              + "trypsin and excludes peptides that are shorter "
+              + "than "
+              + xwalk.constants.Constants.MIN_PEPTIDE_LENGTH
+              + " AA or larger than "
+              + xwalk.constants.Constants.MAX_PEPTIDE_LENGTH
+              + " AA [optional]."
               + NL
               + NL
               + "DISTANCE RELATED:"
               + NL
               + "\t-max\t[double]\tCalculates distances in Angstroem "
-              + "only up-to this value (default: 27.0)."
+              + "only up-to this value, where the value must be smaller than "
+              + xwalk.constants.Constants.MAX_SASD_DISTANCE
+              + " for SASD calculations. (default: "
+              + xwalk.constants.Constants.DEFAULT_CROSS_LINKER_LENGTH + ")."
               + NL
               + "\t-euc\t[switch]\tSkips Solvent-Path-Distance "
               + "calculation and outputs only Euclidean distances "
@@ -432,16 +440,19 @@ public class CommandlineArguments {
               + "increase the Java heap size to for example 512 MB (-Xmx512m)"
               + NL
 // No need for -xsas parameter anymore, as SASD makes no sense without checking
-// for SAS. 
-//              + "\t-xsas\t[switch]\tDoes not calculate the solvent accessible "
-//              + "surface surface area and thus does not exclude non-accessible "
-//              + "amino acids [optional]."
-//              + NL
+// for SAS.
+//            + "\t-xsas\t[switch]\tDoes not calculate the solvent accessible "
+//            + "surface surface area and thus does not exclude non-accessible "
+//            + "amino acids [optional]."
+//            + NL
               + "\t-radius\t[double]\tSolvent radius for calculating the "
-              + "solvent accessible surface area [optional](default 1.4)."
+              + "solvent accessible surface area [optional](default "
+              + Constants.SOLVENT_RADIUS
+              + ")."
               + NL
               + "\t-space\t[double]\tSpacing in Angstroem between grid "
-              + "cells. [optional](default 1.0)."
+              + "cells. [optional](default "
+              + Constants.DEFAULT_GRID_CELL_SIZE + ")."
               + NL
               + NL;
     }
@@ -1112,10 +1123,21 @@ public class CommandlineArguments {
      * @see #getMaximumDistanceArgument()
      */
     private void readMaximumDistanceArgument() {
+        double max = xwalk.constants.Constants.MAX_SASD_DISTANCE;
         if (!Commandline.get(this.arguments, "-max", true).equals("ERROR")) {
             this.maximumDistance = Double.parseDouble(
                             Commandline.get(this.arguments, "-max", true).trim()
                                                      );
+
+            // There is an upper bound on the SASD distance. Check that this
+            // is met when -max is changed by the user.
+            if (this.maximumDistance > max
+                &&
+             !Commandline.get(this.arguments, "-euc", false).equals("EXISTS")) {
+               System.err.print(NL + "WARNING: value for -max exceeds " + max
+                             + ". Setting -max to " + max + NL);
+               this.maximumDistance = max;
+            }
         }
     }
     //--------------------------------------------------------------------------
@@ -1345,15 +1367,15 @@ public class CommandlineArguments {
     }
     //--------------------------------------------------------------------------
     /**
-     * Determines whether the argument -xtrypsin has been set on the
+     * Determines whether the argument -trypsin has been set on the
      * commandline.
      * @see #isTrypsinateArgumentSet()
      */
     private void readTrypsinateArgument() {
         if (Commandline.get(this.arguments,
-                            "-xtrypsin",
+                            "-trypsin",
                             false).equals("EXISTS")) {
-            this.doTrypsin = false;
+            this.doTrypsin = true;
         }
     }
     //--------------------------------------------------------------------------
@@ -1394,13 +1416,15 @@ public class CommandlineArguments {
     //--------------------------------------------------------------------------
     /**
      * Determines whether the argument -bb has been set on the commandline.
-     * If it has been set, than solvent radius is automatically set to 2.0 too.
+     * If it has been set, than solvent radius is automatically set to 
+     * xwalk.constants.Constants.SOLVENT_RADIUS_BACKBONE too.
      * @see #isBackboneOnlyArgumentSet()
      */
     private void readBackBoneOnlyArgument() {
         if (Commandline.get(this.arguments, "-bb", false).equals("EXISTS")) {
             this.doBackboneReadOnly = true;
-            this.solventRadius = 2.0;
+            this.solventRadius =
+                              xwalk.constants.Constants.SOLVENT_RADIUS_BACKBONE;
         }
     }
     //--------------------------------------------------------------------------
