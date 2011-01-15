@@ -69,7 +69,7 @@ public class GridCell {
      * Length of the grid cell edge.
      * Default {@code size = 0.5}.
      */
-    private double size = Constants.DEFAULT_GRID_SIZE;
+    private double size = Constants.DEFAULT_GRID_CELL_SIZE;
 
     /**
      * Diagonal of the grid cell.

@@ -36,6 +36,11 @@ import xwalk.crosslink.CrossLinkParameter.Parameter;
  */
 public class DistanceWriter extends WriteFile {
 
+    /**
+     * Distances should be reported up to one digit after the comma.
+     */
+    private NumberFormat decFormat = new DecimalFormat("0.0");
+
     //--------------------------------------------------------------------------
     /**
      * Returns the header for the distance file.
@@ -99,6 +104,44 @@ public class DistanceWriter extends WriteFile {
     }
     //--------------------------------------------------------------------------
     /**
+     * Writes a the shortest paths of a list of virtual cross-links into a
+     * PDB formated file.
+     * @param pathFileName
+     *        - String object holding the path to the PDB file to be written.
+     * @param crossLinkList
+     *        - List of cross-link objects holding each the the shortest path
+     */
+    public final void writeSASDpdbFile(final String pathFileName,
+                                       final CrossLinkList crossLinkList) {
+        for (CrossLink crossLink : crossLinkList) {
+            Atom atom1 = crossLink.getPreAtom();
+            Atom atom2 = crossLink.getPostAtom();
+            String distName = crossLink.getIndex() + "_"
+                            + this.decFormat.format(
+                                          crossLink.getSolventPathDistance()
+                                              ) + "_"
+                            + atom1.getResidueName().trim() + ""
+                            + atom1.getResidueNumber() + ""
+                            + atom1.getChainId()
+//                            + "_" + atom1.getName().trim()
+                            + "-"
+                            + atom2.getResidueName().trim() + ""
+                            + atom2.getResidueNumber() + ""
+                            + atom2.getChainId()
+//                            + "_" + atom2.getName().trim()
+                            + "_solventPath";
+
+            WriteFile file = new WriteFile();
+            file.setFile(pathFileName, true);
+            file.write("HEADER " + distName + Constants.LINE_SEPERATOR
+                       + crossLink.getPath().toString(crossLink.getIndex())
+                       + "END" + Constants.LINE_SEPERATOR);
+        }
+
+    }
+
+    //--------------------------------------------------------------------------
+    /**
      * Writes a PyMol script, which loads the complex, highlights all virtual
      * cross-linked atoms and draws dashed lines in-between them as indications
      * for their cross-link.
@@ -117,8 +160,6 @@ public class DistanceWriter extends WriteFile {
                                          ) {
         StringBuffer output = new StringBuffer();
 
-        NumberFormat decFormat = new DecimalFormat("0.0");
-
         // get necessary values from CrossLinkParameter object.
         String infile = parameter.getParameter(Parameter.INFILE_PATH);
         String nl = Constants.LINE_SEPERATOR;
@@ -128,7 +169,8 @@ public class DistanceWriter extends WriteFile {
                                                                              );
 
         output.append("load " + infile + nl);
-//        output.append("disable " + infileWithoutExtension + nl);
+        output.append("set transparency, 0.5, " + infileWithoutExtension + nl);
+        //        output.append("disable " + infileWithoutExtension + nl);
         output.append("hide everything, " + infileWithoutExtension + nl);
         output.append("set dash_radius, 1, " + infileWithoutExtension + nl);
         output.append("set dash_width, 15, " + infileWithoutExtension + nl);
@@ -167,16 +209,16 @@ public class DistanceWriter extends WriteFile {
                             + ", chain " + atom2.getChainId() + " and "
                             + infileWithoutExtension + nl);
             }
-            String selection1 = "\"resn " + atom1.getResidueName().trim()
+            String selection1 = "resn " + atom1.getResidueName().trim()
                               + " and resi " + atom1.getResidueNumber()
                               + " and chain " + atom1.getChainId()
                               + " and name " + atom1.getName().trim() + " and "
-                              + infileWithoutExtension + "\"";
-            String selection2 = "\"resn " + atom2.getResidueName().trim()
+                              + infileWithoutExtension;
+            String selection2 = "resn " + atom2.getResidueName().trim()
                               + " and resi " + atom2.getResidueNumber()
                               + " and chain " + atom2.getChainId()
                               + " and name " + atom1.getName().trim() + " and "
-                              + infileWithoutExtension + "\"";
+                              + infileWithoutExtension;
 
             String distName = crossLink.getIndex() + "_";
             if (Boolean.parseBoolean(parameter.getParameter(
@@ -184,11 +226,13 @@ public class DistanceWriter extends WriteFile {
                                                            )
                                     )
                ) {
-                distName += decFormat.format(crossLink.getSolventPathDistance())
-                            + "_";
+                distName += this.decFormat.format(
+                                              crossLink.getSolventPathDistance()
+                                                 ) + "_";
             } else {
-                distName += decFormat.format(crossLink.getEuclideanDistance())
-                            + "_";
+                distName += this.decFormat.format(
+                                                crossLink.getEuclideanDistance()
+                                                 ) + "_";
             }
 
             distName += atom1.getResidueName().trim() + ""
@@ -201,13 +245,11 @@ public class DistanceWriter extends WriteFile {
                       + atom2.getChainId();
 //                      + "_" + atom2.getName().trim();
 
-            output.append("cmd.select(\"pk1\"," + selection1 + ")" + nl);
-            output.append("cmd.select(\"pk2\"," + selection2 + ")" + nl);
-            output.append("cmd.show(\"spheres\",\"pk1\")" + nl);
-            output.append("cmd.show(\"spheres\",\"pk2\")" + nl);
-            output.append("cmd.distance(\"" + distName
-                        + "\", \"(pk1)\", \"(pk2)\")" + nl
-                          );
+            output.append("select pk1, " + selection1 + nl);
+            output.append("select pk2, " + selection2 + nl);
+            output.append("show spheres, pk1" + nl);
+            output.append("show spheres, pk2" + nl);
+            output.append("distance " + distName + nl);
 //            output.append("cmd.color(\"red\", \"" + distName + "\")" + nl);
         }
 
@@ -225,64 +267,35 @@ public class DistanceWriter extends WriteFile {
 
             WriteFile.deleteFile(pathFileName);
 
-            for (CrossLink crossLink : crossLinkList) {
-                Atom atom1 = crossLink.getPreAtom();
-                Atom atom2 = crossLink.getPostAtom();
-                String distName = crossLink.getIndex() + "_"
-                                + decFormat.format(
-                                              crossLink.getSolventPathDistance()
-                                                  ) + "_"
-                                + atom1.getResidueName().trim() + ""
-                                + atom1.getResidueNumber() + ""
-                                + atom1.getChainId()
-//                                + "_" + atom1.getName().trim()
-                                + "-"
-                                + atom2.getResidueName().trim() + ""
-                                + atom2.getResidueNumber() + ""
-                                + atom2.getChainId()
-//                                + "_" + atom2.getName().trim()
-                                + "_solventPath";
+            this.writeSASDpdbFile(pathFileName, crossLinkList);
 
-                WriteFile file = new WriteFile();
-                file.setFile(pathFileName, true);
-                file.write("HEADER " + distName + nl
-                           + crossLink.getPath().toString(crossLink.getIndex())
-                           + "END" + nl);
-            }
             output.append("load " + pathFileName + ", solventPaths" + nl);
             output.append("hide everything, *solvent*" + nl);
             output.append("show spheres, *solvent*" + nl);
-            output.append("set sphere_scale, 0.7, *solvent*" + nl);
+//            output.append("set sphere_scale, 0.7, *solvent*" + nl);
 //            output.append("color red, *solvent*" + nl);
 
         }
 
         output.append("show ribbon, chain*" + nl);
         output.append("show surface, chain*" + nl);
-        if (emptyChainId || Boolean.parseBoolean(parameter.getParameter(
-                                                          Parameter.IS_HOMOMERIC
-                                                                       )
-                                                )
-           ) {
-            output.append("set transparency, 0.5, " + infileWithoutExtension
-                        + nl);
-        } else {
-            output.append("set transparency, 0.5, chain*" + nl);
-        }
 
-        output.append("for i in range(1,100): "
+        int n = crossLinkList.size();
+        output.append("for i in range(1," + n + 1 + "): "
                     + "cmd.set_color(\"col\"+str(i), "
-                    + "[1-float((i*20)%100/100), float((i*30)%100)/100,"
-                    + "0])" + nl);
-        output.append("for i in range(1," + (maxIndex + 1) + "): "
-                    + "cmd.set(\"sphere_color\",\"col\"+str(i),str(i)+\"_*-*\")"
-                    + nl
-                    + "for i in range(1," + (maxIndex + 1) + "): "
-                    + "cmd.set(\"dash_color\",\"col\"+str(i),str(i)+\"_*-*\")"
-                    + nl
-                    + "for i in range(1," + (maxIndex + 1) + "): "
-                    + "cmd.set(\"label_color\",\"col\"+str(i),str(i)+\"_*-*\")"
-                    + nl);
+                    + "[1-float((i*20)%" + n + "/" + n + "), float((i*30)%" + n
+                    + ")/" + n + ",0])" + nl);
+        for (int i = 0; i < n; i++) {
+            output.append("set sphere_color, col" + (i + 1) + ", "
+                        + crossLinkList.get(i).getIndex() + "_*-*"
+                        + nl
+                        + "set dash_color, col" + (i + 1) + ", "
+                        + crossLinkList.get(i).getIndex() + "_*-*"
+                        + nl
+                        + "set label_color, col" + (i + 1) + ", "
+                        + crossLinkList.get(i).getIndex() + "_*-*"
+                        + nl);
+        }
         output.append("reset" + nl);
 
     return super.write(output.toString());

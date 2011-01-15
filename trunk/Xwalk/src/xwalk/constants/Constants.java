@@ -62,8 +62,18 @@ public class Constants {
     /**
      * Number of miscleavages allowed in a digested peptide.
      */
-    public static final int MAXIMUM_NUMBER_OF_MISCLEAVAGES = 1;
+    public static final int MAX_NUMBER_OF_MISCLEAVAGES = 1;
     //--------------------------------------------------------------------------
+    /**
+     * Maximum allowed distance for calculating SASD.
+     */
+    public static final double MAX_SASD_DISTANCE = 80.0;
+    //--------------------------------------------------------------------------
+    /**
+     * Solvent radius when SASD calculations are done on the backbone
+     * coordinates only.
+     */
+    public static final double SOLVENT_RADIUS_BACKBONE = 2.0;
 
     //--------------------------------------------------------------------------
     // CONSTANT STRING VALUES

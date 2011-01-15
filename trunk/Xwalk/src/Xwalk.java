@@ -60,7 +60,8 @@ public class Xwalk {
     private static void outputNoXLfound(final CrossLinkParameter parameter) {
         String infile = parameter.getParameter(Parameter.INFILE_PATH).trim();
         String fileName = new File(infile).getName().trim();
-        String residueType1 = parameter.getParameter(
+// Residue information is not displayed any more. No need for this.
+/*        String residueType1 = parameter.getParameter(
                                               Parameter.AMINO_ACID_RESIDUE_NAME1
                                                     ).trim();
         String residueType2 = parameter.getParameter(
@@ -69,12 +70,9 @@ public class Xwalk {
         double maxDist = Double.parseDouble(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                                                   ).trim());
-
-        System.err.println("WARNING: " + fileName + "\tThere is no pair of "
-                           + residueType1.replaceAll("#", "") + "\t"
-                           + residueType2.replaceAll("#", "")
-                           + " residues that has a distance smaller than "
-                           + maxDist + ".");
+*/
+        System.err.println("WARNING: " + fileName + "\tNo virtual cross-links "
+                           + "found.");
 
     }
     //--------------------------------------------------------------------------
@@ -187,6 +185,9 @@ public class Xwalk {
             DistanceWriter write = new DistanceWriter();
             write.setFile(arguments.getOutfileArgument());
             if (arguments.isPymolOutputSet()) {
+                System.out.print(DistanceWriter.toString(crossLinks,
+                                                         parameter)
+                                                        );
                 write.writePymolScript(crossLinks, parameter);
             } else {
                 write.writeFile(crossLinks, parameter);
