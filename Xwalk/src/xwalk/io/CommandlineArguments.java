@@ -303,9 +303,9 @@ public class CommandlineArguments {
               + NL
               + "OUTPUT FORMAT:"
               + NL
-              + "IndexNo\tInfileName\tResidue1info\tResidue2info\t"
+              + "IndexNo\tInfileName\tAtom1info\tAtom2info\t"
               + "DistanceInPDBsequence\tEuclideanDistance\t"
-              + "SolventPathDistance\tPeptideSequence"
+              + "SolventPathDistance\tPeptidePairSequences"
               + NL
               + NL
               + "Commandline PARAMETER:"
@@ -509,7 +509,7 @@ public class CommandlineArguments {
      * @see #outputVerboseHelpText()
      */
     public static void outputBasicHelpText() {
-        System.err.print(CommandlineArguments.getBasicHelpText());
+        System.err.println(CommandlineArguments.getBasicHelpText());
         System.exit(0);
     }
     //--------------------------------------------------------------------------

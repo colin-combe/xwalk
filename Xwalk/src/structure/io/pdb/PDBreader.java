@@ -193,12 +193,13 @@ public class PDBreader {
                    }
                }
            }
+           // if file has no atom entries than just simply return empty list of
+           // atoms.
            if (atoms.size() > 0) {
                this.allAtoms.add(atoms);
            } else {
-               throw new FileFormatException(
-                                         "No ATOM or HETATM found in input file"
-                                            );
+             System.err.println("WARNING: No ATOM or HETATM found in input "
+                              + "file");
            }
     }
     //--------------------------------------------------------------------------
