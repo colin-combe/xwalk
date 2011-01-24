@@ -160,9 +160,6 @@ public class Xwalk {
     /**
      * Outputs all determined cross-links either on the terminal or into a file
      * depending on user's choice.
-     * @param arguments
-     *        - CommandlineArguments object holding all user set commandline
-     *          parameter.
      * @param parameter
      *        - CommandlineArguments object holding all user set commandline
      *          parameter.

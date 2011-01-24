@@ -286,6 +286,11 @@ public final class CrossLinkUtilities {
                 PolyPeptide atom2TrypticPeptide = null;
                 if (digest == null) {
                     CrossLink xl = new CrossLink(atom1, atom2);
+                    if (Boolean.parseBoolean(parameter.getParameter(
+                                                        Parameter.DO_PROBABILITY
+                                                                   ))) {
+                            xl.setEucProbability();
+                    }
                     crossLinks.add(xl);
                 } else {
                     for (PolyPeptide peptide : digest) {
@@ -309,8 +314,13 @@ public final class CrossLinkUtilities {
                         &&
                         atom2TrypticPeptide != null) {
                         CrossLink xl = new CrossLink(atom1, atom2);
-                        boolean test = xl.setPeptides(atom1TrypticPeptide,
+                        xl.setPeptides(atom1TrypticPeptide,
                                        atom2TrypticPeptide);
+                        if (Boolean.parseBoolean(parameter.getParameter(
+                                                        Parameter.DO_PROBABILITY
+                                                                      ))) {
+                            xl.setEucProbability();
+                        }
                         crossLinks.add(xl);
                     }
                 }
@@ -1696,6 +1706,13 @@ public final class CrossLinkUtilities {
                 if (dist <= maxDist + errorRange) {
                     crossLink.setSolventPathDistance(dist);
                     crossLink.setPath(paths.get(i));
+
+                    if (Boolean.parseBoolean(parameter.getParameter(
+                                                        Parameter.DO_PROBABILITY
+                                                                   ))) {
+                        crossLink.setSASDprobability();
+                        crossLink.setEucProbability();
+                    }
 
                     crossLinksBySolventPathDist.add(crossLink);
                 }

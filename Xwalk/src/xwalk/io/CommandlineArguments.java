@@ -205,6 +205,10 @@ public class CommandlineArguments {
      */
     private boolean doExpasy = false;
     /**
+     * To output probabilities according to experimental data on DSS and BS3.
+     */
+    private boolean doProbability = false;
+    /**
      * To output the help text that includes all commandline arguments of Xwalk.
      * Default {@code help = FALSE};
      */
@@ -260,6 +264,7 @@ public class CommandlineArguments {
         this.readSolventPathDistanceArgument();
         this.readGlobalGridArgument();
         this.readTrypsinateArgument();
+        this.readProbabilityArgument();
         this.readExpasyArgument();
         this.readVerboseOutputArgument();
     }
@@ -305,7 +310,13 @@ public class CommandlineArguments {
               + NL
               + "IndexNo\tInfileName\tAtom1info\tAtom2info\t"
               + "DistanceInPDBsequence\tEuclideanDistance\t"
-              + "SolventPathDistance\tPeptidePairSequences"
+              + "SolventPathDistance\t(EucProbability\tSASDprobability)\t"
+              + "PeptidePairSequences"
+              + NL
+              + NL
+              + "Virtual cross-links are sorted first by "
+              + "decreasing probability, then by increasing SASD and "
+              + "finally by increasing Euclidean distance."
               + NL
               + NL
               + "Commandline PARAMETER:"
@@ -424,6 +435,10 @@ public class CommandlineArguments {
               + "\t-euc\t[switch]\tSkips Solvent-Path-Distance "
               + "calculation and outputs only Euclidean distances "
               + "[optional]. "
+              + NL
+              + "\t-prob\t[switch]\tOutputs probability information for each "
+              + "vXL as determined by experimental data on DSS and BS3 cross-"
+              + "linking experiments [optional]. "
               + NL
               + "\t-all\t[switch]\tOutputs only distances if all virtual cross-"
               + "links in a distance file (-dist) can be found."
@@ -1415,8 +1430,32 @@ public class CommandlineArguments {
     }
     //--------------------------------------------------------------------------
     /**
+     * Determines whether the argument -prob has been set on the commandline.
+     * @see #isProbabilityArgumentSet()
+     */
+    private void readProbabilityArgument() {
+        if (Commandline.get(this.arguments,
+                            "-prob",
+                            false).equals("EXISTS")) {
+            this.doProbability = true;
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the a boolean expression whether probabilities according to
+     * experimental data on DSS and BS3 cross-links should be added to
+     * distance output.
+     * @return {@code TRUE} if probabilities should be printed out,
+     * {@code FALSE} otherwise.
+     * @see #readProbabilityArgument()
+     */
+    public final boolean isProbabilityArgumentSet() {
+        return this.doProbability;
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Determines whether the argument -bb has been set on the commandline.
-     * If it has been set, than solvent radius is automatically set to 
+     * If it has been set, than solvent radius is automatically set to
      * xwalk.constants.Constants.SOLVENT_RADIUS_BACKBONE too.
      * @see #isBackboneOnlyArgumentSet()
      */

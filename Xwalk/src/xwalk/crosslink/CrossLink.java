@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
+import java.util.TreeSet;
 
 import structure.constants.Constants;
 import structure.constants.Constants.BondTypes;
@@ -32,6 +33,7 @@ import structure.matter.Bond;
 import structure.matter.parameter.ParameterReader;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
+import xwalk.crosslink.CrossLinkParameter.Parameter;
 
 
 /**
@@ -69,6 +71,12 @@ public class CrossLink extends Bond {
      * cross-link distances in the literature and in the Aebersold lab.
      */
     private double sasdDistProbability = 0;
+    /**
+     * Stores the information whether a probability calculation has been
+     * requested. As a consequence probabilites will be printed out
+     * in the toString() method.
+     */
+    private boolean doProbability = false;
     /**
      * First protein atom that is connected by the cross-link.
      */
@@ -180,7 +188,6 @@ public class CrossLink extends Bond {
 
         this.seqDist = sequenceDistance;
         this.eucDist = euclideanDistance;
-        this.setEucProbability();
 
     }
     //--------------------------------------------------------------------------
@@ -203,7 +210,6 @@ public class CrossLink extends Bond {
 
         this.eucDist = Mathematics.distance(this.preAtom.getPoint3d(),
                                             this.postAtom.getPoint3d());
-        this.setEucProbability();
 
     }
     //--------------------------------------------------------------------------
@@ -216,7 +222,6 @@ public class CrossLink extends Bond {
      */
     public final void setSolventPathDistance(final double dist) {
         this.solventPathDistance = dist;
-        this.setSASDprobability();
     }
     //--------------------------------------------------------------------------
 
@@ -394,7 +399,7 @@ public class CrossLink extends Bond {
                          + "-"
                          + postAtom.getName().trim();
 
-        String output = "";
+        StringBuffer output = new StringBuffer();
         int maxPeptideLength = xwalk.constants.Constants.MAX_PEPTIDE_LENGTH;
         int minPeptideLength = xwalk.constants.Constants.MIN_PEPTIDE_LENGTH;
         boolean outputPeptide = false;
@@ -411,32 +416,37 @@ public class CrossLink extends Bond {
         if (this.solventPathDistance == Double.parseDouble(
                                                     Value.DISTANCE.getDefault())
                                                        ) {
-            output = this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
-                   + this.seqDist + "\t"
-                   + this.getEuclideanDistance() + "\t"
-                   + "-"
-                   + "\t";
-            if (outputPeptide) {
-                output += this.preAtomPeptide.toStringOneLetterCode() + "-"
-                       +  this.postAtomPeptide.toStringOneLetterCode();
-            } else {
-                output += "-";
+            output.append(this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
+                        + this.seqDist + "\t"
+                        + this.getEuclideanDistance() + "\t"
+                        + "-"
+                        + "\t");
+            if (this.doProbability) {
+                output.append(this.getEuclideanDistanceProbability() + "\t"
+                            + "-"
+                            + "\t");
             }
         } else {
-            output = this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
-                   + this.seqDist + "\t"
-                   + this.getEuclideanDistance() + "\t"
-                   + this.getSolventPathDistance()
-                   + "\t";
-            if (outputPeptide) {
-                output += this.preAtomPeptide.toStringOneLetterCode() + "-"
-                       +  this.postAtomPeptide.toStringOneLetterCode();
-            } else {
-                output += "-";
+            output.append(this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
+                        + this.seqDist + "\t"
+                        + this.getEuclideanDistance() + "\t"
+                        + this.getSolventPathDistance()
+                        + "\t");
+            if (this.doProbability) {
+                    output.append(this.getEuclideanDistanceProbability()
+                                + "\t"
+                                + this.getSolventPathDistanceProbability()
+                                + "\t");
             }
         }
-        output += Constants.LINE_SEPERATOR;
-    return output;
+        if (outputPeptide) {
+            output.append(this.preAtomPeptide.toStringOneLetterCode() + "-"
+                       +  this.postAtomPeptide.toStringOneLetterCode());
+        } else {
+            output.append("-");
+        }
+        output.append(Constants.LINE_SEPERATOR);
+    return output.toString();
     }
     //--------------------------------------------------------------------------
     /**
@@ -531,9 +541,12 @@ public class CrossLink extends Bond {
      * Sets the probability of observing this cross-link with its Euclidean
      * distance.
      */
-    private void setEucProbability() {
+    public void setEucProbability() {
         double preProb = 0;
-        for (double bin : CrossLink.eucProb.keySet()) {
+        TreeSet<Double> sortedBins = new TreeSet<Double>(
+                                                      CrossLink.eucProb.keySet()
+                                                        );
+        for (double bin : sortedBins) {
             double prob = CrossLink.eucProb.get(bin);
             if (bin > this.eucDist) {
                 this.eucDistProbability = preProb;
@@ -541,14 +554,18 @@ public class CrossLink extends Bond {
             }
             preProb = prob;
         }
+        this.doProbability = true;
     }
     //--------------------------------------------------------------------------
     /**
      * Sets the probability of observing this cross-link with its SAS distance.
      */
-    private void setSASDprobability() {
+    public void setSASDprobability() {
         double preProb = 0;
-        for (double bin : CrossLink.sasdProb.keySet()) {
+        TreeSet<Double> sortedBins = new TreeSet<Double>(
+                                                     CrossLink.sasdProb.keySet()
+                                                        );
+        for (double bin : sortedBins) {
             double prob = CrossLink.sasdProb.get(bin);
             if (bin > this.solventPathDistance) {
                 this.sasdDistProbability = preProb;
@@ -556,6 +573,6 @@ public class CrossLink extends Bond {
             }
             preProb = prob;
         }
+        this.doProbability = true;
     }
-    
 }
