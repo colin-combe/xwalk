@@ -166,5 +166,10 @@ public class Constants {
      */
     public static final NumberFormat DISTANCE_DEC_FORMAT =
                                                        new DecimalFormat("0.0");
+    /**
+     * Distances are given up to a single digit after comma.
+     */
+    public static final NumberFormat PROBABILITY_DEC_FORMAT =
+                                                    new DecimalFormat("0.0000");
 
 }

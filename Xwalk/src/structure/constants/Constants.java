@@ -186,7 +186,8 @@ public class Constants {
     /**
      * Supported atom parameter sets.
      */
-    public enum ParameterSets { RASMOL, SURFNET, MMFF94, PARSE, CHARMM, XLOGP };
+    public enum ParameterSets { RASMOL, SURFNET, MMFF94, PARSE, CHARMM, XLOGP,
+                                SASD_PROB, EUC_PROB};
 
     /**
      * Supported element types.

@@ -171,7 +171,6 @@ public class Xwalk {
 
      */
     public static void outputVirtualCrossLinks(
-                                           final CommandlineArguments arguments,
                                            final CrossLinkParameter parameter,
                                            final CrossLinkList crossLinks
                                               ) {
@@ -179,12 +178,14 @@ public class Xwalk {
             Xwalk.outputNoXLfound(parameter);
         }
 
-        if (arguments.getOutfileArgument().equals("")) {
+        if (parameter.getParameter(Parameter.OUTFILE_PATH).equals("")) {
             System.out.print(DistanceWriter.toString(crossLinks, parameter));
         } else {
             DistanceWriter write = new DistanceWriter();
-            write.setFile(arguments.getOutfileArgument());
-            if (arguments.isPymolOutputSet()) {
+            write.setFile(parameter.getParameter(Parameter.OUTFILE_PATH));
+            if (Boolean.parseBoolean(parameter.getParameter(
+                                                      Parameter.DO_PYMOL_OUTPUT)
+                                                           )) {
                 System.out.print(DistanceWriter.toString(crossLinks,
                                                          parameter)
                                                         );
@@ -218,6 +219,6 @@ public class Xwalk {
             System.exit(0);
         }
         CrossLinkList list = Xwalk.createVirtualCrossLinks(parameter);
-        Xwalk.outputVirtualCrossLinks(arguments, parameter, list);
+        Xwalk.outputVirtualCrossLinks(parameter, list);
     }
 }

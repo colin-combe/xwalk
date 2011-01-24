@@ -95,8 +95,10 @@ public class DistanceReader {
                                               );
                     }
                     if (array.length >= 3) {
-                        atom1.setChainId(array[2].trim().charAt(0) == '_'
+                        if(array[2].trim().length() != 0) {
+                            atom1.setChainId(array[2].trim().charAt(0) == '_'
                                                     ? ' ' : array[2].charAt(0));
+                        }
                     }
                     if (array.length >= 4) {
                             atom1.setName(array[3].trim());
@@ -109,14 +111,16 @@ public class DistanceReader {
                                          + "residue name and residue "
                                          + "number.");
                     } else {
-                        atom2.setResidueName(array[0].trim());
+                        atom2.setResidueName(array[0].trim().toUpperCase());
                         atom2.setResidueNumber(
                                                Integer.parseInt(array[1].trim())
                                               );
                     }
                     if (array.length >= 3) {
-                        atom2.setChainId(array[2].trim().charAt(0) == '_'
+                        if(array[2].trim().length() != 0) {
+                            atom2.setChainId(array[2].trim().charAt(0) == '_'
                                                     ? ' ' : array[2].charAt(0));
+                        }
                     }
                     if (array.length >= 4) {
                         atom2.setName(array[3].trim());
