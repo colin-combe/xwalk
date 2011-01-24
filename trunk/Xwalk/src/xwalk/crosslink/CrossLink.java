@@ -15,17 +15,21 @@
 
 package xwalk.crosslink;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Hashtable;
 
 import structure.constants.Constants;
 import structure.constants.Constants.BondTypes;
+import structure.constants.Constants.ParameterSets;
 import structure.grid.Path;
 import structure.grid.GridCell.Value;
 import structure.math.Mathematics;
 import structure.matter.Atom;
 import structure.matter.Bond;
+import structure.matter.parameter.ParameterReader;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
 
@@ -53,6 +57,18 @@ public class CrossLink extends Bond {
     private double solventPathDistance =
                                 Double.parseDouble(Value.DISTANCE.getDefault());
 
+    /**
+     * Probability of finding a cross-link with this Euclidean distance in a
+     * cross-linking experiment. The probability is based on observed
+     * cross-link distances in the literature and in the Aebersold lab.
+     */
+    private double eucDistProbability = 0;
+    /**
+     * Probability of finding a cross-link with this SAS distance in a
+     * cross-linking experiment. The probability is based on observed
+     * cross-link distances in the literature and in the Aebersold lab.
+     */
+    private double sasdDistProbability = 0;
     /**
      * First protein atom that is connected by the cross-link.
      */
@@ -84,6 +100,14 @@ public class CrossLink extends Bond {
      * cross-link.
      */
     private PolyPeptide postAtomPeptide;
+    /**
+     * Hashtable holding all probabilities for certain SAS distance bins.
+     */
+    private static Hashtable<Double, Double> sasdProb;
+    /**
+     * Hashtable holding all probabilities for certain Euclidean distance bins.
+     */
+    private static Hashtable<Double, Double> eucProb;
     //--------------------------------------------------------------------------
     /**
      * Constructor.
@@ -94,6 +118,8 @@ public class CrossLink extends Bond {
      */
     public CrossLink(final Atom atom1, final Atom atom2) {
         super(atom1, atom2, BondTypes.CROSS_LINK);
+        CrossLink.readProbabilities();
+
         ArrayList < Atom > list = new ArrayList < Atom >();
         list.add(atom1);
         list.add(atom2);
@@ -134,6 +160,8 @@ public class CrossLink extends Bond {
                      final double euclideanDistance
                     ) {
         super(atom1, atom2, BondTypes.CROSS_LINK);
+        CrossLink.readProbabilities();
+
         ArrayList < Atom > list = new ArrayList < Atom >();
         list.add(atom1);
         list.add(atom2);
@@ -152,6 +180,8 @@ public class CrossLink extends Bond {
 
         this.seqDist = sequenceDistance;
         this.eucDist = euclideanDistance;
+        this.setEucProbability();
+
     }
     //--------------------------------------------------------------------------
     /**
@@ -173,6 +203,8 @@ public class CrossLink extends Bond {
 
         this.eucDist = Mathematics.distance(this.preAtom.getPoint3d(),
                                             this.postAtom.getPoint3d());
+        this.setEucProbability();
+
     }
     //--------------------------------------------------------------------------
 
@@ -184,6 +216,7 @@ public class CrossLink extends Bond {
      */
     public final void setSolventPathDistance(final double dist) {
         this.solventPathDistance = dist;
+        this.setSASDprobability();
     }
     //--------------------------------------------------------------------------
 
@@ -226,6 +259,32 @@ public class CrossLink extends Bond {
                 xwalk.constants.Constants.DISTANCE_DEC_FORMAT.format(
                                                         this.solventPathDistance
                                                                     ));
+    }
+    //--------------------------------------------------------------------------
+
+    /**
+     * Returns the probability of this cross-link to be observed with its
+     * SAS distance in real experiments.
+     * @return double number representing the probability.
+     */
+    public final double getSolventPathDistanceProbability() {
+        return Double.parseDouble(
+                xwalk.constants.Constants.PROBABILITY_DEC_FORMAT.format(
+                                                        this.sasdDistProbability
+                                                                       ));
+    }
+    //--------------------------------------------------------------------------
+
+    /**
+     * Returns the probability of this cross-link to be observed with its
+     * Euclidean distance in real experiments.
+     * @return double number representing the probability.
+     */
+    public final double getEuclideanDistanceProbability() {
+        return Double.parseDouble(
+                xwalk.constants.Constants.PROBABILITY_DEC_FORMAT.format(
+                                                         this.eucDistProbability
+                                                                       ));
     }
     //--------------------------------------------------------------------------
 
@@ -449,4 +508,54 @@ public class CrossLink extends Bond {
     public final PolyPeptide getPostPeptide() {
         return this.postAtomPeptide;
     }
+    //--------------------------------------------------------------------------
+    /**
+     * Reads in probability for finding a cross-link with a certain distance in
+     * a cross-linking experiment. The probabilities are based on observed
+     * cross-link distances in the literature and in the Aebersold lab.
+     */
+    private static void readProbabilities() {
+        try {
+            sasdProb =
+       new ParameterReader(ParameterSets.SASD_PROB).getDistanceProbabilitySet();
+            eucProb =
+       new ParameterReader(ParameterSets.EUC_PROB).getDistanceProbabilitySet();
+
+        } catch (IOException e) {
+            System.err.println("ERROR: Couldn't read probabilities from "
+                           + "parameter files" + Constants.LINE_SEPERATOR + e);
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Sets the probability of observing this cross-link with its Euclidean
+     * distance.
+     */
+    private void setEucProbability() {
+        double preProb = 0;
+        for (double bin : CrossLink.eucProb.keySet()) {
+            double prob = CrossLink.eucProb.get(bin);
+            if (bin > this.eucDist) {
+                this.eucDistProbability = preProb;
+                break;
+            }
+            preProb = prob;
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Sets the probability of observing this cross-link with its SAS distance.
+     */
+    private void setSASDprobability() {
+        double preProb = 0;
+        for (double bin : CrossLink.sasdProb.keySet()) {
+            double prob = CrossLink.sasdProb.get(bin);
+            if (bin > this.solventPathDistance) {
+                this.sasdDistProbability = preProb;
+                break;
+            }
+            preProb = prob;
+        }
+    }
+    
 }

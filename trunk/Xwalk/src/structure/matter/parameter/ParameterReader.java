@@ -42,13 +42,28 @@ public class ParameterReader {
      */
     private Hashtable <AminoAcidType, Hashtable <AtomType, Double >> xlogP =
                  new Hashtable <AminoAcidType, Hashtable <AtomType, Double >>();
+
     /**
-     * Location of parameter files
+     * Holds the probabilities for the cross-link distances.
      */
-    private static final String PARAMETER_DIR = "mm"
-                                              + File.separatorChar
-                                              + "parameter"
-                                              + File.separatorChar;
+    private Hashtable < Double, Double > probablities =
+                                           new Hashtable < Double, Double >();
+
+    /**
+     * Location of parameter molecular mechanics parameter files
+     */
+    private static final String PARAMETER_MM_DIR = "mm"
+                                                 + File.separatorChar
+                                                 + "parameter"
+                                                 + File.separatorChar;
+
+    /**
+     * Location of parameter distance probability files
+     */
+    private static final String PARAMETER_DP_DIR = "xwalk"
+                                                 + File.separatorChar
+                                                 + "parameter"
+                                                 + File.separatorChar;
     /**
      * MMRR94 radius identifier.
      */
@@ -73,7 +88,15 @@ public class ParameterReader {
      * XLOGP radius identifier.
      */
     private static final String XLOGP_FILENAME = "atomic_XlogP.txt";
-
+    /**
+     * Solvent Accessible Surface Distance identifier.
+     */
+    private static final String SASD_PROB_FILENAME = "sasd_prob.txt";
+    /**
+     * Euclidean Distance identifier.
+     */
+    private static final String EUC_PROB_FILENAME = "euc_prob.txt";
+    
     /**
      * Column number of element name in two column parameter files. Should be 0.
      */
@@ -97,6 +120,15 @@ public class ParameterReader {
      * Should be 2.
      */
     private static int xlogPcolumn = 2;
+    /**
+     * Column number of distance bin in two column parameter files. Should be 0.
+     */
+    private static int distanceBinColumn = 0;
+    /**
+     * Column number of probability in two column parameter files.
+     * Should be 1.
+     */
+    private static int probabilityColumn = 1;
 
     /**
      * default serialVersionUID.
@@ -113,28 +145,36 @@ public class ParameterReader {
     public ParameterReader(final Constants.ParameterSets parameter)
                                                             throws IOException {
         if (parameter == Constants.ParameterSets.RASMOL) {
-            this.readParameterSet(ParameterReader.PARAMETER_DIR
+            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.RASMOL_FILENAME);
         }
         if (parameter == Constants.ParameterSets.SURFNET) {
-            this.readParameterSet(ParameterReader.PARAMETER_DIR
+            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.SURFNET_FILENAME);
         }
         if (parameter == Constants.ParameterSets.MMFF94) {
-            this.readParameterSet(ParameterReader.PARAMETER_DIR
+            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.MMFF94_FILENAME);
         }
         if (parameter == Constants.ParameterSets.PARSE) {
-            this.readParameterSet(ParameterReader.PARAMETER_DIR
+            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.PARSE_FILENAME);
         }
         if (parameter == Constants.ParameterSets.CHARMM) {
-            this.readParameterSet(ParameterReader.PARAMETER_DIR
+            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.CHARMM_FILENAME);
         }
         if (parameter == Constants.ParameterSets.XLOGP) {
-            this.readParameterSet(ParameterReader.PARAMETER_DIR
+            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.XLOGP_FILENAME);
+        }
+        if (parameter == Constants.ParameterSets.SASD_PROB) {
+            this.readParameterSet(ParameterReader.PARAMETER_DP_DIR
+                                + ParameterReader.SASD_PROB_FILENAME);
+        }
+        if (parameter == Constants.ParameterSets.EUC_PROB) {
+            this.readParameterSet(ParameterReader.PARAMETER_DP_DIR
+                                + ParameterReader.EUC_PROB_FILENAME);
         }
     }
 
@@ -152,14 +192,26 @@ public class ParameterReader {
             if (!line.startsWith("#")) {
                 String[] column = line.split("\t");
                 if (column.length == 2) {
-                    String elementName =
+                    if (parameterFileName.indexOf(this.EUC_PROB_FILENAME) != -1
+                       ||
+                     parameterFileName.indexOf(this.SASD_PROB_FILENAME) != -1) {
+                        double distBin = Double.parseDouble(
+                                       column[ParameterReader.distanceBinColumn]
+                                                           );
+                        double prob = Double.parseDouble(
+                                       column[ParameterReader.probabilityColumn]
+                                                        );
+                        this.probablities.put(distBin, prob);
+                    } else {
+                        String elementName =
                                       column[ParameterReader.elementNameColumn];
-                    double radius = Double.parseDouble(
+                        double radius = Double.parseDouble(
                                          column[ParameterReader.vdWradiusColumn]
                                                       );
-                    for (Element e : Element.values()) {
-                        if (e.toString().equals(elementName)) {
-                            this.vdWradii.put(e, radius);
+                        for (Element e : Element.values()) {
+                            if (e.toString().equals(elementName)) {
+                                this.vdWradii.put(e, radius);
+                            }
                         }
                     }
                 } else if (column.length == 3) {
@@ -207,4 +259,14 @@ public class ParameterReader {
                                                         getXlogPparameterSet() {
         return this.xlogP;
     }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the set of probabilities for a certain distance bin.
+     * @return Hashtable with distance keys and double elements as
+     * probabilities.
+     */
+    public final Hashtable < Double, Double > getDistanceProbabilitySet() {
+        return this.probablities;
+    }
+
 }

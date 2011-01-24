@@ -113,6 +113,7 @@ public class DistanceWriter extends WriteFile {
      */
     public final void writeSASDpdbFile(final String pathFileName,
                                        final CrossLinkList crossLinkList) {
+        StringBuffer content = new StringBuffer();
         for (CrossLink crossLink : crossLinkList) {
             Atom atom1 = crossLink.getPreAtom();
             Atom atom2 = crossLink.getPostAtom();
@@ -131,12 +132,13 @@ public class DistanceWriter extends WriteFile {
 //                            + "_" + atom2.getName().trim()
                             + "_solventPath";
 
-            WriteFile file = new WriteFile();
-            file.setFile(pathFileName, true);
-            file.write("HEADER " + distName + Constants.LINE_SEPERATOR
-                       + crossLink.getPath().toString(crossLink.getIndex())
-                       + "END" + Constants.LINE_SEPERATOR);
+            content.append("HEADER " + distName + Constants.LINE_SEPERATOR
+                         + crossLink.getPath().toString(crossLink.getIndex())
+                         + "END" + Constants.LINE_SEPERATOR);
         }
+        WriteFile file = new WriteFile();
+        file.setFile(pathFileName);
+        file.write(content.toString());
 
     }
 
@@ -182,7 +184,6 @@ public class DistanceWriter extends WriteFile {
         output.append("color grey, het" + nl);
         output.append("disable het" + nl);
 
-        boolean emptyChainId = false;
         // maximum index number of cross-links, which will be used to set the
         // final iteration step in the for loops applied to color the
         // cross-links in PyMOL.
@@ -195,9 +196,6 @@ public class DistanceWriter extends WriteFile {
             Atom atom1 = crossLink.getPreAtom();
             Atom atom2 = crossLink.getPostAtom();
 
-            if (atom1.getChainId() == '_' || atom2.getChainId() == '_') {
-                emptyChainId = true;
-            }
 
             if (atom1.getChainId() != '_') {
                 output.append("create chain" + atom1.getChainId() + ", chain "
@@ -262,14 +260,21 @@ public class DistanceWriter extends WriteFile {
                                                       )
                                )
           ) {
-            String pathFileName = infileWithoutExtension
+
+            String outputDir = new File(parameter.getParameter(
+                                                Parameter.OUTFILE_PATH
+                                                              )).getParent();
+            String sasdFileName = infileWithoutExtension
                                 + "_solventPathDistances.pdb";
+            String pathFileName = outputDir
+                                + File.separatorChar
+                                + sasdFileName;
 
             WriteFile.deleteFile(pathFileName);
 
             this.writeSASDpdbFile(pathFileName, crossLinkList);
 
-            output.append("load " + pathFileName + ", solventPaths" + nl);
+            output.append("load " + sasdFileName + ", solventPaths" + nl);
             output.append("hide everything, *solvent*" + nl);
             output.append("show spheres, *solvent*" + nl);
 //            output.append("set sphere_scale, 0.7, *solvent*" + nl);
