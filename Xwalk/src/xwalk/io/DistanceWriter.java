@@ -264,6 +264,10 @@ public class DistanceWriter extends WriteFile {
             String outputDir = new File(parameter.getParameter(
                                                 Parameter.OUTFILE_PATH
                                                               )).getParent();
+            if (outputDir == null) {
+                outputDir = "";
+            }
+
             String sasdFileName = infileWithoutExtension
                                 + "_solventPathDistances.pdb";
             String pathFileName = outputDir
