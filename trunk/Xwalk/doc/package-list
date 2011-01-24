@@ -3,6 +3,7 @@ external
 mm.constants
 mm.evolution
 mm.hydrophobicity
+mm.parameter
 structure.constants
 structure.exceptions
 structure.grid
@@ -20,3 +21,4 @@ xwalk.constants
 xwalk.crosslink
 xwalk.io
 xwalk.math
+xwalk.parameter

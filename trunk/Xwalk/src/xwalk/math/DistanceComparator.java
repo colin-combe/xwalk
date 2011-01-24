@@ -29,17 +29,38 @@ import xwalk.crosslink.CrossLink;
  */
 public class DistanceComparator implements Comparator < CrossLink > {
     /**
-     * Compares two cross-link objects by their Solvent-Path distance or if not
+     * Compares two cross-link objects by their Probabilities to occur in
+     * experiments or if not assessed by their Solvent-Path distance or if not
      * existent Euclidean distance.
      * @param xl1
      *        - First CrossLink Object.
      * @param xl2
      *        - Second CrossLink Object.
-     * @return -1 if the first has a shorter distance.<br>
-     *         0 if both objects span equal distances.<br>
-     *         1 if the second has a larger distance.
+     * @return -1 if the first has a shorter distance/higher probability.<br>
+     *         0 if both objects span equal distances/probabilities.<br>
+     *         1 if the second has a larger distance/lower probability
      */
     public final int compare(final CrossLink xl1, final CrossLink xl2) {
+        if (xl1.getSolventPathDistanceProbability()
+                <
+            xl2.getSolventPathDistanceProbability()) {
+            return 1;
+        }
+        if (xl1.getSolventPathDistanceProbability()
+                >
+            xl2.getSolventPathDistanceProbability()) {
+            return -1;
+        }
+        if (xl1.getEuclideanDistanceProbability()
+                <
+            xl2.getEuclideanDistanceProbability()) {
+            return 1;
+        }
+        if (xl1.getEuclideanDistanceProbability()
+                >
+            xl2.getEuclideanDistanceProbability()) {
+            return -1;
+        }
         if (xl1.getSolventPathDistance() < xl2.getSolventPathDistance()) {
             return -1;
         }

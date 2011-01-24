@@ -50,7 +50,7 @@ public class ParameterReader {
                                            new Hashtable < Double, Double >();
 
     /**
-     * Location of parameter molecular mechanics parameter files
+     * Location of parameter molecular mechanics parameter files.
      */
     private static final String PARAMETER_MM_DIR = "mm"
                                                  + File.separatorChar
@@ -58,7 +58,7 @@ public class ParameterReader {
                                                  + File.separatorChar;
 
     /**
-     * Location of parameter distance probability files
+     * Location of parameter distance probability files.
      */
     private static final String PARAMETER_DP_DIR = "xwalk"
                                                  + File.separatorChar
@@ -96,7 +96,7 @@ public class ParameterReader {
      * Euclidean Distance identifier.
      */
     private static final String EUC_PROB_FILENAME = "euc_prob.txt";
-    
+
     /**
      * Column number of element name in two column parameter files. Should be 0.
      */

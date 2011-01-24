@@ -52,27 +52,28 @@ public class CrossLinkParameter {
                             ATOM_TYPE2,
                             CHAIN_ID1,
                             CHAIN_ID2,
-                            GRID_CELL_SIZE,
-                            MAXIMUM_DISTANCE,
-                            DO_INTRAMOLECULAR_DISTANCE,
-                            DO_INTERMOLECULAR_DISTANCE,
-                            DO_SOLVENT_PATH_DISTANCE,
-                            DO_SAS,
-                            SOLVENT_RADIUS,
-                            MINIMUM_SOLVENT_ACCESSIBILITY_RATIO,
-                            DO_GLOBAL_GRID,
-                            IS_HOMOMERIC,
-                            DO_PYMOL_OUTPUT,
-                            INFILE_PATH,
                             DISTANCE_FILE_PATH,
-                            FIND_ALL,
-                            OUTFILE_PATH,
                             DO_FORCE_OUTPUT,
                             DO_VERBOSE_OUTPUT,
                             DO_GRID_OUTPUT,
                             DO_TRYPSIN_DIGEST,
                             DO_EXPASY_RULE,
-                            DO_BACKBONE_READ
+                            DO_BACKBONE_READ,
+                            DO_INTRAMOLECULAR_DISTANCE,
+                            DO_INTERMOLECULAR_DISTANCE,
+                            DO_PROBABILITY,
+                            DO_SOLVENT_PATH_DISTANCE,
+                            DO_SAS,
+                            DO_GLOBAL_GRID,
+                            DO_PYMOL_OUTPUT,
+                            FIND_ALL,
+                            INFILE_PATH,
+                            IS_HOMOMERIC,
+                            GRID_CELL_SIZE,
+                            MAXIMUM_DISTANCE,
+                            MINIMUM_SOLVENT_ACCESSIBILITY_RATIO,
+                            OUTFILE_PATH,
+                            SOLVENT_RADIUS,
     };
     //--------------------------------------------------------------------------
     /**
@@ -107,6 +108,8 @@ public class CrossLinkParameter {
                                                        arg.isPymolOutputSet()));
         this.setParameter(Parameter.DO_SOLVENT_PATH_DISTANCE, Boolean.toString(
                                     arg.isSolventPathDistanceCalculationSet()));
+        this.setParameter(Parameter.DO_PROBABILITY, Boolean.toString(
+                                               arg.isProbabilityArgumentSet()));
         this.setParameter(Parameter.GRID_CELL_SIZE, Double.toString(
                                                 arg.getGridCellSizeArgument()));
         this.setParameter(Parameter.INFILE_PATH, arg.getInfileArgument());
