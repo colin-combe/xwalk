@@ -130,11 +130,16 @@ public class DistanceReader {
                                      + "\" does not conform to distance file "
                                      + "format" + Constants.LINE_SEPERATOR + e);
                 }
+
                 CrossLink crossLink = new CrossLink(atom1, atom2, seqDist,
                                                     eucDist);
                 crossLink.setSolventPathDistance(solvDist);
                 crossLink.setIndex(index);
-                set.add(crossLink);
+                if (set.get(atom1, atom2) == null
+                    &&
+                    set.get(atom2, atom1) == null) {
+                        set.add(crossLink);
+                }
             }
         }
     return set;
