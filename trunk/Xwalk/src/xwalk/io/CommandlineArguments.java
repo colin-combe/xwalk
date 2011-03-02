@@ -335,14 +335,14 @@ public class CommandlineArguments {
               + "residue information will be extracted [optional]."
               + NL
               + "\t-out\t<path>\tWrites output to this file, otherwise "
-              + "output is directed to the STDOUT channel. If -p is "
+              + "output is directed to the STDOUT channel. If -pymol is "
               + "set than filename must have .pml filename ending "
               + "[optional]."
               + NL
               + "\t-f\t[switch]\tForces output to be written into a "
               + "file even if file already exists [optional]."
               + NL
-              + "\t-p\t[switch]\tOutputs a PyMOL (http://www.pymol."
+              + "\tpymol\t[switch]\tOutputs a PyMOL (http://www.pymol."
               + "org/) script highlighting the calculated distances of "
               + "the potential cross-links [optional]."
               + NL
@@ -674,15 +674,15 @@ public class CommandlineArguments {
     //--------------------------------------------------------------------------
 
     /**
-     * Determines whether the argument -p has been set on the commandline. Also
-     * checks that in case an output file is set, that its suffix is
+     * Determines whether the argument -pymol has been set on the commandline.
+     * Also checks that in case an output file is set, that its suffix is
      * {@code .pml}.
      * @throws CommandlineArgumentFormatException if output file is set but
      *         suffix is not equal to {@code .pml}.
      * @see #isPymolOutputSet()
      */
     private void readPymolArgument() throws CommandlineArgumentFormatException {
-        if (Commandline.get(this.arguments, "-p", false).equals("EXISTS")) {
+        if (Commandline.get(this.arguments, "-pymol", false).equals("EXISTS")) {
             this.pymolOutput = true;
             if (!Commandline.get(this.arguments,
                                  "-out",

@@ -975,20 +975,27 @@ public final class CrossLinkUtilities {
                                 xl.getPreAtom().getResidueNumber()
                         ) {
                                  reverse = 1;
+                        } else {
+                            reverse = -1;
                         }
                         Atom preAtom = null;
                         Atom postAtom = null;
                         switch (reverse) {
-                            case -1 : continue;
                             case  0 : {
                                 preAtom = dxl.getPreAtom();
                                 postAtom = dxl.getPostAtom();
+                                break;
                             }
                             case  1 : {
                                 preAtom = dxl.getPostAtom();
                                 postAtom = dxl.getPreAtom();
+                                break;
+                            }
+                            default : {
+                                continue;
                             }
                         }
+
                         // Now find vXL in the distance file and assign index
                         // in the distance file to vXL.
                         if (preAtom.getChainId() != ' ') {
@@ -1004,17 +1011,25 @@ public final class CrossLinkUtilities {
                                 continue;
                             }
                         } else if (!preAtom.getName().equals("")) {
-                            if (!preAtom.getName().equals(
-                                                      xl.getPreAtom().getName())
+                            if (!preAtom.getName().trim().equals(
+                                               xl.getPreAtom().getName().trim())
                                                          ) {
                                 continue;
                             }
-                        } else if (!postAtom.getName().equals("")) {
+                        } else if (!postAtom.getName().trim().equals("")) {
                             if (!postAtom.getName().equals(
-                                                     xl.getPostAtom().getName())
+                                              xl.getPostAtom().getName().trim())
                                                           ) {
                                 continue;
                             }
+                        } else if (preAtom.getResidueNumber()
+                                   !=
+                                   xl.getPreAtom().getResidueNumber()) {
+                            continue;
+                        } else if (postAtom.getResidueNumber()
+                                !=
+                                xl.getPostAtom().getResidueNumber()) {
+                            continue;
                         }
                         xl.setIndex(dxl.getIndex());
                     }

@@ -100,7 +100,7 @@ public class CrossLinkList extends ArrayList < CrossLink > {
      *        - First Atom object to be checked in this list of cross-links.
      * @param atom2
      *        - Second Atom object to be checked in this list of cross-links.
-     * @return CrossLink object that holds both atoms.
+     * @return CrossLink object that holds both atoms, NULL otherwise.
      */
     public final CrossLink get(final Atom atom1, final Atom atom2) {
         for (CrossLink crossLink : this) {
