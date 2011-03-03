@@ -41,7 +41,7 @@ if ($help) {printHelp(); exit}
 # SETTINGS
 ###############################################################################
 
-my $needle = "/sw/bin/needle";
+my $needle = "~/bin/EMBOSS-6.2.0/emboss/needle";
 my $warningMsg = "";
 my %aa3 = ("GLY" => "G",
 	   "ALA" => "A", 
@@ -170,15 +170,15 @@ sub mapUniprot2PDBseqNumber{
 	else {
 	    if($aln2PDB{$alnPos1} == -1 && $aln2PDB{$alnPos2} == -1){
 		$warningMsg .= "Both UniProt residue numbers $alnPos1 and $alnPos2 could ".
-	                       "not be found in the PDB structure.<br />\n";
+	                       "not be found in the PDB structure.\n";
 	    }
 	    elsif($aln2PDB{$alnPos1} == -1){
 		$warningMsg .= "The UniProt residue number $alnPos1 could ".
-                               "not be found in the PDB structure.<br />\n";
+                               "not be found in the PDB structure.\n";
 	    }
 	    elsif($aln2PDB{$alnPos2} == -1){
 		$warningMsg .= "The UniProt residue number $alnPos2 could ".
-                               "not be found in the PDB structure.<br />\n";
+                               "not be found in the PDB structure.\n";
 	    }
 	}	
     }
@@ -193,7 +193,7 @@ sub makeAlignment(){
     $aln =~ s/.*\///;
     $aln =~ s/(.*)\..*/$1.aln/;
     my $command = "$needle $fasta1 $fasta2 -gapopen 10 -gapextend 0.5 $aln";
-    print "$command\n";
+    print STDERR "$command\n";
     system(`$command`) or 
 	die("Error while performing Needleman-Wunsch alignment: $!");
 
@@ -324,7 +324,9 @@ if(defined $xlFile and defined $pdbFile and defined $fastaFile){
 
 # create fasta file from pdb file
     my $newDistFile = &mapUniprot2PDBseqNumber($xlTable);
+    print STDERR $warningMsg;
     print $newDistFile;
+    
 }
 else {
     die "\nTry $0 -help to get a full list of parameters.\n\n";
