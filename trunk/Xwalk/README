@@ -31,7 +31,7 @@ Distance information will be printed out to the STDOUT channel or via -out to a 
 6th column: SASD between  1st and 2nd amino acid.
 7th column: shortest tryptic peptide sequence.
 
-Setting -p -out xxx.pml on the commandline will write a PyMOL script into the file xxx.pml, which can be load into the molecular viewer PyMOL to visualise the SASD paths (see NOTES).
+Setting -pymol -out xxx.pml on the commandline will write a PyMOL script into the file xxx.pml, which can be load into the molecular viewer PyMOL to visualise the SASD paths (see NOTES).
 
 
 ALGORITHM
