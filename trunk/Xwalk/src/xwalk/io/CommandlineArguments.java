@@ -310,8 +310,8 @@ public class CommandlineArguments {
               + NL
               + "IndexNo\tInfileName\tAtom1info\tAtom2info\t"
               + "DistanceInPDBsequence\tEuclideanDistance\t"
-              + "SolventPathDistance\t(EucProbability\tSASDprobability)\t"
-              + "PeptidePairSequences"
+              + "SolventPathDistance\t(EucProbability\tSASDprobability\t"
+              + "PeptidePairSequences)"
               + NL
               + NL
               + "Virtual cross-links are sorted first by "
@@ -342,7 +342,7 @@ public class CommandlineArguments {
               + "\t-f\t[switch]\tForces output to be written into a "
               + "file even if file already exists [optional]."
               + NL
-              + "\tpymol\t[switch]\tOutputs a PyMOL (http://www.pymol."
+              + "\t-pymol\t[switch]\tOutputs a PyMOL (http://www.pymol."
               + "org/) script highlighting the calculated distances of "
               + "the potential cross-links [optional]."
               + NL
