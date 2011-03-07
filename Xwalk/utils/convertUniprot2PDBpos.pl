@@ -143,7 +143,7 @@ sub mapUniprot2PDBseqNumber{
     my %aln2uniprot = %$m2_1;
     my %pdb2aln = %$m1_2;
     my %uniprot2aln = %$m2_2;
-    my %mapPDBnum = %{&getPDBresNumbering()};
+    (my %mapPDBnum, my %mapPDBname) = %{&getPDBresNumberName()};
 
     my $newDistFile = "";
     open(X, $xlFile) or die "Failed to open $xlFile";
@@ -159,6 +159,9 @@ sub mapUniprot2PDBseqNumber{
 	if($aln2PDB{$alnPos1} != -1 && $aln2PDB{$alnPos2} != -1){
 	    $resNo1 = $mapPDBnum{$aln2PDB{$alnPos1}};
 	    $resNo2 = $mapPDBnum{$aln2PDB{$alnPos2}};
+        $resName1 = $mapPDBname{$aln2PDB{$alnPos1}};
+        $resName2 = $mapPDBname{$aln2PDB{$alnPos2}};
+	    
 
 	    $newDistFile .= "$index\t$fileName\t$resName1-$resNo1-$chainId1-$atomName1\t".
 		            "$resName2-$resNo2-$chainId2-$atomName2";
@@ -211,22 +214,23 @@ sub createFastaFile4PDBinput(){
     print F ">$id.pdb\n";
     my %uniqAA;
     foreach my $l (@a){
-	if($l=~/^ATOM/){
-	    my $resName = substr($l, 17, 3);
-	    my $resNo   = substr($l, 22, 4);
-	    my $chainId = substr($l, 21, 1);
-	    my $aa = "$resName-$resNo-$chainId";
-	    if(!exists $uniqAA{$aa}){
-		$uniqAA{$aa} = $aa;
-		if(exists $aa3{$resName}){
-		    print F $aa3{$resName};
-		}
-		else{
-		    print F "X";
-		}
+	   if($l=~/^ATOM/){
+	       my $resName = substr($l, 17, 3);
+	       my $resNo   = substr($l, 22, 4);
+	       my $chainId = substr($l, 21, 1);
+	       my $aa = "$resName-$resNo-$chainId";
+	       if(!exists $uniqAA{$aa}){
+	           $uniqAA{$aa} = $aa;
+		       if(exists $aa3{$resName}){
+		          print F $aa3{$resName};
+		       }
+		       else{
+		          print F "X";
+		       }
+	       }
 	    }
-	}
     }
+    print "\n";
     close(F);
 
     return $fasta;
@@ -244,71 +248,73 @@ sub readAlignment(){
     my $h1;
     my $h2;
     while(<F>){
-	chomp($_);
-	if(/^[A-Za-z0-9]/){
-	    if(/^$id.pdb/){
-		$_=~s/.*\d\s([A-Za-z\-])/$1/;
-		$_=~s/\s+\d+//;
-		$h1 .= $_;
-	    }
-	    else{
-		$_=~s/.*\d\s([A-Za-z\-])/$1/;
-		$_=~s/\s+\d+//;
-		$h2 .= $_;
-	    }
-	}
+	   chomp($_);
+	   if(/^[A-Za-z0-9]/){
+	       if(/^$id.pdb/){
+		      $_=~s/.*\d\s([A-Za-z\-])/$1/;
+		      $_=~s/\s+\d+//;
+		      $h1 .= $_;
+	       }
+	       else{
+		      $_=~s/.*\d\s([A-Za-z\-])/$1/;
+		      $_=~s/\s+\d+//;
+		      $h2 .= $_;
+	       }
+	   }
     }
     close(F);
     if(length($h1) != length($h2)){
-	die("Error while reading alignment. Alignment sequence lengths do not match!\n");
+	   die("Error while reading alignment. Alignment sequence lengths do not match!\n");
     }
 
-    my %map1_1;
-    my %map1_2;
-    my %map2_2;
-    my %map2_1;
-    my $j1=0;
-    my $j2=0;
+    my %map1_1; # alignment position vs sequence position
+    my %map1_2; # sequence position vs alignment position
+    my %map2_2; # alignment position vs sequence position
+    my %map2_1; # sequence position vs alignment position
+    my $j1=0; # position in sequence
+    my $j2=0; # position in sequence
     for(my $i=0; $i < length($h1); $i++){
-	if(substr($h1, $i, 1) ne "-"){
-	    $j1++;
-	    $map1_1{$i+1} = $j1;
-	    $map1_2{$j1} = $i+1;
-	} else {
-	    $map1_1{$i+1} = -1;
-	}
+	   if(substr($h1, $i, 1) ne "-"){
+	       $j1++;
+	       $map1_1{$i+1} = $j1;
+	       $map1_2{$j1} = $i+1;
+	    } else {
+	       $map1_1{$i+1} = -1;
+    	}
 	
-	if(substr($h2, $i, 1) ne "-"){
-	    $j2++; 
-	    $map2_1{$i+1} = $j2;
-	    $map2_2{$j2} = $i+1;
-	} else {
-	    $map2_1{$i+1} = -1;
-	}
+    	if(substr($h2, $i, 1) ne "-"){
+	        $j2++; 
+	        $map2_1{$i+1} = $j2;
+	       $map2_2{$j2} = $i+1;
+        } else {
+	        $map2_1{$i+1} = -1;
+	    }
     }
     return(\%map1_1, \%map1_2, \%map2_1, \%map2_2);
 }
 ################################################################################
-sub getPDBresNumbering(){
+sub getPDBresNumberName(){
     my @a = split(/\n/,`grep ^ATOM $pdbFile`);
     my %uniqAA;
-    my %map;
+    my %mapNo;
+    my %mapName;
     foreach my $l (@a){
-	if($l=~/^ATOM/){
-	    my $resName = substr($l, 17, 3);
-	    $resName =~ s/\s//g;
-	    my $resNo   = substr($l, 22, 4);
-	    $resNo =~ s/\s//g;
-	    my $chainId = substr($l, 21, 1);
-	    $chainId =~ s/\s//g;
-	    my $aa = "$resName-$resNo-$chainId";
-	    if(!exists $uniqAA{$aa}){
-		$uniqAA{$aa} = $aa;
-		$map{keys (%uniqAA)} = $resNo;
-	    }
-	}
+	   if($l=~/^ATOM/){
+	       my $resName = substr($l, 17, 3);
+	       $resName =~ s/\s//g;
+	       my $resNo   = substr($l, 22, 4);
+	       $resNo =~ s/\s//g;
+	       my $chainId = substr($l, 21, 1);
+	       $chainId =~ s/\s//g;
+	       my $aa = "$resName-$resNo-$chainId";
+	       if(!exists $uniqAA{$aa}){
+		      $uniqAA{$aa} = $aa;
+		      $mapNo{keys (%uniqAA)} = $resNo;
+              $mapName{keys (%uniqAA)} = $resName;
+	       }
+	   }
     }
-    return \%map;
+    return(\%mapNo, \%mapName);
 }
 ################################################################################
 # MAIN #########################################################################
