@@ -142,7 +142,7 @@ public final class CrossLinkUtilities {
                                                            Parameter.FIND_ALL
                                                           ))) {
                 if (distXl.size() != crossLinkList.size()) {
-                    return new CrossLinkList();
+                    crossLinkList = new CrossLinkList();
                 }
             }
             //---------------------------------
@@ -170,7 +170,7 @@ public final class CrossLinkUtilities {
                                                            Parameter.FIND_ALL
                                                           ))) {
                 if (distXl.size() != crossLinkList.size()) {
-                    return new CrossLinkList();
+                    crossLinkList = new CrossLinkList();
                 }
             }
             //---------------------------------
