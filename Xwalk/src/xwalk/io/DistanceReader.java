@@ -23,6 +23,7 @@ import structure.io.ReadFile;
 import structure.matter.Atom;
 import xwalk.crosslink.CrossLink;
 import xwalk.crosslink.CrossLinkList;
+import xwalk.crosslink.CrossLinkParameter.Parameter;
 
 /**
  * This class converts distance files into CrossLink objects.
@@ -43,11 +44,19 @@ public class DistanceReader {
      * Reads in fileName and converts these into CrossLink objects.
      * @param fileName
      *        - String object holding the path to a distance file.
+     * @param onlyIntraLinks
+     *        - boolean object determining whether only intra links should be
+     *          read out.
+     * @param onlyInterLinks
+     *        - boolean object determining whether only inter links should be
+     *          read out.
      * @return List of CrossLink objects extracted from the distance file.
      * @throws IOException if an error occurs while reading the BufferedReader
      *         object.
      */
-    public static CrossLinkList getCrossLinks(final String fileName)
+    public static CrossLinkList getCrossLinks(final String fileName,
+                                              final boolean onlyIntraLinks,
+                                              final boolean onlyInterLinks)
                                                             throws IOException {
         CrossLinkList set = new CrossLinkList();
 
@@ -56,21 +65,28 @@ public class DistanceReader {
             if (!line.startsWith("#") && line.trim().length() >= 1) {
                 Atom atom1 = new Atom();
                 Atom atom2 = new Atom();
+                String file = "";
                 int index = 0;
                 int seqDist = -1;
                 double eucDist = -1;
-                double solvDist = -1;
+                double solvDist = 
+                                Double.parseDouble(Value.DISTANCE.getDefault());
                 try {
                     String[] array = line.trim().split("\t");
                     index = Integer.parseInt(array[0]);
-                    String file = array[1];
+                    file = array[1];
                     String atom1info = array[2];
                     String atom2info = array[3];
-                    if (array.length > 4) {
+// no distance information should be read in from a distance file
+// which will leave the distance information at -1, which can be used
+// to recognize whether the cross-link has been found in the current structure.                    
+/*                    if (array.length > 4) {
                         seqDist = Integer.parseInt(array[4]);
-                    } else if (array.length > 5) {
+                    }
+                    if (array.length > 5) {
                         eucDist = Double.parseDouble(array[5]);
-                    } else if (array.length > 6) {
+                    } 
+                    if (array.length > 6) {
                         solvDist = Double.parseDouble(
                                                      Value.DISTANCE.getDefault()
                                                      );
@@ -81,7 +97,7 @@ public class DistanceReader {
                     if (array.length > 7) {
                         String peptideSequence = array[7];
                     }
-
+*/
                     array = atom1info.split("-");
                     if (array.length < 2) {
                         System.err.println("WARNING: First atom of cross-link "
@@ -120,6 +136,16 @@ public class DistanceReader {
                         if(array[2].trim().length() != 0) {
                             atom2.setChainId(array[2].trim().charAt(0) == '_'
                                                     ? ' ' : array[2].charAt(0));
+                            if (onlyInterLinks) {
+                               if (atom1.getChainId() == atom2.getChainId()) {
+                                   continue;
+                               }
+                            }
+                            if (onlyIntraLinks) {
+                                if (atom1.getChainId() != atom2.getChainId()) {
+                                    continue;
+                                }
+                             }
                         }
                     }
                     if (array.length >= 4) {
@@ -133,8 +159,10 @@ public class DistanceReader {
 
                 CrossLink crossLink = new CrossLink(atom1, atom2, seqDist,
                                                     eucDist);
+                crossLink.setFileName(file);
                 crossLink.setSolventPathDistance(solvDist);
                 crossLink.setIndex(index);
+
                 if (set.get(atom1, atom2) == null
                     &&
                     set.get(atom2, atom1) == null) {

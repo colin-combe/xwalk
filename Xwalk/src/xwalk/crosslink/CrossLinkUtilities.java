@@ -84,12 +84,34 @@ public final class CrossLinkUtilities {
                                                          DataFormatException {
         //--------------------------------
         // read in cross-links from distance file
-        CrossLinkList distXl = null;
+        CrossLinkList distXlList = null;
         if (!parameter.getParameter(Parameter.DISTANCE_FILE_PATH).equals("")) {
-            distXl = DistanceReader.getCrossLinks(parameter.getParameter(
+            String fileName = parameter.getParameter(
                                                     Parameter.DISTANCE_FILE_PATH
-                                                                        )
-                                                 );
+                                                    );
+            boolean onlyIntra = Boolean.parseBoolean(
+                    parameter.getParameter(Parameter.DO_INTRAMOLECULAR_DISTANCE)
+                                                    );
+            boolean onlyInter = Boolean.parseBoolean(
+                    parameter.getParameter(Parameter.DO_INTERMOLECULAR_DISTANCE)
+                                                    );
+            distXlList = DistanceReader.getCrossLinks(fileName,
+                                                      onlyIntra,
+                                                      onlyInter);
+                                    
+            if (Boolean.parseBoolean(parameter.getParameter(
+                                                      Parameter.DO_PROBABILITY))
+                                                           ) {
+                for (CrossLink xl : distXlList) {
+                    xl.setEucProbability();
+                    xl.setSASDprobability();
+                }
+            }
+            if(distXlList.size() == 0) {
+                System.err.println("WARNING: No suitable cross-links found in" +
+                                   " the distance file \"" + fileName + "\"");
+                return new CrossLinkList();
+            }
         }
         //--------------------------------
         // digest protein
@@ -122,10 +144,10 @@ public final class CrossLinkUtilities {
             // First find cross-links based on Euclidean distance.
             CrossLinkList crossLinkList =
                             CrossLinkUtilities.crossLinkByEuclideanDistance(
-                                                                      parameter,
-                                                                      complex,
-                                                                      distXl,
-                                                                      digest
+                                                                     parameter,
+                                                                     complex,
+                                                                     distXlList,
+                                                                     digest
                                                                            );
             //---------------------------------
             // remove redundant cross-links if the complex should be labeled by
@@ -141,7 +163,7 @@ public final class CrossLinkUtilities {
             if (Boolean.parseBoolean(parameter.getParameter(
                                                            Parameter.FIND_ALL
                                                           ))) {
-                if (distXl.size() != crossLinkList.size()) {
+                if (distXlList.size() != crossLinkList.size()) {
                     crossLinkList = new CrossLinkList();
                 }
             }
@@ -169,7 +191,7 @@ public final class CrossLinkUtilities {
             if (Boolean.parseBoolean(parameter.getParameter(
                                                            Parameter.FIND_ALL
                                                           ))) {
-                if (distXl.size() != crossLinkList.size()) {
+                if (distXlList.size() != crossLinkList.size()) {
                     crossLinkList = new CrossLinkList();
                 }
             }
@@ -188,6 +210,21 @@ public final class CrossLinkUtilities {
             // set indices of cross-links
             CrossLinkUtilities.setCrossLinkIndices(crossLinkList, parameter);
 
+            // add non-conforming distances
+            if (distXlList != null) {
+                for (CrossLink dxl : distXlList) {
+                   boolean found = false;
+                   for (CrossLink xl : crossLinkList) {
+                       if (xl.equals(dxl)) {
+                           found = true;
+                           break;
+                       }
+                   }
+                   if (!found) {
+                       crossLinkList.add(dxl);
+                   }
+                }
+            }
             allCrossLinkList.addAll(crossLinkList);
         }
 
@@ -931,8 +968,18 @@ public final class CrossLinkUtilities {
                 crossLinkList.get(i).setIndex(i + 1);
             }
         } else {
+            String fileName = parameter.getParameter(
+                                                    Parameter.DISTANCE_FILE_PATH
+                                                    );
+                boolean onlyIntra = Boolean.parseBoolean(
+                    parameter.getParameter(Parameter.DO_INTRAMOLECULAR_DISTANCE)
+                                                        );
+                boolean onlyInter = Boolean.parseBoolean(
+                    parameter.getParameter(Parameter.DO_INTERMOLECULAR_DISTANCE)
+                                                        );
+
             CrossLinkList distanceFileCrossLinks = DistanceReader.getCrossLinks(
-                            parameter.getParameter(Parameter.DISTANCE_FILE_PATH)
+                                                  fileName, onlyIntra, onlyInter
                                                                               );
             // assign indices of distance file to newly found cross-links.
             if (distanceFileCrossLinks.size() != 0) {
