@@ -32,6 +32,7 @@ import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
 import structure.matter.hetgroups.SmallMolecule;
+import structure.matter.parameter.AminoAcidType;
 import structure.matter.parameter.AtomType;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
@@ -282,13 +283,23 @@ public class PDBreader {
             Hashtable < Character, AtomList > selection =
                                        new Hashtable < Character, AtomList >();
             for (Atom atom : atoms) {
-                if ((atom.getFlag().equals("ATOM  "))
+                // check if atom is part of common amino acids
+                boolean aaIsProtein = false;;
+                for(AminoAcidType aa : AminoAcidType.values()) {
+                    if(aa.getThreeLetterCode().equals(atom.getResidueName())) {
+                        aaIsProtein = true;
+                    }
+                }
+
+                if (aaIsProtein 
+                    &&
+                    (atom.getFlag().equals("ATOM  ")
                     &&
                     (chainIds.indexOf(atom.getChainId()) != -1)
                     &&
                     (alternativeLocations.indexOf(
                                                    atom.getAlternativeLocation()
-                                                 ) != -1)) {
+                                                 ) != -1))) {
                     if (selection.get(atom.getChainId()) == null) {
                         AtomList list = new AtomList();
                         list.add(atom);
@@ -380,15 +391,24 @@ public class PDBreader {
         Atom preAtom = atomList.get(0);
         AtomList residueAtoms = new AtomList();
         for (Atom atom : atomList) {
-             if (!MatterUtilities.equalsResidue(atom, preAtom)) {
-                 AminoAcid aa = new AminoAcid(residueAtoms);
-                 aa.setElement();
-                 aminoAcids.add(aa);
-                 preAtom = atom;
-                 residueAtoms = new AtomList();
-                 residueAtoms.add(atom);
-             } else {
-                 residueAtoms.add(atom);
+            // check if atom is part of common amino acids
+            boolean aaIsAA = false;;
+            for(AminoAcidType aa : AminoAcidType.values()) {
+                if(aa.getThreeLetterCode().equals(atom.getResidueName())) {
+                    aaIsAA = true;
+                }
+            }
+            if(aaIsAA) {
+                if (!MatterUtilities.equalsResidue(atom, preAtom)) {
+                    AminoAcid aa = new AminoAcid(residueAtoms);
+                    aa.setElement();
+                    aminoAcids.add(aa);
+                    preAtom = atom;
+                    residueAtoms = new AtomList();
+                    residueAtoms.add(atom);
+                } else {
+                    residueAtoms.add(atom);
+                }
             }
         }
         AminoAcid aa = new AminoAcid(residueAtoms);
