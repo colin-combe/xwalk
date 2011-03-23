@@ -1629,20 +1629,14 @@ public final class CrossLinkUtilities {
         for (CrossLink crossLink1 : redundantCrossLinksCandidates.keySet()) {
             CrossLink minXL = crossLink1;
             double minDist =
-                (minXL.getSolventPathDistance()
-                 ==
-                 Double.parseDouble(Value.DISTANCE.getDefault())
-                 ?
+                (minXL.getSolventPathDistance() == -1 ?
                  minXL.getEuclideanDistance() : minXL.getSolventPathDistance());
             for (CrossLink crossLink2 : redundantCrossLinksCandidates.get(
                                                                       crossLink1
                                                                          )
                 ) {
                 double dist2 =
-                    (crossLink2.getSolventPathDistance()
-                     ==
-                     Double.parseDouble(Value.DISTANCE.getDefault())
-                     ?
+                    (crossLink2.getSolventPathDistance() == -1 ?
                      crossLink2.getEuclideanDistance()
                                          : crossLink2.getSolventPathDistance());
 

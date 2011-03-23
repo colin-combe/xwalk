@@ -69,8 +69,7 @@ public class DistanceReader {
                 int index = 0;
                 int seqDist = -1;
                 double eucDist = -1;
-                double solvDist = 
-                                Double.parseDouble(Value.DISTANCE.getDefault());
+                double solvDist = -1;
                 try {
                     String[] array = line.trim().split("\t");
                     index = Integer.parseInt(array[0]);
