@@ -304,8 +304,8 @@ public class CrossLink extends Bond {
     //--------------------------------------------------------------------------
 
     /**
-     * Checks whether a second cross-link has the same atom identifier, i.e.
-     * residue name and residue number.
+     * Checks whether a second cross-link has the same residue name and residue
+     * number.
      * @param crossLink
      *        - CrossLink object to be compared to this CrossLink object.
      * @return {@code TRUE} if both CrossLink object are equal in homology,
