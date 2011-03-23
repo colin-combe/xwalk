@@ -47,34 +47,39 @@ public class CrossLink extends Bond {
     //--------------------------------------------------------------------------
     /**
      * Distance that the cross-link spans in sequence space.
+     * Default value is -1.
      */
-    private int seqDist;
+    private int seqDist = -1;
     /**
      * Distance that the cross-link spans in Euclidean space.
+     * Default value is -1.
      */
-    private double eucDist;
+    private double eucDist = -1;
     /**
      * Distance that the cross-link spans in Solvent-Path distance space.
+     * Default value is -1.
      */
-    private double solventPathDistance =
-                                Double.parseDouble(Value.DISTANCE.getDefault());
+    private double solventPathDistance = -1;
 
     /**
      * Probability of finding a cross-link with this Euclidean distance in a
      * cross-linking experiment. The probability is based on observed
      * cross-link distances in the literature and in the Aebersold lab.
+     * Default value is 0.
      */
     private double eucDistProbability = 0;
     /**
      * Probability of finding a cross-link with this SAS distance in a
      * cross-linking experiment. The probability is based on observed
      * cross-link distances in the literature and in the Aebersold lab.
+     * Default value is 0.
      */
     private double sasdDistProbability = 0;
     /**
      * Stores the information whether a probability calculation has been
      * requested. As a consequence probabilites will be printed out
      * in the toString() method.
+     * Default value is false.
      */
     private boolean doProbability = false;
     /**
@@ -91,11 +96,13 @@ public class CrossLink extends Bond {
     private Path solventDistancePath;
     /**
      * Ranking index of this cross-link within a list of cross-links.
+     * Default value is -1.
      */
     private int index = -1;
     /**
      * String object holding the path to the PDB file in which the cross-link
      * has been found.
+     * Default value is an empty string.
      */
     private String filePath = "";
     /**
@@ -413,31 +420,16 @@ public class CrossLink extends Bond {
                             postAtomPeptide.size() >= minPeptideLength;
         }
 
-        if (this.solventPathDistance == Double.parseDouble(
-                                                    Value.DISTANCE.getDefault())
-                                                       ) {
-            output.append(this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
-                        + this.seqDist + "\t"
-                        + this.getEuclideanDistance() + "\t"
-                        + "-"
+        output.append(this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
+                    + this.seqDist + "\t"
+                    + this.getEuclideanDistance() + "\t"
+                    + this.getSolventPathDistance()
+                    + "\t");
+        if (this.doProbability) {
+            output.append(this.getEuclideanDistanceProbability()
+                        + "\t"
+                        + this.getSolventPathDistanceProbability()
                         + "\t");
-            if (this.doProbability) {
-                output.append(this.getEuclideanDistanceProbability() + "\t"
-                            + "-"
-                            + "\t");
-            }
-        } else {
-            output.append(this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
-                        + this.seqDist + "\t"
-                        + this.getEuclideanDistance() + "\t"
-                        + this.getSolventPathDistance()
-                        + "\t");
-            if (this.doProbability) {
-                    output.append(this.getEuclideanDistanceProbability()
-                                + "\t"
-                                + this.getSolventPathDistanceProbability()
-                                + "\t");
-            }
         }
         if (outputPeptide) {
             output.append(this.preAtomPeptide.toStringOneLetterCode() + "-"
