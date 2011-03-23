@@ -26,14 +26,12 @@ import structure.constants.Constants;
 import structure.constants.Constants.BondTypes;
 import structure.constants.Constants.ParameterSets;
 import structure.grid.Path;
-import structure.grid.GridCell.Value;
 import structure.math.Mathematics;
 import structure.matter.Atom;
 import structure.matter.Bond;
 import structure.matter.parameter.ParameterReader;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
-import xwalk.crosslink.CrossLinkParameter.Parameter;
 
 
 /**
@@ -67,17 +65,17 @@ public class CrossLink extends Bond {
      * cross-link distances in the literature and in the Aebersold lab.
      * Default value is 0.
      */
-    private double eucDistProbability = 0;
+    private double eucDistProbability = -1;
     /**
      * Probability of finding a cross-link with this SAS distance in a
      * cross-linking experiment. The probability is based on observed
      * cross-link distances in the literature and in the Aebersold lab.
      * Default value is 0.
      */
-    private double sasdDistProbability = 0;
+    private double sasdDistProbability = -1;
     /**
      * Stores the information whether a probability calculation has been
-     * requested. As a consequence probabilites will be printed out
+     * requested. As a consequence probabilities will be printed out
      * in the toString() method.
      * Default value is false.
      */
@@ -534,7 +532,7 @@ public class CrossLink extends Bond {
      * distance.
      */
     public void setEucProbability() {
-        double preProb = 0;
+        double preProb = -1;
         TreeSet<Double> sortedBins = new TreeSet<Double>(
                                                       CrossLink.eucProb.keySet()
                                                         );
@@ -553,7 +551,7 @@ public class CrossLink extends Bond {
      * Sets the probability of observing this cross-link with its SAS distance.
      */
     public void setSASDprobability() {
-        double preProb = 0;
+        double preProb = -1;
         TreeSet<Double> sortedBins = new TreeSet<Double>(
                                                      CrossLink.sasdProb.keySet()
                                                         );

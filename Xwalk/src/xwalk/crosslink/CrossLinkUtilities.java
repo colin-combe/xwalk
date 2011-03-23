@@ -28,7 +28,6 @@ import structure.exceptions.FileFormatException;
 import structure.grid.AtomGrid;
 import structure.grid.GridUtilities;
 import structure.grid.Path;
-import structure.grid.GridCell.Value;
 import structure.io.pdb.PDBreader;
 import structure.math.Mathematics;
 import structure.matter.Atom;
