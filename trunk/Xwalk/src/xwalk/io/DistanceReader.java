@@ -21,8 +21,11 @@ import structure.constants.Constants;
 import structure.grid.GridCell.Value;
 import structure.io.ReadFile;
 import structure.matter.Atom;
+import structure.matter.AtomList;
 import xwalk.crosslink.CrossLink;
 import xwalk.crosslink.CrossLinkList;
+import xwalk.crosslink.MonoLink;
+import xwalk.crosslink.MonoLinkList;
 import xwalk.crosslink.CrossLinkParameter.Parameter;
 
 /**
@@ -41,7 +44,8 @@ public class DistanceReader {
     }
     //--------------------------------------------------------------------------
     /**
-     * Reads in fileName and converts these into CrossLink objects.
+     * Reads all cross-links from fileName and converts these into CrossLink
+     * objects. Mono-links are ignored.
      * @param fileName
      *        - String object holding the path to a distance file.
      * @param onlyIntraLinks
@@ -72,19 +76,32 @@ public class DistanceReader {
                 double solvDist = -1;
                 try {
                     String[] array = line.trim().split("\t");
+                    // if this line holds a mono-link than skip it.
+                    if (array.length < 4) {
+                        continue;
+                    }
+                    if (array.length == 4
+                        &&
+                        (array[3].equals("1") || array[3].equals("0"))){
+                        continue;
+                    }
+
                     index = Integer.parseInt(array[0]);
                     file = array[1];
                     String atom1info = array[2];
                     String atom2info = array[3];
+                    // the support of mono links requires the distance file
+                    // to be checked for mono and cross-link information
+
 // no distance information should be read in from a distance file
 // which will leave the distance information at -1, which can be used
-// to recognize whether the cross-link has been found in the current structure.                    
+// to recognize whether the cross-link has been found in the current structure.
 /*                    if (array.length > 4) {
                         seqDist = Integer.parseInt(array[4]);
                     }
                     if (array.length > 5) {
                         eucDist = Double.parseDouble(array[5]);
-                    } 
+                    }
                     if (array.length > 6) {
                         solvDist = Double.parseDouble(
                                                      Value.DISTANCE.getDefault()
@@ -171,4 +188,77 @@ public class DistanceReader {
         }
     return set;
     }
+    //--------------------------------------------------------------------------
+    /**
+     * Reads in all mono-links from fileName and converts these into a list of
+     * Atom objects.
+     * @param fileName
+     *        - String object holding the path to a distance file.
+     * @return AtomList objects with atoms extracted from the distance file.
+     * @throws IOException if an error occurs while reading the BufferedReader
+     *         object.
+     */
+    public static MonoLinkList getMonoLinks(final String fileName)
+                                                            throws IOException {
+        MonoLinkList set = new MonoLinkList();
+
+        ReadFile read = new ReadFile(fileName);
+        for (String line : read) {
+            if (!line.startsWith("#") && line.trim().length() >= 1) {
+                MonoLink monoLink = new MonoLink();
+                String file = "";
+                int index = 0;
+                try {
+                    String[] array = line.trim().split("\t");
+                    // a mono-link can have only three columns in a distance
+                    // file.
+                    if (array.length > 4 || array.length < 3) {
+                        continue;
+                    }
+                    if (array.length == 4
+                        &&
+                        !array[3].equals("1") && !array[3].equals("0")){
+                        continue;
+                    }
+                    index = Integer.parseInt(array[0]);
+                    monoLink.setIndex(index);
+                    file = array[1];
+                    monoLink.setFileName(file);
+                    String atominfo = array[2];
+                    array = atominfo.split("-");
+                    if (array.length < 2) {
+                        System.err.println("WARNING: Atom of mono-link "
+                                         + "number " + index + " must list a "
+                                         + "residue name and residue "
+                                         + "number.");
+                    } else {
+                        monoLink.setResidueName(array[0].trim());
+                        monoLink.setResidueNumber(
+                                               Integer.parseInt(array[1].trim())
+                                              );
+                    }
+                    if (array.length >= 3) {
+                        if (array[2].trim().length() != 0) {
+                            monoLink.setChainId(array[2].trim().charAt(0) == '_'
+                                                    ? ' ' : array[2].charAt(0));
+                        }
+                    }
+                    if (array.length >= 4) {
+                        monoLink.setName(array[3].trim());
+                    }
+                } catch (Exception e) {
+                    System.err.println("WARNING: Distance file \"" + fileName
+                                     + "\" does not conform to distance file "
+                                     + "format" + Constants.LINE_SEPERATOR + e);
+                }
+
+                if (set.get(monoLink) == null) {
+                    set.add(monoLink);
+                }
+            }
+        }
+    return set;
+    }
+
+
 }

@@ -984,7 +984,7 @@ public class Atom {
      * @return String object holding the text information of this atom in PDB
      *         format.
      */
-    public final String toString() {
+    public String toString() {
         return PDBwriter.pdbFormat(this) + Constants.LINE_SEPERATOR;
     }
 }

@@ -61,6 +61,7 @@ public class CrossLinkParameter {
                             DO_BACKBONE_READ,
                             DO_INTRAMOLECULAR_DISTANCE,
                             DO_INTERMOLECULAR_DISTANCE,
+                            DO_MONO_CROSSLINK,
                             DO_PROBABILITY,
                             DO_SOLVENT_PATH_DISTANCE,
                             DO_SAS,
@@ -104,6 +105,8 @@ public class CrossLinkParameter {
                           Boolean.toString(arg.isInterMolecularDistanceSet()));
         this.setParameter(Parameter.DO_INTRAMOLECULAR_DISTANCE,
                            Boolean.toString(arg.isIntraMolecularDistanceSet()));
+        this.setParameter(Parameter.DO_MONO_CROSSLINK,
+                                    Boolean.toString(arg.isMonoCrossLinkSet()));
         this.setParameter(Parameter.DO_PYMOL_OUTPUT, Boolean.toString(
                                                        arg.isPymolOutputSet()));
         this.setParameter(Parameter.DO_SOLVENT_PATH_DISTANCE, Boolean.toString(

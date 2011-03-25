@@ -452,7 +452,7 @@ public class CrossLink extends Bond {
      * Returns the path to the file in which this cross-link has been found.
      * @return String object holding the path to the file.
      */
-    public final String getFilePath() {
+    public final String getFileName() {
         return filePath;
     }
     //--------------------------------------------------------------------------

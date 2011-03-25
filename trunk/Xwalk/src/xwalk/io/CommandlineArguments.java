@@ -177,6 +177,11 @@ public class CommandlineArguments {
      */
     private    boolean showInter         = true;
     /**
+     * To output in addition mono-cross-links.
+     * Default {@code showInter = FALSE};
+     */
+    private    boolean showMono         = false;
+    /**
      * To output some information about the current execution status of the
      * program.
      * Default {@code verbose = FALSE};
@@ -252,6 +257,7 @@ public class CommandlineArguments {
         this.readFindAllArgument();
         this.readInterMolecularDistanceArgument();
         this.readIntraMolecularDistanceArgument();
+        this.readMonoCrossLinkArgument();
         this.readMaximumDistanceArgument();
         this.readSolventAccessibiltyArgument();
         this.doOutputFile = this.readOutfileArgument();
@@ -1296,6 +1302,28 @@ public class CommandlineArguments {
      */
     public final boolean isInterMolecularDistanceSet() {
         return this.showInter;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Determines whether the argument -mono has been set on the commandline.
+     * @see #isMonoCrossLinkSet()
+     */
+    private void readMonoCrossLinkArgument() {
+        if (Commandline.get(this.arguments, "-mono", false).equals("EXISTS")) {
+            this.showMono = true;
+        } else {
+            this.showMono = false;
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns whether mono-cross-links should be output too.
+     * @return {@code TRUE} if mono-cross-links are to be
+     *         calculated, {@code FALSE} otherwise.
+     * @see #readMonoCrossLinkArgument()
+     */
+    public final boolean isMonoCrossLinkSet() {
+        return this.showMono;
     }
     //--------------------------------------------------------------------------
     /**

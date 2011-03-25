@@ -25,9 +25,12 @@ import structure.exceptions.CommandlineArgumentNotFoundException;
 import structure.exceptions.FileFormatException;
 import structure.matter.protein.PolyPeptideList;
 
+import xwalk.crosslink.CrossLink;
 import xwalk.crosslink.CrossLinkParameter;
 import xwalk.crosslink.CrossLinkList;
 import xwalk.crosslink.CrossLinkUtilities;
+import xwalk.crosslink.MonoLink;
+import xwalk.crosslink.MonoLinkList;
 import xwalk.crosslink.CrossLinkParameter.Parameter;
 import xwalk.io.CommandlineArguments;
 import xwalk.io.DistanceWriter;
@@ -158,6 +161,54 @@ public class Xwalk {
     }
     //--------------------------------------------------------------------------
     /**
+     * Returns a list of monoLinks for the protein complexes given by the infile
+     * commandline parameter.
+     * @param parameter
+     *        - CommandlineArguments object holding all user set commandline
+     *          parameter.
+     * @return List of MonoLink objects found on the infile protein complexes.
+     */
+    public static MonoLinkList getMonoLinks(
+                                              final CrossLinkParameter parameter
+                                                       ) {
+        String nl = Constants.LINE_SEPERATOR;
+
+        MonoLinkList list = null;
+        try {
+            // get all protein complex atom coordinates of the user given
+            // inputFile.
+            ArrayList < PolyPeptideList > complexes =
+                                  CrossLinkUtilities.getComplexesCoordinates(
+                                                                       parameter
+                                                                            );
+
+            list = CrossLinkUtilities.getVirtualMonoLinks(complexes,
+                                                          parameter);
+        } catch (FileNotFoundException e) {
+            System.err.println(nl
+                               + "ERROR: Infile could not be found" + nl + e
+                               + nl);
+            System.exit(-4);
+        } catch (IOException e) {
+            System.err.println(nl
+                               + "ERROR: Could not read infile" + nl + e
+                               + nl);
+            System.exit(-5);
+        } catch (FileFormatException e) {
+            System.err.println(nl
+                               + "ERROR: Format exception in input file" + nl
+                               + e + nl);
+            System.exit(-6);
+        } catch (DataFormatException e) {
+            System.err.println(nl
+                               + "ERROR: GnuZip format exception in" + nl + e
+                               + nl);
+            System.exit(-7);
+    }
+    return list;
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Outputs all determined cross-links either on the terminal or into a file
      * depending on user's choice.
      * @param parameter
@@ -165,18 +216,22 @@ public class Xwalk {
      *          parameter.
      * @param crossLinks
      *        - List of CrossLink objects found on the infile protein complexes.
-
+     * @param monoLinks
+     *        - List of MonoLink objects found on the infile protein complexes.
      */
     public static void outputVirtualCrossLinks(
                                            final CrossLinkParameter parameter,
-                                           final CrossLinkList crossLinks
+                                           final CrossLinkList crossLinks,
+                                           final MonoLinkList monoLinks
                                               ) {
         if (crossLinks.size() == 0) {
             Xwalk.outputNoXLfound(parameter);
         }
 
         if (parameter.getParameter(Parameter.OUTFILE_PATH).equals("")) {
-            System.out.print(DistanceWriter.toString(crossLinks, parameter));
+            System.out.print(DistanceWriter.toString(crossLinks,
+                                                     monoLinks,
+                                                     parameter));
         } else {
             DistanceWriter write = new DistanceWriter();
             write.setFile(parameter.getParameter(Parameter.OUTFILE_PATH));
@@ -184,11 +239,16 @@ public class Xwalk {
                                                       Parameter.DO_PYMOL_OUTPUT)
                                                            )) {
                 System.out.print(DistanceWriter.toString(crossLinks,
+                                                         monoLinks,
                                                          parameter)
                                                         );
-                write.writePymolScript(crossLinks, parameter);
+                write.writePymolScript(crossLinks,
+                                       monoLinks,
+                                       parameter);
             } else {
-                write.writeFile(crossLinks, parameter);
+                write.writeFile(crossLinks,
+                                monoLinks,
+                                parameter);
             }
         }
     }
@@ -215,7 +275,35 @@ public class Xwalk {
             !arguments.isOutputFileToBeCreated()) {
             System.exit(0);
         }
-        CrossLinkList list = Xwalk.createVirtualCrossLinks(parameter);
-        Xwalk.outputVirtualCrossLinks(parameter, list);
+        CrossLinkList xlList = Xwalk.createVirtualCrossLinks(parameter);
+        MonoLinkList monoList = new MonoLinkList();
+        if (Boolean.parseBoolean(parameter.getParameter(
+                                                     Parameter.DO_MONO_CROSSLINK
+                                                       ))) {
+            monoList = Xwalk.getMonoLinks(parameter);
+            // show only mono-links for residues that have not been found in
+            // cross-links.
+            for (CrossLink xl : xlList) {
+                for (MonoLink ml : monoList) {
+                    if (xl.isInBond(ml)) {
+                        monoList.remove(ml);
+                        break;
+                    }
+                }
+            }
+            // in order to set index of monoList, first find out max index of
+            // cross-links.
+            int maxIndex = 0;
+            for (CrossLink xl : xlList) {
+                maxIndex = Math.max(maxIndex, xl.getIndex());
+            }
+            if (parameter.getParameter(
+                                     Parameter.DISTANCE_FILE_PATH).equals("")) {
+                for (MonoLink ml : monoList) {
+                    ml.setIndex(++maxIndex);
+                }
+            }
+        }
+        Xwalk.outputVirtualCrossLinks(parameter, xlList, monoList);
     }
 }
