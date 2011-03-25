@@ -244,8 +244,7 @@ public class GridUtilities {
     }
     //--------------------------------------------------------------------------
     /**
-     * Checks whether any neighbouring cells in a shell contain occupied labeled
-     * cells.
+     * Checks whether any neighbouring cells are labeled as boundary.
      * @param atom
      *        - Atom object to be checked whether it is solvent accessible.
      * @param grid

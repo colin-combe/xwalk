@@ -18,6 +18,7 @@ package xwalk.crosslink;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.TreeSet;
 import java.util.zip.DataFormatException;
@@ -69,9 +70,6 @@ public final class CrossLinkUtilities {
      *        CrossLinkParameter object, holding all parameter that are
      *        necessary for the virtual cross-link calculation.
      * @throws IOException if an error occurred while reading the infile.
-     * @throws DataFormatException if ATOM or HEATM line does not conform to the
-     *         <a href="http://www.wwpdb.org/documentation/format32/sect9.html">
-     *         PDB standards</a>.
      * @return CrossLinkList object that holds all virtual cross-links on a
      *         protein complex.
      */
@@ -79,8 +77,7 @@ public final class CrossLinkUtilities {
                                   final ArrayList < PolyPeptideList > complexes,
                                   final CrossLinkParameter parameter
                                                     )
-                                                  throws IOException,
-                                                         DataFormatException {
+                                                  throws IOException {
         //--------------------------------
         // read in cross-links from distance file
         CrossLinkList distXlList = null;
@@ -97,7 +94,6 @@ public final class CrossLinkUtilities {
             distXlList = DistanceReader.getCrossLinks(fileName,
                                                       onlyIntra,
                                                       onlyInter);
-                                    
             if (Boolean.parseBoolean(parameter.getParameter(
                                                       Parameter.DO_PROBABILITY))
                                                            ) {
@@ -106,9 +102,9 @@ public final class CrossLinkUtilities {
                     xl.setSASDprobability();
                 }
             }
-            if(distXlList.size() == 0) {
-                System.err.println("WARNING: No suitable cross-links found in" +
-                                   " the distance file \"" + fileName + "\"");
+            if (distXlList.size() == 0) {
+                System.err.println("WARNING: No suitable cross-links found in"
+                                 + " the distance file \"" + fileName + "\"");
                 return new CrossLinkList();
             }
         }
@@ -228,6 +224,115 @@ public final class CrossLinkUtilities {
         }
 
         return allCrossLinkList;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns a list of potential virtual mono-links.
+     * @param complexes
+     *        - List of protein complex objects holding all protein complex
+     *          molecules for which virtual cross-links should be calculated.
+     * @param parameter -
+     *        CrossLinkParameter object, holding all parameter that are
+     *        necessary for the virtual cross-link calculation.
+     * @throws IOException if an error occurred while reading the infile.
+     * @return MonoLinkList object that holds all virtual mono-links on a
+     *         protein complex.
+     */
+    public static MonoLinkList getVirtualMonoLinks(
+                                  final ArrayList < PolyPeptideList > complexes,
+                                  final CrossLinkParameter parameter
+                                                    )
+                                                  throws IOException {
+        //--------------------------------
+        // read in mono-links from distance file
+        MonoLinkList distMlList = null;
+        if (!parameter.getParameter(Parameter.DISTANCE_FILE_PATH).equals("")) {
+            String fileName = parameter.getParameter(
+                                                    Parameter.DISTANCE_FILE_PATH
+                                                    );
+
+            distMlList = DistanceReader.getMonoLinks(fileName);
+        }
+
+        MonoLinkList allMonoLinkList = new MonoLinkList();
+        // find and create virtual mono-links on the protein complexes.
+        for (int i = 0; i < complexes.size(); i++) {
+            PolyPeptideList complex = complexes.get(i);
+
+            double gridCellSize = Double.parseDouble(parameter.getParameter(
+                                                        Parameter.GRID_CELL_SIZE
+                                                                           ));
+            // assume that cross-linker requires around 10 of space. This
+            // number is purely random.
+            double maxDist = 10;
+
+            if (distMlList != null) {
+                for (MonoLink monoLink : distMlList) {
+                    ArrayList<AtomList> candidates =
+                        CrossLinkUtilities.proteinAtomsMatchingXLatom(
+                                                                    complex,
+                                                                    monoLink
+                                                                     );
+                    for (ArrayList<Atom> monoLinkAtoms : candidates) {
+                        for (Atom monoLinkAtom : monoLinkAtoms) {
+                            // if a candidate has already been found to be
+                            // solvent accessible than stop here and continue
+                            // with next mono link.
+                            if (!monoLink.isSolventAccessible()) {
+                                monoLink.set(monoLinkAtom);
+                                AtomGrid grid = new AtomGrid(
+                                                          complex.getAllAtoms(),
+                                                          monoLink,
+                                                          maxDist,
+                                                          gridCellSize);
+
+                                monoLink.setSolventAccessibility(
+                                      GridUtilities.isAccessible(monoLink, grid)
+                                                                );
+                                allMonoLinkList.add(monoLink);
+                            }
+                        }
+                    }
+                }
+            } else {
+                TreeSet < AtomList > relevantAtoms1 =
+                                       CrossLinkUtilities.findAllRelevantAtoms1(
+                                                                      parameter,
+                                                                       complex);
+                TreeSet < AtomList > relevantAtoms2 =
+                                       CrossLinkUtilities.findAllRelevantAtoms2(
+                                                                      parameter,
+                                                                      complex);
+
+                // Create TreeSet for unique list of relevant atoms.
+                HashSet < Atom > relevantAtoms = new HashSet < Atom >();
+
+                for (AtomList list : relevantAtoms1) {
+                    relevantAtoms.addAll(list);
+                }
+                for (AtomList list : relevantAtoms2) {
+                    relevantAtoms.addAll(list);
+                }
+
+                for (Atom atom : relevantAtoms) {
+                    MonoLink monoLink = new MonoLink();
+                    monoLink.set(atom);
+                    AtomGrid grid = new AtomGrid(complex.getAllAtoms(),
+                                                 monoLink,
+                                                 maxDist,
+                                                 gridCellSize);
+                    monoLink.setSolventAccessibility(
+                                      GridUtilities.isAccessible(monoLink, grid)
+                                                    );
+                    if (monoLink.isSolventAccessible()) {
+                        allMonoLinkList.add(monoLink);
+                    }
+                    monoLink.setFileName(complex.getName());
+                }
+                allMonoLinkList.setIndices();
+            }
+        }
+    return allMonoLinkList;
     }
     //--------------------------------------------------------------------------
     /**
@@ -682,7 +787,8 @@ public final class CrossLinkUtilities {
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns the list of non-redundant/unique cross-linked atoms.
+     * Returns a non-redundant/unique list of all atoms found in the
+     * crossLinks object.
      * @param crossLinks
      *        - List of CrossLink objects extracted from the distance file.
      * @return List of non-redundant/unique cross-linked atoms.
@@ -1093,7 +1199,7 @@ public final class CrossLinkUtilities {
      * @param parameter -
      *        CrossLinkParameter object holding all user set parameters for
      *        calculating cross-links
-     * @return Set of AtomList objects that hold all atoms of amino acids
+     * @return TreeSet of AtomList objects that hold all atoms of amino acids
      *         that conform to the user set identifiers.
      */
     private static TreeSet < AtomList > findAllRelevantAtoms1(
@@ -1167,6 +1273,7 @@ public final class CrossLinkUtilities {
                                              final PolyPeptideList complex
                                                                ) {
 
+        // TreeSet to sort atoms in a cross-link.
         TreeSet < AtomList > candidates2 = new TreeSet < AtomList >(
                 new Comparator<AtomList>() {
                     public int compare(final AtomList a1, final AtomList a2) {
