@@ -224,7 +224,13 @@ public class Xwalk {
                                            final CrossLinkList crossLinks,
                                            final MonoLinkList monoLinks
                                               ) {
-        if (crossLinks.size() == 0) {
+        boolean nonFound = true;
+        for (CrossLink xl : crossLinks) {
+            if (xl.getSequenceDistance() != -1) {
+                nonFound = false;
+            }
+        }
+        if (nonFound) {
             Xwalk.outputNoXLfound(parameter);
         }
 

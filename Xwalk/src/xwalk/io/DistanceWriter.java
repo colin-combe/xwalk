@@ -128,26 +128,28 @@ public class DistanceWriter extends WriteFile {
                                        final CrossLinkList crossLinkList) {
         StringBuffer content = new StringBuffer();
         for (CrossLink crossLink : crossLinkList) {
-            Atom atom1 = crossLink.getPreAtom();
-            Atom atom2 = crossLink.getPostAtom();
-            String distName = crossLink.getIndex() + "_"
-                            + this.decFormat.format(
-                                          crossLink.getSolventPathDistance()
-                                              ) + "_"
-                            + atom1.getResidueName().trim() + ""
-                            + atom1.getResidueNumber() + ""
-                            + atom1.getChainId()
-//                            + "_" + atom1.getName().trim()
-                            + "-"
-                            + atom2.getResidueName().trim() + ""
-                            + atom2.getResidueNumber() + ""
-                            + atom2.getChainId()
-//                            + "_" + atom2.getName().trim()
-                            + "_solventPath";
+            if (crossLink.getPath() != null) {
+                Atom atom1 = crossLink.getPreAtom();
+                Atom atom2 = crossLink.getPostAtom();
+                String distName = crossLink.getIndex() + "_"
+                                    + this.decFormat.format(
+                                              crossLink.getSolventPathDistance()
+                                                           ) + "_"
+                                    + atom1.getResidueName().trim() + ""
+                                    + atom1.getResidueNumber() + ""
+                                    + atom1.getChainId()
+                                    + "-"
+                                    + atom2.getResidueName().trim() + ""
+                                    + atom2.getResidueNumber() + ""
+                                    + atom2.getChainId()
+                                    + "_solventPath";
 
-            content.append("HEADER " + distName + Constants.LINE_SEPERATOR
-                         + crossLink.getPath().toString(crossLink.getIndex())
-                         + "END" + Constants.LINE_SEPERATOR);
+                content.append("HEADER " + distName + Constants.LINE_SEPERATOR);
+                content.append(crossLink.getPath().toString(
+                                                           crossLink.getIndex()
+                                                           ));
+                content.append("END" + Constants.LINE_SEPERATOR);
+            }
         }
         WriteFile file = new WriteFile();
         file.setFile(pathFileName);
