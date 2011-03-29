@@ -262,8 +262,8 @@ public final class CrossLinkUtilities {
             double gridCellSize = Double.parseDouble(parameter.getParameter(
                                                         Parameter.GRID_CELL_SIZE
                                                                            ));
-            // assume that cross-linker requires around 10Å of space. This
-            // number is purely random.
+            // assume that cross-linker requires around 10 Angstroem of space.
+            // This number is purely random.
             double maxDist = 10;
 
             if (distMlList != null) {

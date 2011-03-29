@@ -20,16 +20,22 @@ my (
     $help,
     $xlFile,
     $pdbFile,
-    $fastaFile
+    $fastaFile,
+    $needle,
+    $pdbFile2,
+    $force,
    );
 ##############################################################################
 ### read all needed parameters from commandline ##############################
 
 &GetOptions(
-    "xl=s"    => \$xlFile,    # file with cross-links in distance file format 
-    "pdb=s"   => \$pdbFile,   # PDB file
-    "fasta=s" => \$fastaFile, # FASTA file
-    "help!"   => \$help,      # print this help
+    "xl=s"     => \$xlFile,    # cross-link distance file, with residue numbers from -fasta/-pdb2 
+    "pdb=s"    => \$pdbFile,   # PDB file
+    "fasta=s"  => \$fastaFile, # FASTA file
+    "needle=s" => \$needle,    # path to the needle executable
+    "pdb2:s"   => \$pdbFile2,  # 2nd PDB file instead of FASTA file
+    "force:s"  => \$force,     # force the aligned residue types to be identical 
+    "help!"    => \$help,      # print this help
 ) or die "\nTry \"$0 -h\" for a complete list of options\n\n";
 
 ##############################################################################
@@ -41,7 +47,6 @@ if ($help) {printHelp(); exit}
 # SETTINGS
 ###############################################################################
 
-my $needle = "~/bin/EMBOSS-6.2.0/emboss/needle";
 my $warningMsg = "";
 my %aa3 = ("GLY" => "G",
 	   "ALA" => "A", 
@@ -118,92 +123,139 @@ sub printHelp {
     $example  = "$0";
 }
 ################################################################################
-sub createResiduePairTable{
-    my $xlTable = "";
-
-    open(X, $xlFile) or die "Failed to open $xlFile";
-    while(<X>){
-	next if(/^#/);
-	(my $index, my $fileName, my $atom1, my $atom2, my @rest) = split(/\t/);
-	(my $resName1, my $resNo1, my $chainId1, my $atomName1) = split(/-/, $atom1);
-	(my $resName2, my $resNo2, my $chainId2, my $atomName2) = split(/-/, $atom2);
-	
-	$xlTable .= "$resNo1\t$resNo2\n";
-    }
-    close(X);
-    return $xlTable;
-}
-################################################################################
 sub mapUniprot2PDBseqNumber{
-    (my $xlTable) = @_;
-
     my $newXlTable = "";
     (my $m1_1, my $m1_2, my $m2_1, my $m2_2) = &makeAlignment();
     my %aln2PDB = %$m1_1;
     my %aln2uniprot = %$m2_1;
     my %pdb2aln = %$m1_2;
     my %uniprot2aln = %$m2_2;
-    (my %mapPDBnum, my %mapPDBname) = %{&getPDBresNumberName()};
+    (my $mapPDBnum, my $mapPDBname) = &getPDBresNumberName($pdbFile);
+    my %mapPDBnum = %$mapPDBnum;
+    my %mapPDBname = %$mapPDBname;
+
+    my %mapPDBnum2;
+    my %mapPDBname2;
+    if(defined $pdbFile2){
+	(my $mapPDBnum2, my $mapPDBname2) = &getPDBresNumberName($pdbFile2);
+	%mapPDBnum2 = %$mapPDBnum2;
+	%mapPDBname2 = %$mapPDBname2;
+    }
+
 
     my $newDistFile = "";
     open(X, $xlFile) or die "Failed to open $xlFile";
     while(<X>){
 	chomp($_);
 	next if(/^#/);
-	(my $index, my $fileName, my $atom1, my $atom2, my @rest) = split(/\t/);
+	(my $index, my $fileName, my $atom1, my @rest) = split(/\t/);
 	(my $resName1, my $resNo1, my $chainId1, my $atomName1) = split(/-/, $atom1);
-	(my $resName2, my $resNo2, my $chainId2, my $atomName2) = split(/-/, $atom2);
-
-	my $alnPos1 = $uniprot2aln{$resNo1};
-	my $alnPos2 = $uniprot2aln{$resNo2};
-	if($aln2PDB{$alnPos1} != -1 && $aln2PDB{$alnPos2} != -1){
-	    $resNo1 = $mapPDBnum{$aln2PDB{$alnPos1}};
-	    $resNo2 = $mapPDBnum{$aln2PDB{$alnPos2}};
-        $resName1 = $mapPDBname{$aln2PDB{$alnPos1}};
-        $resName2 = $mapPDBname{$aln2PDB{$alnPos2}};
-	    
-
-	    $newDistFile .= "$index\t$fileName\t$resName1-$resNo1-$chainId1-$atomName1\t".
-		            "$resName2-$resNo2-$chainId2-$atomName2";
-	    foreach my $t (@rest){
-		$newDistFile .= "\t$t";
+	if(defined $pdbFile2){
+	    foreach my $alnPos (sort keys %mapPDBnum2){
+		if($mapPDBnum2{$alnPos} == $resNo1){
+		    $resNo1 = $alnPos;
+		    last;
+		}
 	    }
-	    $newDistFile .= "\n";
 	}
-	else {
-	    if($aln2PDB{$alnPos1} == -1 && $aln2PDB{$alnPos2} == -1){
-		$warningMsg .= "Both UniProt residue numbers $alnPos1 and $alnPos2 could ".
+	my $alnPos1 = $uniprot2aln{$resNo1};
+	if(!defined $alnPos1){
+	    $warningMsg .= "0. First atom in $atom1 does not exist in the PDB structure $pdbFile. ".
+		           "Please check your cross-link file $xlFile\n";
+	    next;
+	}
+	if($aln2PDB{$alnPos1} != -1){
+	    $resNo1 = $mapPDBnum{$aln2PDB{$alnPos1}};
+	    if(defined $force){
+		next if($mapPDBname{$aln2PDB{$alnPos1}} ne $resName1);
+	    }
+	    $resName1 = $mapPDBname{$aln2PDB{$alnPos1}};
+	}
+	my $alnPos2;
+	# XL info
+	if($#rest >= 0){
+	    (my $resName2, my $resNo2, my $chainId2, my $atomName2) = split(/-/, $rest[0]);
+	    if(defined $pdbFile2){
+		foreach my $alnPos (sort keys %mapPDBnum2){
+		    if($mapPDBnum2{$alnPos} == $resNo2){
+			$resNo2 = $alnPos;
+			last;
+		    }
+		}
+	    }
+
+	    $alnPos2 = $uniprot2aln{$resNo2};
+	    if(!defined $alnPos2){
+		$warningMsg .= "0. Second atom in $rest[0] does not exist in the PDB structure $pdbFile. ".
+		               "Please check your cross-link file $xlFile\n";
+		next;
+	    }
+	    if($aln2PDB{$alnPos2} != -1){
+		$resNo2 = $mapPDBnum{$aln2PDB{$alnPos2}};
+
+		if(defined $force){
+		    next if($mapPDBname{$aln2PDB{$alnPos2}} ne $resName2);
+		}
+
+		$resName2 = $mapPDBname{$aln2PDB{$alnPos2}};
+	    }
+	    if($aln2PDB{$alnPos1} != -1 && $aln2PDB{$alnPos2} != -1){
+		$newDistFile .= "$index\t$fileName\t$resName1-$resNo1-$chainId1-$atomName1\t".
+		                "$resName2-$resNo2-$chainId2-$atomName2";
+		for(my $t=1; $t<=$#rest; $t++){
+		    $newDistFile .= "\t$rest[$t]";
+		}
+		$newDistFile .= "\n";
+	    }
+	}
+	# monolink info
+	elsif($aln2PDB{$alnPos1} != -1 && $#rest == -1){
+	    $newDistFile .= "$index\t$fileName\t$resName1-$resNo1-$chainId1-$atomName1\n";
+	}
+
+	# Error/Warning msg
+	if($aln2PDB{$alnPos1} == -1){
+	    if($#rest >= 0 && $aln2PDB{$alnPos2} == -1){
+		$warningMsg .= "1. Both UniProt residue numbers $alnPos1 and $alnPos2 could ".
 	                       "not be found in the PDB structure.\n";
+	    } else{
+		# monoLink not found msg
+		$warningMsg .= "2. The UniProt residue number $alnPos1 could ".
+		               "not be found in the PDB structure.\n";
 	    }
-	    elsif($aln2PDB{$alnPos1} == -1){
-		$warningMsg .= "The UniProt residue number $alnPos1 could ".
-                               "not be found in the PDB structure.\n";
-	    }
-	    elsif($aln2PDB{$alnPos2} == -1){
-		$warningMsg .= "The UniProt residue number $alnPos2 could ".
-                               "not be found in the PDB structure.\n";
-	    }
-	}	
+	}
+	# second atom could not be found
+	elsif($#rest >= 0 && $aln2PDB{$alnPos2} == -1){
+	    $warningMsg .= "3. The UniProt residue number $alnPos2 could ".
+		           "not be found in the PDB structure.\n";
+	}
     }
     close(X);
     return $newDistFile;
 }
 ################################################################################
 sub makeAlignment(){
-    my $fasta1 = &createFastaFile4PDBinput();
-    my $fasta2 = $fastaFile;
+    my $fasta1 = &createFastaFile4PDBinput($pdbFile);
+    my $fasta2;
+    if(defined $fastaFile){
+	$fasta2 = $fastaFile;
+    } else {
+	$fasta2 = &createFastaFile4PDBinput($pdbFile2);
+    }
     my $aln = $pdbFile;
     $aln =~ s/.*\///;
     $aln =~ s/(.*)\..*/$1.aln/;
     my $command = "$needle $fasta1 $fasta2 -gapopen 10 -gapextend 0.5 $aln";
-    print STDERR "$command\n";
-    system(`$command`) or 
+#    print STDERR "$command\n";
+    system(`$command >& /dev/null`) or 
 	die("Error while performing Needleman-Wunsch alignment: $!");
 
     return &readAlignment($aln);
 }
 ################################################################################
 sub createFastaFile4PDBinput(){
+    (my $pdbFile) = @_;
+
     my $id = $pdbFile;
     $id =~ s/.*\///;
     $id =~ s/(.*)\..*/$1/;
@@ -230,7 +282,7 @@ sub createFastaFile4PDBinput(){
 	       }
 	    }
     }
-    print "\n";
+    print F "\n";
     close(F);
 
     return $fasta;
@@ -294,6 +346,7 @@ sub readAlignment(){
 }
 ################################################################################
 sub getPDBresNumberName(){
+    (my $pdbFile) = @_;
     my @a = split(/\n/,`grep ^ATOM $pdbFile`);
     my %uniqAA;
     my %mapNo;
@@ -308,9 +361,9 @@ sub getPDBresNumberName(){
 	       $chainId =~ s/\s//g;
 	       my $aa = "$resName-$resNo-$chainId";
 	       if(!exists $uniqAA{$aa}){
-		      $uniqAA{$aa} = $aa;
-		      $mapNo{keys (%uniqAA)} = $resNo;
-              $mapName{keys (%uniqAA)} = $resName;
+		   $uniqAA{$aa} = $aa;
+		   $mapNo{keys (%uniqAA)} = $resNo;
+		   $mapName{keys (%uniqAA)} = $resName;
 	       }
 	   }
     }
@@ -321,15 +374,27 @@ sub getPDBresNumberName(){
 ################################################################################
 
 # check whether all parameter are real files
-if(defined $xlFile and defined $pdbFile and defined $fastaFile){
+if(defined $xlFile and defined $pdbFile and (defined $fastaFile or defined $pdbFile2) and
+   defined $needle){
     die "$xlFile does not exist\n" unless(-e $xlFile);
     die "$pdbFile does not exist\n" unless(-e $pdbFile);
-    die "$fastaFile does not exist\n" unless(-e $fastaFile);
+
+    if(defined $fastaFile) {
+	die "$fastaFile does not exist\n" unless(-e $fastaFile);
+    }
+    else{
+	unless(defined $pdbFile2){
+	    die "Please specify -fasta or -pdb2\n";
+	}
+	else {
+	    die "$pdbFile2 does not exist\n" unless(-e $pdbFile2);
+	}
+    }
+    die "Please specify the location of the needle executable\n" unless(defined $needle);
     
-    my $xlTable = &createResiduePairTable();
 
 # create fasta file from pdb file
-    my $newDistFile = &mapUniprot2PDBseqNumber($xlTable);
+    my $newDistFile = &mapUniprot2PDBseqNumber();
     print STDERR $warningMsg;
     print $newDistFile;
     
