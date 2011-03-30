@@ -886,7 +886,7 @@ public final class CrossLinkUtilities {
      */
     private static Hashtable < Atom, AtomList > extractRelevantPairs(
                                              final PolyPeptideList complex,
-                                             CrossLinkList crossLinks,
+                                             final CrossLinkList crossLinks,
                                              final CrossLinkParameter parameter
                                                                     )
                                                             throws IOException {
