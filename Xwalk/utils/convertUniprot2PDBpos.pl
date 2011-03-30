@@ -302,7 +302,8 @@ sub readAlignment(){
     while(<F>){
 	   chomp($_);
 	   if(/^[A-Za-z0-9]/){
-	       if(/^$id.pdb/){
+	       my $id1=substr("$id.pdb",0,13);
+	       if(/^$id1/){
 		      $_=~s/.*\d\s([A-Za-z\-])/$1/;
 		      $_=~s/\s+\d+//;
 		      $h1 .= $_;
