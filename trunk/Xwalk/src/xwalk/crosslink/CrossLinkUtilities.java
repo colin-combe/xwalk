@@ -210,9 +210,18 @@ public final class CrossLinkUtilities {
                 for (CrossLink dxl : distXlList) {
                    boolean found = false;
                    for (CrossLink xl : crossLinkList) {
-                       if (xl.equals(dxl)) {
-                           found = true;
-                           break;
+                       if (dxl.getPreAtom().getChainId() == ' '
+                          ||
+                          dxl.getPostAtom().getChainId() == ' ') {
+                           if (xl.equalsInHomolog(dxl)) {
+                               found = true;
+                               break;
+                           }
+                       } else {
+                           if (xl.equals(dxl)) {
+                               found = true;
+                               break;
+                           }
                        }
                    }
                    if (!found) {
@@ -877,7 +886,7 @@ public final class CrossLinkUtilities {
      */
     private static Hashtable < Atom, AtomList > extractRelevantPairs(
                                              final PolyPeptideList complex,
-                                             final CrossLinkList crossLinks,
+                                             CrossLinkList crossLinks,
                                              final CrossLinkParameter parameter
                                                                     )
                                                             throws IOException {
