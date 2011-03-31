@@ -544,6 +544,9 @@ public class CrossLink extends Bond {
             }
             preProb = prob;
         }
+        if (this.eucDistProbability == -1 && this.eucDist != -1) {
+            this.eucDistProbability = 0;
+        }
         this.doProbability = true;
     }
     //--------------------------------------------------------------------------
@@ -562,6 +565,9 @@ public class CrossLink extends Bond {
                 break;
             }
             preProb = prob;
+        }
+        if (this.sasdDistProbability == -1 && this.solventPathDistance != -1) {
+            this.sasdDistProbability = 0;
         }
         this.doProbability = true;
     }
