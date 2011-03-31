@@ -191,20 +191,6 @@ public final class CrossLinkUtilities {
                 }
             }
             //---------------------------------
-            // set file name of each grid to the file name of its protein
-            // complex and assign peptide sequences to cross-linked atoms.
-            for (CrossLink xlink : crossLinkList) {
-                xlink.setFileName(complex.getName());
-            }
-
-            //---------------------------------
-            // sort list of cross-links by distance.
-            crossLinkList.sort();
-
-            //---------------------------------
-            // set indices of cross-links
-            CrossLinkUtilities.setCrossLinkIndices(crossLinkList, parameter);
-
             // add non-conforming distances
             if (distXlList != null) {
                 for (CrossLink dxl : distXlList) {
@@ -229,6 +215,20 @@ public final class CrossLinkUtilities {
                    }
                 }
             }
+            //---------------------------------
+            // set file name of each grid to the file name of its protein
+            // complex and assign peptide sequences to cross-linked atoms.
+            for (CrossLink xlink : crossLinkList) {
+                xlink.setFileName(complex.getName());
+            }
+
+            //---------------------------------
+            // sort list of cross-links by distance.
+            crossLinkList.sort();
+
+            //---------------------------------
+            // set indices of cross-links
+            CrossLinkUtilities.setCrossLinkIndices(crossLinkList, parameter);
             allCrossLinkList.addAll(crossLinkList);
         }
 

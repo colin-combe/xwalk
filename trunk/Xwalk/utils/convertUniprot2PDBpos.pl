@@ -246,7 +246,7 @@ sub makeAlignment(){
     $aln =~ s/.*\///;
     $aln =~ s/(.*)\..*/$1.aln/;
     my $command = "$needle $fasta1 $fasta2 -gapopen 10 -gapextend 0.5 $aln";
-#    print STDERR "$command\n";
+    print STDERR "$command\n";
     system(`$command >& /dev/null`) or 
 	die("Error while performing Needleman-Wunsch alignment: $!");
 
