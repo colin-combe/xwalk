@@ -287,16 +287,7 @@ public class Xwalk {
                                                      Parameter.DO_MONO_CROSSLINK
                                                        ))) {
             monoList = Xwalk.getMonoLinks(parameter);
-            // show only mono-links for residues that have not been found in
-            // cross-links.
-            for (CrossLink xl : xlList) {
-                for (MonoLink ml : monoList) {
-                    if (xl.isInBond(ml)) {
-                        monoList.remove(ml);
-                        break;
-                    }
-                }
-            }
+
             // in order to set index of monoList, first find out max index of
             // cross-links.
             int maxIndex = 0;
