@@ -126,7 +126,7 @@ public class PDBreader {
      * @throws DataFormatException if .gz format is unknown.
      */
     public static ArrayList < PDBreader > createPDBreaders(final String infile)
-                                       throws IOException, FileFormatException, 
+                                       throws IOException, FileFormatException,
                                               DataFormatException {
 
         ArrayList < PDBreader > pdbReaders = new ArrayList < PDBreader >();
@@ -284,14 +284,14 @@ public class PDBreader {
                                        new Hashtable < Character, AtomList >();
             for (Atom atom : atoms) {
                 // check if atom is part of common amino acids
-                boolean aaIsProtein = false;;
-                for(AminoAcidType aa : AminoAcidType.values()) {
-                    if(aa.getThreeLetterCode().equals(atom.getResidueName())) {
+                boolean aaIsProtein = false;
+                for (AminoAcidType aa : AminoAcidType.values()) {
+                    if (aa.getThreeLetterCode().equals(atom.getResidueName())) {
                         aaIsProtein = true;
                     }
                 }
 
-                if (aaIsProtein 
+                if (aaIsProtein
                     &&
                     (atom.getFlag().equals("ATOM  ")
                     &&

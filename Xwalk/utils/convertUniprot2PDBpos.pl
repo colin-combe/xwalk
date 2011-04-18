@@ -167,7 +167,12 @@ sub mapUniprot2PDBseqNumber{
 	if($aln2PDB{$alnPos1} != -1){
 	    $resNo1 = $mapPDBnum{$aln2PDB{$alnPos1}};
 	    if(defined $force){
-		next if($mapPDBname{$aln2PDB{$alnPos1}} ne $resName1);
+		if($mapPDBname{$aln2PDB{$alnPos1}} ne $resName1){
+		    print STDERR "1st residue has non-identical mapping: ".
+			         "$resName1 vs $mapPDBname{$aln2PDB{$alnPos1}}".
+				 "\n";
+		    next;
+		}
 	    }
 	    $resName1 = $mapPDBname{$aln2PDB{$alnPos1}};
 	}
@@ -194,7 +199,12 @@ sub mapUniprot2PDBseqNumber{
 		$resNo2 = $mapPDBnum{$aln2PDB{$alnPos2}};
 
 		if(defined $force){
-		    next if($mapPDBname{$aln2PDB{$alnPos2}} ne $resName2);
+		    if($mapPDBname{$aln2PDB{$alnPos2}} ne $resName2){
+			print STDERR "2nd residue has non-identical mapping: ".
+			    "$resName2 vs $mapPDBname{$aln2PDB{$alnPos2}}".
+			    "\n";
+			next;
+		    }
 		}
 
 		$resName2 = $mapPDBname{$aln2PDB{$alnPos2}};
@@ -266,21 +276,23 @@ sub createFastaFile4PDBinput(){
     print F ">$id.pdb\n";
     my %uniqAA;
     foreach my $l (@a){
-	   if($l=~/^ATOM/){
-	       my $resName = substr($l, 17, 3);
-	       my $resNo   = substr($l, 22, 4);
-	       my $chainId = substr($l, 21, 1);
-	       my $aa = "$resName-$resNo-$chainId";
-	       if(!exists $uniqAA{$aa}){
-	           $uniqAA{$aa} = $aa;
-		       if(exists $aa3{$resName}){
-		          print F $aa3{$resName};
-		       }
-		       else{
-		          print F "X";
-		       }
-	       }
+	if($l=~/^ATOM/){
+	    my $resName = substr($l, 17, 3);
+	    my $resNo   = substr($l, 22, 4);
+	    my $chainId = substr($l, 21, 1);
+	    my $iCode = substr($l, 26, 1);
+	    next if($iCode ne " ");
+	    my $aa = "$resName-$resNo-$chainId";
+	    if(!exists $uniqAA{$aa}){
+		$uniqAA{$aa} = $aa;
+		if(exists $aa3{$resName}){
+		    print F $aa3{$resName};
+		}
+		else{
+		    print F "X";
+		}
 	    }
+	}
     }
     print F "\n";
     close(F);
@@ -360,7 +372,9 @@ sub getPDBresNumberName(){
 	       $resNo =~ s/\s//g;
 	       my $chainId = substr($l, 21, 1);
 	       $chainId =~ s/\s//g;
-	       my $aa = "$resName-$resNo-$chainId";
+	       my $iCode = substr($l, 26, 1);
+	       next if($iCode ne " ");
+	       my $aa = "$resName-$resNo-$chainId-$iCode";
 	       if(!exists $uniqAA{$aa}){
 		   $uniqAA{$aa} = $aa;
 		   $mapNo{keys (%uniqAA)} = $resNo;
