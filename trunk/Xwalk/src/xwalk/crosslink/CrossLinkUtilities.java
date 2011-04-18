@@ -735,12 +735,14 @@ public final class CrossLinkUtilities {
 
         // If cross-links should be excluded by SAS, then van der Waals radii
         // must be increased by the radius of the solvent molecule.
-        if (Boolean.parseBoolean(parameter.getParameter(
+        /*        if (
+                Boolean.parseBoolean(parameter.getParameter(
                                               Parameter.DO_SOLVENT_PATH_DISTANCE
                                                        )
                                 )
            &&
            Boolean.parseBoolean(parameter.getParameter(Parameter.DO_SAS))) {
+*/
 
             double solventRadius = Double.parseDouble(parameter.getParameter(
                                                         Parameter.SOLVENT_RADIUS
@@ -754,7 +756,7 @@ public final class CrossLinkUtilities {
                     }
                 }
             }
-        }
+//        }
     }
     //--------------------------------------------------------------------------
     /**
