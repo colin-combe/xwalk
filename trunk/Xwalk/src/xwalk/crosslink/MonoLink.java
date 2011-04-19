@@ -74,6 +74,20 @@ public class MonoLink extends Atom {
     }
     //--------------------------------------------------------------------------
     /**
+     * Creates a copy of this MonoLink object.
+     * @return MonoLink object being a copy of this monoLink object.
+     */
+    public final MonoLink copy() {
+        Atom atom = super.copy();
+        MonoLink copy = new MonoLink();
+        copy.set(atom);
+        copy.setFileName(this.fileName + "");
+        copy.setSolventAccessibility(this.isSolventAccessible);
+        copy.setIndex(this.index);
+    return copy;
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Checks whether a second mono-link has the same residue name and residue
      * number.
      * @param  monoLink

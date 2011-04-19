@@ -35,7 +35,8 @@ public class MonoLinkList extends TreeSet < MonoLink > {
     //--------------------------------------------------------------------------
     /**
      * Default constructor, with Comparator initiation that sorts mono-links
-     * first according to their chain ID, then to their residue number.
+     * first according to the file name that they have been found, then
+     * according to their chain ID, then to their residue number.
      */
     public MonoLinkList() {
         super(new Comparator<MonoLink>() {
@@ -49,20 +50,28 @@ public class MonoLinkList extends TreeSet < MonoLink > {
              */
             public final int compare(final MonoLink monoLink1,
                                      final MonoLink monoLink2) {
-                String chainId1 = monoLink1.getChainId() + "";
-                String chainId2 = monoLink2.getChainId() + "";
-                int compare = chainId1.compareTo(chainId2);
+
+                String fileName1 = monoLink1.getFileName();
+                String fileName2 = monoLink2.getFileName();
+                int compare = fileName1.compareTo(fileName2);
                 if (compare == 0) {
-                    if (monoLink1.getResidueNumber()
-                        >
-                        monoLink2.getResidueNumber()) {
-                        return 1;
-                    } else if (monoLink1.getResidueNumber()
-                               <
-                               monoLink2.getResidueNumber()) {
-                        return -1;
+                    String chainId1 = monoLink1.getChainId() + "";
+                    String chainId2 = monoLink2.getChainId() + "";
+                    compare = chainId1.compareTo(chainId2);
+                    if (compare == 0) {
+                        if (monoLink1.getResidueNumber()
+                            >
+                            monoLink2.getResidueNumber()) {
+                            return 1;
+                        } else if (monoLink1.getResidueNumber()
+                                   <
+                                   monoLink2.getResidueNumber()) {
+                            return -1;
+                        } else {
+                            return 0;
+                        }
                     } else {
-                        return 0;
+                        return compare;
                     }
                 } else {
                     return compare;

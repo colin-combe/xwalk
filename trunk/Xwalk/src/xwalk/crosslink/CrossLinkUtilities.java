@@ -275,8 +275,16 @@ public final class CrossLinkUtilities {
             // This number is purely random.
             double maxDist = 10;
 
+            MonoLinkList monoLinkList = new MonoLinkList();
+
             if (distMlList != null) {
+                // clone distMlList
+                MonoLinkList distMlListClone = new MonoLinkList();
                 for (MonoLink monoLink : distMlList) {
+                    distMlListClone.add(monoLink.copy());
+                }
+
+                for (MonoLink monoLink : distMlListClone) {
                     ArrayList<AtomList> candidates =
                         CrossLinkUtilities.proteinAtomsMatchingXLatom(
                                                                     complex,
@@ -298,7 +306,8 @@ public final class CrossLinkUtilities {
                                 monoLink.setSolventAccessibility(
                                       GridUtilities.isAccessible(monoLink, grid)
                                                                 );
-                                allMonoLinkList.add(monoLink);
+                                monoLink.setFileName(complex.getName());
+                                monoLinkList.add(monoLink);
                             }
                         }
                     }
@@ -334,12 +343,13 @@ public final class CrossLinkUtilities {
                                       GridUtilities.isAccessible(monoLink, grid)
                                                     );
                     if (monoLink.isSolventAccessible()) {
-                        allMonoLinkList.add(monoLink);
+                        monoLinkList.add(monoLink);
                     }
                     monoLink.setFileName(complex.getName());
                 }
-                allMonoLinkList.setIndices();
+                monoLinkList.setIndices();
             }
+            allMonoLinkList.addAll(monoLinkList);
         }
     return allMonoLinkList;
     }
