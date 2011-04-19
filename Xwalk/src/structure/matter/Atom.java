@@ -340,10 +340,10 @@ public class Atom {
     }
     //--------------------------------------------------------------------------
     /**
-     * Creates a copy of this AtomRadius object.
+     * Creates a copy of this Atom object.
      * @return Atom object being a copy of this atom object.
      */
-    public final Atom copy() {
+    public Atom copy() {
         Atom atom = new Atom();
         atom.type = this.getType();
         atom.setFlag(new String(this.getFlag()));
