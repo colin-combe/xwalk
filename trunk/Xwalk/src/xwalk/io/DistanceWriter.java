@@ -243,22 +243,23 @@ public class DistanceWriter extends WriteFile {
         output.append("show surface, chain*" + nl);
         output.append("set transparency, 0.5, chain*" + nl);
 
-        int n = crossLinkList.size();
+/*        int n = crossLinkList.size();
         output.append("for i in range(1," + n + 1 + "): "
-                    + "cmd.set_color(\"col\"+str(i), "
+                    + "\tcmd.set_color(\"col\"+str(i), "
                     + "[1-float((i*20)%" + n + "/" + n + "), float((i*30)%" + n
                     + ")/" + n + ",0])" + nl);
         for (int i = 0; i < n; i++) {
-            output.append("set sphere_color, col" + (i + 1) + ", "
+            output.append("\tset sphere_color, col" + (i + 1) + ", "
                         + crossLinkList.get(i).getIndex() + "_*-*"
                         + nl
-                        + "set dash_color, col" + (i + 1) + ", "
+                        + "\tset dash_color, col" + (i + 1) + ", "
                         + crossLinkList.get(i).getIndex() + "_*-*"
                         + nl
-                        + "set label_color, col" + (i + 1) + ", "
+                        + "\tset label_color, col" + (i + 1) + ", "
                         + crossLinkList.get(i).getIndex() + "_*-*"
                         + nl);
         }
+*/
         output.append("reset" + nl);
 
     return super.write(output.toString());

@@ -1735,7 +1735,11 @@ public final class CrossLinkUtilities {
         Hashtable < CrossLink, ArrayList < CrossLink > >
                                                    redundantCrossLinksCandidates
                       = new Hashtable < CrossLink, ArrayList < CrossLink > >();
+        ArrayList<CrossLink> assigned = new ArrayList<CrossLink>();
         for (CrossLink crossLink1 : crossLinkList) {
+            if (assigned.contains(crossLink1)) {
+                continue;
+            }
             for (CrossLink crossLink2 : crossLinkList) {
                 if (crossLink1 != crossLink2) {
                     if (crossLink1.equalsInHomolog(crossLink2)) {
@@ -1746,6 +1750,7 @@ public final class CrossLinkUtilities {
                         }
                         list.add(crossLink2);
                         redundantCrossLinksCandidates.put(crossLink1, list);
+                        assigned.add(crossLink2);
                     }
                 }
             }
@@ -1756,14 +1761,14 @@ public final class CrossLinkUtilities {
         for (CrossLink crossLink1 : redundantCrossLinksCandidates.keySet()) {
             CrossLink minXL = crossLink1;
             double minDist =
-                (minXL.getSolventPathDistance() == -1 ?
+                (minXL.getSolventPathDistance() < 0.0 ?
                  minXL.getEuclideanDistance() : minXL.getSolventPathDistance());
             for (CrossLink crossLink2 : redundantCrossLinksCandidates.get(
                                                                       crossLink1
                                                                          )
                 ) {
                 double dist2 =
-                    (crossLink2.getSolventPathDistance() == -1 ?
+                    (crossLink2.getSolventPathDistance() < 0.0 ?
                      crossLink2.getEuclideanDistance()
                                          : crossLink2.getSolventPathDistance());
 
