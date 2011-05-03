@@ -298,6 +298,7 @@ public class Xwalk {
             System.exit(0);
         }
         CrossLinkList xlList = Xwalk.createVirtualCrossLinks(parameter);
+
         MonoLinkList monoList = new MonoLinkList();
         if (Boolean.parseBoolean(parameter.getParameter(
                                                      Parameter.DO_MONO_CROSSLINK

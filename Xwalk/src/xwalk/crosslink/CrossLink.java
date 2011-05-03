@@ -52,12 +52,12 @@ public class CrossLink extends Bond {
      * Distance that the cross-link spans in Euclidean space.
      * Default value is -1.
      */
-    private double eucDist = -1;
+    private double eucDist = -1.0;
     /**
      * Distance that the cross-link spans in Solvent-Path distance space.
      * Default value is -1.
      */
-    private double solventPathDistance = -1;
+    private double solventPathDistance = -1.0;
 
     /**
      * Probability of finding a cross-link with this Euclidean distance in a
@@ -65,14 +65,14 @@ public class CrossLink extends Bond {
      * cross-link distances in the literature and in the Aebersold lab.
      * Default value is 0.
      */
-    private double eucDistProbability = -1;
+    private double eucDistProbability = -1.0;
     /**
      * Probability of finding a cross-link with this SAS distance in a
      * cross-linking experiment. The probability is based on observed
      * cross-link distances in the literature and in the Aebersold lab.
      * Default value is 0.
      */
-    private double sasdDistProbability = -1;
+    private double sasdDistProbability = -1.0;
     /**
      * Stores the information whether a probability calculation has been
      * requested. As a consequence probabilities will be printed out
