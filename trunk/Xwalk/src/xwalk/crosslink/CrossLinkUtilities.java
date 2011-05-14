@@ -1735,11 +1735,26 @@ public final class CrossLinkUtilities {
         Hashtable < CrossLink, ArrayList < CrossLink > >
                                                    redundantCrossLinksCandidates
                       = new Hashtable < CrossLink, ArrayList < CrossLink > >();
-        ArrayList<CrossLink> assigned = new ArrayList<CrossLink>();
+        String assigned = new String();
         for (CrossLink crossLink1 : crossLinkList) {
-            if (assigned.contains(crossLink1)) {
+            // don't include the homologs into the candidate list as these
+            // have been included already as members to the first homolog member
+            String id1 = crossLink1.getPreAtom().getResidueNumber()
+                       + crossLink1.getPreAtom().getResidueName()
+                       + crossLink1.getPostAtom().getResidueNumber()
+                       + crossLink1.getPostAtom().getResidueName();
+            String id2 = crossLink1.getPostAtom().getResidueNumber()
+                       + crossLink1.getPostAtom().getResidueName()
+                       + crossLink1.getPreAtom().getResidueNumber()
+                       + crossLink1.getPreAtom().getResidueName();
+            if (assigned.indexOf("#" + id1 + "#") != -1
+                ||
+                assigned.indexOf("#" + id2 + "#") != -1) {
                 continue;
+            } else {
+                assigned += "#" + id1 + "#";
             }
+
             for (CrossLink crossLink2 : crossLinkList) {
                 if (crossLink1 != crossLink2) {
                     if (crossLink1.equalsInHomolog(crossLink2)) {
@@ -1750,7 +1765,6 @@ public final class CrossLinkUtilities {
                         }
                         list.add(crossLink2);
                         redundantCrossLinksCandidates.put(crossLink1, list);
-                        assigned.add(crossLink2);
                     }
                 }
             }
