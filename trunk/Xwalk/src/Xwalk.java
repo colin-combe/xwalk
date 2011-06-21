@@ -63,17 +63,6 @@ public class Xwalk {
     private static void outputNoXLfound(final CrossLinkParameter parameter) {
         String infile = parameter.getParameter(Parameter.INFILE_PATH).trim();
         String fileName = new File(infile).getName().trim();
-// Residue information is not displayed any more. No need for this.
-/*        String residueType1 = parameter.getParameter(
-                                              Parameter.AMINO_ACID_RESIDUE_NAME1
-                                                    ).trim();
-        String residueType2 = parameter.getParameter(
-                                              Parameter.AMINO_ACID_RESIDUE_NAME2
-                                                    ).trim();
-        double maxDist = Double.parseDouble(parameter.getParameter(
-                                                      Parameter.MAXIMUM_DISTANCE
-                                                                  ).trim());
-*/
         System.err.println("WARNING: " + fileName + "\tNo virtual cross-links "
                            + "found.");
 

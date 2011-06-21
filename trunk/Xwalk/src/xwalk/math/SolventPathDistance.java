@@ -81,6 +81,7 @@ public class SolventPathDistance {
     public SolventPathDistance(final Atom atom1,
                                final AtomList atoms2,
                                final AtomGrid atomGrid) {
+
         ArrayList < GridCell > atomCells = atomGrid.getAllGridCells(atom1);
         for (GridCell cell : atomCells) {
             // set all cells that are occupied by this atom to unoccupied and
@@ -89,14 +90,16 @@ public class SolventPathDistance {
         }
         ArrayList < GridCell > atom2cells = new ArrayList < GridCell >();
         for (Atom atom2 : atoms2) {
-             GridCell atom2cell = atomGrid.get(atom2);
-             atom2cell.reset();
-             atom2cells.add(atom2cell);
-             atomCells = atomGrid.getAllGridCells(atom2);
-             for (GridCell cell : atomCells) {
-                 // set all cells that are occupied by this atom to unoccupied
-                 // and unvisited.
-                 cell.reset();
+            // if atom2 is not solvent accessible than leave atom2cells list
+            // empty.
+            GridCell atom2cell = atomGrid.get(atom2);
+            atom2cell.reset();
+            atom2cells.add(atom2cell);
+            atomCells = atomGrid.getAllGridCells(atom2);
+            for (GridCell cell : atomCells) {
+                // set all cells that are occupied by this atom to
+                // unoccupied and unvisited.
+                cell.reset();
             }
         }
         this.sourceCell = atomGrid.get(atom1);

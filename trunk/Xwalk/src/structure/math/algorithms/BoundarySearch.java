@@ -64,7 +64,7 @@ public class BoundarySearch {
                     for (GridCell neighbour : neighbours) {
                         if (cell.isOccupied() != neighbour.isOccupied()) {
                             GridCell occupiedCell = cell;
-                            if (!cell.isOccupied()) {
+                            if (cell.isOccupied()) {
                                 occupiedCell = neighbour;
                             }
                             occupiedCell.setBoundaryStatus();

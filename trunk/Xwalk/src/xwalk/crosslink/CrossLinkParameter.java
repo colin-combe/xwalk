@@ -64,10 +64,7 @@ public class CrossLinkParameter {
                             DO_MONO_CROSSLINK,
                             DO_PROBABILITY,
                             DO_SOLVENT_PATH_DISTANCE,
-                            DO_SAS,
-                            DO_GLOBAL_GRID,
                             DO_PYMOL_OUTPUT,
-                            FIND_ALL,
                             INFILE_PATH,
                             IS_HOMOMERIC,
                             GRID_CELL_SIZE,
@@ -120,8 +117,6 @@ public class CrossLinkParameter {
                                               arg.isBackboneOnlyArgumentSet()));
         this.setParameter(Parameter.DISTANCE_FILE_PATH,
                                                arg.getDistanceInfileArgument());
-        this.setParameter(Parameter.FIND_ALL, Boolean.toString(
-                                                           arg.isFindAllSet()));
         this.setParameter(Parameter.OUTFILE_PATH, arg.getOutfileArgument());
         this.setParameter(Parameter.IS_HOMOMERIC, Boolean.toString(
                                                          arg.isHomomericSet()));
@@ -129,16 +124,10 @@ public class CrossLinkParameter {
                                              arg.getMaximumDistanceArgument()));
         this.setParameter(Parameter.SOLVENT_RADIUS, Double.toString(
                                                arg.getSolventRadiusArgument()));
-        this.setParameter(Parameter.DO_SAS, Boolean.toString(
-                                         arg.getSolventAccessibiltyArgument()));
-        this.setParameter(Parameter.DO_GLOBAL_GRID, Boolean.toString(
-                                                        arg.isGlobalGridSet()));
         this.setParameter(Parameter.DO_FORCE_OUTPUT, Boolean.toString(
                                                        arg.isForceOutputSet()));
         this.setParameter(Parameter.DO_VERBOSE_OUTPUT, Boolean.toString(
                                                      arg.isVerboseOutputSet()));
-        this.setParameter(Parameter.DO_GRID_OUTPUT, Boolean.toString(
-                                                        arg.isGridOutputSet()));
         this.setParameter(Parameter.DO_TRYPSIN_DIGEST, Boolean.toString(
                                                 arg.isTrypsinateArgumentSet()));
         this.setParameter(Parameter.DO_EXPASY_RULE, Boolean.toString(

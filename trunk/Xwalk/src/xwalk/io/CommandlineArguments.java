@@ -55,11 +55,6 @@ public class CommandlineArguments {
      */
     private boolean doBackboneReadOnly = false;
     /**
-     * Output only when all distances in a distance file are found.
-     * Default {@code findAll = FALSE};
-     */
-    private boolean findAll = false;
-    /**
      * Path to the output file.
      * Default {@code outfile = ""}.
      */
@@ -148,13 +143,6 @@ public class CommandlineArguments {
      */
     private double gridCellLength = Constants.DEFAULT_GRID_CELL_SIZE;
     /**
-     * To calculate solvent accessible surface areas and allow only cross-links
-     * between residues that are accessible to a solvent molecule with radius
-     * solventRadius.
-     * Default {@code doSas = TRUE};
-     */
-    private boolean doSAS = true;
-    /**
      * Solvent radius for calculating SAS.
      * Default {@code solventRadius = 1.4}.
      */
@@ -187,17 +175,6 @@ public class CommandlineArguments {
      * Default {@code verbose = FALSE};
      */
     private boolean verbose         = false;
-    /**
-     * Use local grids for Solvent-Path distance calculations.
-     * Default {@code verboseGrid = FALSE};
-     */
-    private boolean useGlobalGrid = false;
-    /**
-     * To output all grids that are used to calculate the
-     * Solvent-Path distances.
-     * Default {@code verboseGrid = FALSE};
-     */
-    private boolean verboseGrid     = false;
     /**
      * To trypsinate the protein.
      * Default {@code help = FALSE};
@@ -249,17 +226,14 @@ public class CommandlineArguments {
         this.readChainIds2Argument();
         this.readForceArgument();
         this.readGridCellSizeArgument();
-        this.readGridOutputArgument();
         this.readHomomericArgument();
         this.readInfileArgument();
         this.readBackBoneOnlyArgument();
         this.readDistanceInfileArgument();
-        this.readFindAllArgument();
         this.readInterMolecularDistanceArgument();
         this.readIntraMolecularDistanceArgument();
         this.readMonoCrossLinkArgument();
         this.readMaximumDistanceArgument();
-        this.readSolventAccessibiltyArgument();
         this.doOutputFile = this.readOutfileArgument();
         this.readPymolArgument();
         this.readSolventRadiusArgument();
@@ -268,7 +242,6 @@ public class CommandlineArguments {
         this.readAminoAcidName1Argument();
         this.readAminoAcidName2Argument();
         this.readSolventPathDistanceArgument();
-        this.readGlobalGridArgument();
         this.readTrypsinateArgument();
         this.readProbabilityArgument();
         this.readExpasyArgument();
@@ -289,12 +262,12 @@ public class CommandlineArguments {
     private static String getVerboseHelpText() {
         return NL
               + "EXAMPLARY command for program execution:" + NL
-              + "Xwalk -in 1brs.pdb -aa1 LYS#ARG -aa2 lys#arg -max 21"
+              + "Xwalk -in 1brs.pdb -aa1 ARG -aa2 lys -a1 CB -a2 CB -bb -max 21"
               + NL
               + NL
               + "ABOUT"
               + NL
-              + "Version 0.1"
+              + "Version 0.2"
               + NL
               + "Xwalk calculates and outputs distances in Angstroem "
               + "for potential cross-links "
@@ -316,8 +289,22 @@ public class CommandlineArguments {
               + NL
               + "IndexNo\tInfileName\tAtom1info\tAtom2info\t"
               + "DistanceInPDBsequence\tEuclideanDistance\t"
-              + "SolventPathDistance\t(EucProbability\tSASDprobability\t"
-              + "PeptidePairSequences)"
+              + "SolventAccessibleSurfaceDistance\tEucProbability\t"
+              + "SASDprobability\tPeptidePairSequences"
+              + NL
+              + NL
+              + "where the Solvent Accessible Surface Distance (SASD) presents "
+              + "a number code, when a Distance file (-dist) is provided:"
+              + NL
+              + "\t>= 0: SASD (when -euc is NOT set)"
+              + NL
+              + "\t-1: Distance exceeds the maximum distance (-max)"
+              + NL
+              + "\t-2: First atom is solvent-inaccessible"
+              + NL
+              + "\t-3: Second atom is solvent-inaccessible"
+              + NL
+              + "\t-4: Both atoms are solvent-inaccessible"
               + NL
               + NL
               + "Virtual cross-links are sorted first by "
@@ -354,11 +341,6 @@ public class CommandlineArguments {
               + NL
               + "\t-v\t[switch]\tOutputs various information other "
               + "than distances [optional]."
-              + NL
-              + "\t-grid\t[switch]\tOutputs on STDOUT channel the grid, which"
-              + "is used to calculate the Solvent Accessible Surface Distance. "
-              + "Requires the option -global. The grid is in PDB format with "
-              + "distances in the B-factor column [optional]."
               + NL
               + NL
               + "RESIDUE/ATOM SELECTION:"
@@ -446,26 +428,9 @@ public class CommandlineArguments {
               + "vXL as determined by experimental data on DSS and BS3 cross-"
               + "linking experiments [optional]. "
               + NL
-              + "\t-all\t[switch]\tOutputs only distances if all virtual cross-"
-              + "links in a distance file (-dist) can be found."
-              + NL
               + NL
               + "SOLVENT-PATH-DISTANCE GRID RELATED:"
               + NL
-              + "\t-global\t[switch]\tUses a single large grid to calculate "
-              + "all Solvent-Path distances, rather than using a smaller local "
-              + "grid around each cross-linkable atom. This option will "
-              + "reduce computation time for smaller protein complexes. Note "
-              + "however that the distances might differ by about an Angstroem "
-              + "as compared to a local grid and that you might need to "
-              + "increase the Java heap size to for example 512 MB (-Xmx512m)"
-              + NL
-// No need for -xsas parameter anymore, as SASD makes no sense without checking
-// for SAS.
-//            + "\t-xsas\t[switch]\tDoes not calculate the solvent accessible "
-//            + "surface surface area and thus does not exclude non-accessible "
-//            + "amino acids [optional]."
-//            + NL
               + "\t-radius\t[double]\tSolvent radius for calculating the "
               + "solvent accessible surface area [optional](default "
               + Constants.SOLVENT_RADIUS
@@ -647,35 +612,6 @@ public class CommandlineArguments {
      */
     public final String getDistanceInfileArgument() {
         return this.distanceInfile;
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Determines whether the argument -all has been set on the commandline.
-     * @see #isFindAllSet()
-     */
-    private void readFindAllArgument() {
-        if (Commandline.get(this.arguments, "-all", false).equals("EXISTS")) {
-            if (!Commandline.get(
-                                  this.arguments, "-dist", true).equals("ERROR")
-                                ) {
-                this.findAll = true;
-            } else {
-                System.err.println(NL + "WARNING: Ommiting -all argument. "
-                                 + "Please specify -dist argument otherwise."
-                                 + NL);
-            }
-        }
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Returns whether the all distances in a distance file must be found prior
-     * to their output.
-     * @return {@code TRUE} if all distances must be found, {@code FALSE}
-     * otherwise.
-     * @see #readFindAllArgument()
-     */
-    public final boolean isFindAllSet() {
-        return this.findAll;
     }
     //--------------------------------------------------------------------------
 
@@ -1178,7 +1114,6 @@ public class CommandlineArguments {
     private void readSolventPathDistanceArgument() {
         if (Commandline.get(this.arguments, "-euc", false).equals("EXISTS")) {
             this.solventPathDistance = false;
-            this.doSAS = false;
         }
     }
     //--------------------------------------------------------------------------
@@ -1235,25 +1170,6 @@ public class CommandlineArguments {
      */
     public final double getGridCellSizeArgument() {
         return this.gridCellLength;
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Determines whether the argument -xsas has been set on the commandline.
-     * @see #getSolventAccessibiltyArgument()
-     */
-    private void readSolventAccessibiltyArgument() {
-        if (Commandline.get(this.arguments, "-xsas", false).equals("EXISTS")) {
-            this.doSAS = false;
-        }
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Returns the a boolean expression whether SAS is to be calculated or not.
-     * @return {@code TRUE} if SAS is to be calculated, {@code FALSE} otherwise.
-     * @see #readSolventAccessibiltyArgument()
-     */
-    public final boolean getSolventAccessibiltyArgument() {
-        return this.doSAS;
     }
     //--------------------------------------------------------------------------
     /**
@@ -1348,27 +1264,6 @@ public class CommandlineArguments {
     }
     //--------------------------------------------------------------------------
     /**
-     * Determines whether the argument -global has been set on the commandline.
-     * @see #isGlobalGridSet()
-     */
-    private void readGlobalGridArgument() {
-       if (Commandline.get(this.arguments, "-global", false).equals("EXISTS")) {
-           this.useGlobalGrid = true;
-       }
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Returns whether a global grid should be used for Solvent-Path distance
-     * calculation.
-     * @return {@code TRUE} if global grid should be used,
-     *         {@code FALSE} otherwise.
-     * @see #readGlobalGridArgument()
-     */
-    public final boolean isGlobalGridSet() {
-        return this.useGlobalGrid;
-    }
-    //--------------------------------------------------------------------------
-    /**
      * Determines whether the argument -v has been set on the commandline.
      * @see #isVerboseOutputSet()
      */
@@ -1387,26 +1282,6 @@ public class CommandlineArguments {
      */
     public final boolean isVerboseOutputSet() {
         return this.verbose;
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Determines whether the argument -grid has been set on the commandline.
-     * @see #isGridOutputSet()
-     */
-    private void readGridOutputArgument() {
-        if (Commandline.get(arguments, "-grid", false).equals("EXISTS")) {
-            this.verboseGrid = true;
-        }
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Returns whether all grids in the Solvent-Path-Distance calculation should
-     * be output.
-     * @return {@code TRUE} if grids should be output, {@code FALSE} otherwise.
-     * @see #readGridOutputArgument()
-     */
-    public final boolean isGridOutputSet() {
-        return this.verboseGrid;
     }
     //--------------------------------------------------------------------------
     /**
