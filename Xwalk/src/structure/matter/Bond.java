@@ -73,7 +73,8 @@ public class Bond {
         return this.postAtom;
     }
     /**
-     * Checks whether {@code atom} is part of the bond.
+     * Checks whether {@code atom} is part of the bond by assessing the
+     * identity of the atom via its properties and not by reference.
      * @param atom
      *        - Atom object to be checked for existent in this bond.
      * @return {@code TRUE} if atom is part of this bond, {@code FALSE}

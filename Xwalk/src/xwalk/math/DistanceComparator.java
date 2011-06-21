@@ -61,6 +61,29 @@ public class DistanceComparator implements Comparator < CrossLink > {
             xl2.getEuclideanDistanceProbability()) {
             return -1;
         }
+
+        if (xl1.getSolventPathDistance() < 0
+                &&
+           xl2.getSolventPathDistance() > 0) {
+            return 1;
+        }
+        if (xl1.getSolventPathDistance() > 0
+                &&
+           xl2.getSolventPathDistance() < 0) {
+            return -1;
+        }
+
+        if (xl1.getEuclideanDistance() < 0
+                &&
+           xl2.getEuclideanDistance() > 0) {
+            return 1;
+        }
+        if (xl1.getEuclideanDistance() > 0
+                &&
+           xl2.getEuclideanDistance() < 0) {
+            return -1;
+        }
+
         if (xl1.getSolventPathDistance() < xl2.getSolventPathDistance()) {
             return -1;
         }

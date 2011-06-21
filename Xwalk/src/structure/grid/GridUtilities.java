@@ -16,6 +16,7 @@ package structure.grid;
 
 import java.util.ArrayList;
 
+import structure.constants.Constants;
 import structure.grid.GridCell.Value;
 import structure.math.Point3d;
 import structure.math.Point3i;
@@ -252,18 +253,39 @@ public class GridUtilities {
      *          and all neighboring grid cells. Prior to the execution of this
      *          method, the Grid object must have been searched for the boundary
      *          cells with the BoundarySearch class.
+     * @param verbose
+     *        - if {@code TRUE} than information on the size of solvent
+     *          accessibility will be printed out on STDERR.
      * @return {@code TRUE} if cell is accessible, {@code FALSE} otherwise.
      * @see structure.math.algorithms.BoundarySearch
      */
     public static boolean isAccessible(final Atom atom,
-                                       final AtomGrid grid) {
+                                       final AtomGrid grid,
+                                       final boolean verbose) {
         ArrayList<GridCell> neighbours = grid.getAllGridCells(atom);
-        for (GridCell neighbour : neighbours) {
-             if (neighbour.isAtBoundary()) {
-                 return true;
-             }
+        if (!verbose) {
+            for (GridCell neighbour : neighbours) {
+                if (neighbour.isAtBoundary()) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            int n = 0;
+            for (GridCell neighbour : neighbours) {
+                if (neighbour.isAtBoundary()) {
+                    n++;
+                }
+            }
+            System.err.print("Following atom has " + n + " grid cells at the "
+                           + "protein/solvent boundary:"
+                           + Constants.LINE_SEPERATOR
+                           + atom);
+            if (n > 0) {
+                return true;
+            }
+            return false;
         }
-        return false;
     }
     //--------------------------------------------------------------------------
     /**

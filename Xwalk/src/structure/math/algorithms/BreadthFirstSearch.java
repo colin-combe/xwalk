@@ -94,10 +94,11 @@ public class BreadthFirstSearch {
                 paths.add(this.path);
                 path = new Path();
                 continue;
+            } else {
+                this.backtrackPath(target, source, grid);
+                paths.add(this.path);
+                path = new Path();
             }
-            this.backtrackPath(target, source, grid);
-            paths.add(this.path);
-            path = new Path();
         }
         return paths;
     }

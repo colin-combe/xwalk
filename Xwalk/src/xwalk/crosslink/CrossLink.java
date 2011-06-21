@@ -55,9 +55,9 @@ public class CrossLink extends Bond {
     private double eucDist = -1.0;
     /**
      * Distance that the cross-link spans in Solvent-Path distance space.
-     * Default value is -1.
+     * Default value is -0.5.
      */
-    private double solventPathDistance = -1.0;
+    private double solventPathDistance = -0.5;
 
     /**
      * Probability of finding a cross-link with this Euclidean distance in a
@@ -420,15 +420,27 @@ public class CrossLink extends Bond {
 
         output.append(this.filePath + "\t" + atomId1 + "\t" + atomId2 + "\t"
                     + this.seqDist + "\t"
-                    + this.getEuclideanDistance() + "\t"
-                    + this.getSolventPathDistance()
-                    + "\t");
-        if (this.doProbability) {
-            output.append(this.getEuclideanDistanceProbability()
-                        + "\t"
-                        + this.getSolventPathDistanceProbability()
-                        + "\t");
+                    + this.getEuclideanDistance() + "\t");
+        if (this.getSolventPathDistance() > -0.1
+                ||
+            this.getSolventPathDistance() < -0.9 ) {
+            output.append(this.getSolventPathDistance() + "\t");
+        } else {
+            output.append("-\t");
         }
+        if (this.doProbability) {
+            output.append(this.getEuclideanDistanceProbability() + "\t");
+            if (this.getSolventPathDistance() > -0.1
+                    ||
+                this.getSolventPathDistance() < -0.9 ) {
+                output.append(this.getSolventPathDistanceProbability() + "\t");
+            } else {
+                output.append("-\t");
+            }
+        } else {
+            output.append("-\t-\t");
+        }
+
         if (outputPeptide) {
             output.append(this.preAtomPeptide.toStringOneLetterCode() + "-"
                        +  this.postAtomPeptide.toStringOneLetterCode());
