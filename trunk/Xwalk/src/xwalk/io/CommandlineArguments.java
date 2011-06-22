@@ -324,8 +324,10 @@ public class CommandlineArguments {
               + "This might be of value when virtual cross-links are to be "
               + "created between backbone or beta-carbon atoms [optional]."
               + NL
-              + "\t-dist\t<path>\tAny Xwalk distance file, from which all "
-              + "residue information will be extracted [optional]."
+              + "\t-dist\t<path>\tDistance file holding at least the first 4 "
+              + "columns of the Xwalk output format. The file will be used to "
+              + "extract the indices and the residue pairs for the distance "
+              + "calculation [optional]."
               + NL
               + "\t-out\t<path>\tWrites output to this file, otherwise "
               + "output is directed to the STDOUT channel. If -pymol is "
