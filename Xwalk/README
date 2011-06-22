@@ -25,14 +25,20 @@ CLASSPATH
 You might want to consider adding the bin directory into the CLASSPATH
 environment of your SHELL, which avoids the usage of the -cp flag when executing
 Xwalk.
- 
+
+
+COMMANDLINE PARAMETERS
+----------------------
+A list of all commandline parameters can be retrieved by typing -help before
+a Xwalk execution.  
+
 
 OUTPUT
 ------
 Distance information will be printed out to the STDOUT channel or via -out to a
 local file in the following tab delimeted format:
 ...
-1	1brs.pdb	LYS-108-A-CB	LYS-98-B-CB	100	10.7	13.9	TTDHYQTFTKIR-ILYSSDWLIYKTTDHYQTFTK
+1   1brs.pdb    LYS-1-D-CB  LYS-2-D-CB  1   5.9 6.6 0.0449  0.0685  KKAVINGEQIR-KAVINGEQIR
 ...
 1st column: index
 2nd column: filename
@@ -42,9 +48,13 @@ local file in the following tab delimeted format:
             PDBThreeLetterCode-ResidueId-ChainId-AtomName
 5th column: Sequence distance within the PDB file as calculated from the residue
             identifiers of the 1st and 2nd amino acid.
-5th column: Euclidean distacen between 1st and 2nd amino acid.
-6th column: SASD between  1st and 2nd amino acid.
-7th column: shortest tryptic peptide sequence.
+6th column: Euclidean distance between 1st and 2nd amino acid.
+7th column: SASD between  1st and 2nd amino acid. 
+8th column: Probability for observing the Euclidean distance in a XL experiment
+            using DSS or BS3. 
+9th column: Probability for observing the SASD in a XL experiment using DSS or
+            BS3. 
+10th column: shortest tryptic peptide sequence for both amino acids.
 
 Setting -pymol -out xxx.pml on the commandline will write a PyMOL script into
 the file xxx.pml, which can be load into the molecular viewer PyMOL to visualise
@@ -129,3 +139,12 @@ Any of the above conditions can be waived if the authors give permission.
 
 VERSION HISTORY
 ---------------
+0.2: -Probability calculation with option -prob
+     -Number code in SASD column (see -help)
+     -Euclidean distance for all residue pairs in a distance file (-dist)
+     -PyMol option changed from -p to -pymol
+     -Removed -grid, -global and -all commandline options
+     -Bug fixes
+     
+
+0.1: First version of Xwalk  

@@ -24,7 +24,7 @@ java -Xmx256m -cp ../bin/ Xwalk -infile 1brs.pdb -aa1 lys -aa2 lys -a1 cb -a2 cb
 	# of lysine residues (-aa1 lys -aa2 lys).
 	# that have a maximum distance of 11.4 Angstroem (-max 11.4).
 	# and remove prior to calculation all side chains (-bb)
-	# and output PyMOL script to visualize the SASD path (-p -out 1brs.pml)
-java -Xmx256m -cp ../bin/ Xwalk -infile 1brs.pdb -aa1 lys -aa2 lys -a1 nz -a2 nz -max 11.4 -inter -p -out 1brs.pml
+	# and output PyMOL script to visualize the SASD path (-pymol -out 1brs.pml)
+java -Xmx256m -cp ../bin/ Xwalk -infile 1brs.pdb -aa1 lys -aa2 lys -a1 nz -a2 nz -max 11.4 -inter -pymol -out 1brs.pml
 
 
