@@ -128,6 +128,8 @@ public class CrossLinkParameter {
                                                        arg.isForceOutputSet()));
         this.setParameter(Parameter.DO_VERBOSE_OUTPUT, Boolean.toString(
                                                      arg.isVerboseOutputSet()));
+        this.setParameter(Parameter.DO_GRID_OUTPUT, Boolean.toString(
+                                                        arg.isGridOutputSet()));
         this.setParameter(Parameter.DO_TRYPSIN_DIGEST, Boolean.toString(
                                                 arg.isTrypsinateArgumentSet()));
         this.setParameter(Parameter.DO_EXPASY_RULE, Boolean.toString(

@@ -91,7 +91,7 @@ public class AtomGrid extends Grid {
 
         this.atoms = atomList;
         this.setOccupancy();
-        BoundarySearch.findBoundary(this);
+//        BoundarySearch.findBoundary(this);
     }
     //-------------------------------------------------------------------------
     /**
@@ -153,6 +153,21 @@ public class AtomGrid extends Grid {
      * @return List of GridCell objects that are occupying the atom.
      */
     public final ArrayList < GridCell > getAllGridCells(final Atom atom) {
+        return this.getAllGridCells(atom, 0);
+    }
+    //-------------------------------------------------------------------------
+    /**
+     * Returns all grid cell that are occupied by the entire van der Waals atom
+     * shell of an atom.
+     * @param atom
+     *        - Atom object to which all occupied grid cells should be returned.
+     * @param expand
+     *        - integer value representing the number of shells from which
+     *          neighborhood is to be extracted.
+     * @return List of GridCell objects that are occupying the atom.
+     */
+    public final ArrayList < GridCell > getAllGridCells(final Atom atom,
+                                                        final int expand) {
         ArrayList < GridCell > allCells = new ArrayList < GridCell >();
 
         double radius = atom.getVanDerWaalsRadius();
@@ -162,16 +177,17 @@ public class AtomGrid extends Grid {
         // if atom should lie outside the grid, then just return an empty list
         // of GridCell objects.
         if (centre != null) {
-           int expand = GridUtilities.getNumberOfGridCellsFittingIntoHemisphere(
+          int expand2 = GridUtilities.getNumberOfGridCellsFittingIntoHemisphere(
                                                                 radius,
                                                                 centre.getSize()
-                                                                              );
+                                                                              )
+                       + expand;
 
            ArrayList < GridCell > neighboursCube =
                                              GridUtilities.getNeighbouringCells(
                                                                          centre,
                                                                          this,
-                                                                         expand
+                                                                         expand2
                                                                               );
 
            // check that grid cell really is located within atom vdW sphere.
@@ -181,7 +197,7 @@ public class AtomGrid extends Grid {
                                                   atom.getPoint3d(),
                                                   neighbour.getPoint3d()
                                                   );
-               if (dist - radius < 0) {
+               if (dist - radius - (centre.getSize() * expand) < 0) {
                    neighbours.add(neighbour);
                }
            }

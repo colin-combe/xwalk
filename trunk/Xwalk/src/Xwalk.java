@@ -167,17 +167,6 @@ public class Xwalk {
             // get all protein complex atom coordinates of the user given
             // inputFile.
 
-            // for mono-links to be correctly classified into solvent accessible
-            // residues or not, we need 1.) all atoms, 2.) set the solvent
-            // radius artificially high to compensate for non-complementarity
-            // at protein interfaces.
-            String solventRadius =
-                               parameter.getParameter(Parameter.SOLVENT_RADIUS);
-            String doBB = parameter.getParameter(Parameter.DO_BACKBONE_READ);
-
-            parameter.setParameter(Parameter.SOLVENT_RADIUS, "2.0");
-            parameter.setParameter(Parameter.DO_BACKBONE_READ, "false");
-
             ArrayList < PolyPeptideList > complexes =
                                   CrossLinkUtilities.getComplexesCoordinates(
                                                                        parameter
@@ -185,9 +174,6 @@ public class Xwalk {
 
             list = CrossLinkUtilities.getVirtualMonoLinks(complexes,
                                                           parameter);
-
-            parameter.setParameter(Parameter.SOLVENT_RADIUS, solventRadius);
-            parameter.setParameter(Parameter.DO_BACKBONE_READ, doBB);
 
         } catch (FileNotFoundException e) {
             System.err.println(nl

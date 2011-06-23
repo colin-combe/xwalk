@@ -262,18 +262,32 @@ public class GridUtilities {
     public static boolean isAccessible(final Atom atom,
                                        final AtomGrid grid,
                                        final boolean verbose) {
-        ArrayList<GridCell> neighbours = grid.getAllGridCells(atom);
+        ArrayList<GridCell> neighboursBorder = grid.getAllGridCells(atom, 1);
+        ArrayList<GridCell> neighbours = grid.getAllGridCells(atom, 0);
+        ArrayList<GridCell> border = new ArrayList<GridCell>();
+        for (GridCell cell1 : neighboursBorder) {
+            boolean found = false;
+            for (GridCell cell2 : neighbours) {
+                if (cell1 == cell2) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                border.add(cell1);
+            }
+        }
+
         if (!verbose) {
-            for (GridCell neighbour : neighbours) {
-                if (neighbour.isAtBoundary()) {
+            for (GridCell borderCell : border) {
+                if (!borderCell.isOccupied()) {
                     return true;
                 }
             }
             return false;
         } else {
             int n = 0;
-            for (GridCell neighbour : neighbours) {
-                if (neighbour.isAtBoundary()) {
+            for (GridCell borderCell : border) {
+                if (!borderCell.isOccupied()) {
                     n++;
                 }
             }

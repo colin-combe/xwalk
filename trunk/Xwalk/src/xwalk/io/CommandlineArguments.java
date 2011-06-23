@@ -176,6 +176,12 @@ public class CommandlineArguments {
      */
     private boolean verbose         = false;
     /**
+     * To output all grids that are used to calculate the
+     * Solvent-Path distances.
+     * Default {@code verboseGrid = FALSE};
+     */
+    private boolean verboseGrid     = false;
+    /**
      * To trypsinate the protein.
      * Default {@code help = FALSE};
      */
@@ -226,6 +232,7 @@ public class CommandlineArguments {
         this.readChainIds2Argument();
         this.readForceArgument();
         this.readGridCellSizeArgument();
+        this.readGridOutputArgument();
         this.readHomomericArgument();
         this.readInfileArgument();
         this.readBackBoneOnlyArgument();
@@ -306,6 +313,9 @@ public class CommandlineArguments {
               + NL
               + "\t-4: Both atoms are solvent-inaccessible"
               + NL
+              + "\t-5: First atom is in a cavity which prohibited proper "
+              +       "shortest path calculations\n"
+              + NL
               + NL
               + "Virtual cross-links are sorted first by "
               + "decreasing probability, then by increasing SASD and "
@@ -343,6 +353,11 @@ public class CommandlineArguments {
               + NL
               + "\t-v\t[switch]\tOutputs various information other "
               + "than distances [optional]."
+              + NL
+              + "\t-grid\t[switch]\tOutputs on STDOUT channel the grid, which "
+              + "is used to calculate the Solvent Accessible Surface Distance. "
+              + "The grid is in PDB format with distances in the B-factor "
+              + "column [optional]."
               + NL
               + NL
               + "RESIDUE/ATOM SELECTION:"
@@ -1284,6 +1299,26 @@ public class CommandlineArguments {
      */
     public final boolean isVerboseOutputSet() {
         return this.verbose;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Determines whether the argument -grid has been set on the commandline.
+     * @see #isGridOutputSet()
+     */
+    private void readGridOutputArgument() {
+        if (Commandline.get(arguments, "-grid", false).equals("EXISTS")) {
+            this.verboseGrid = true;
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns whether all grids in the Solvent-Path-Distance calculation should
+     * be output.
+     * @return {@code TRUE} if grids should be output, {@code FALSE} otherwise.
+     * @see #readGridOutputArgument()
+     */
+    public final boolean isGridOutputSet() {
+        return this.verboseGrid;
     }
     //--------------------------------------------------------------------------
     /**

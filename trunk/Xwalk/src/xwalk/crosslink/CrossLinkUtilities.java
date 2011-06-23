@@ -1697,15 +1697,36 @@ public final class CrossLinkUtilities {
                                                                     pairedAtoms,
                                                                     parameter
                                                                               );
+            if (Boolean.parseBoolean(parameter.getParameter(
+                                                      Parameter.DO_GRID_OUTPUT))
+                                                           ) {
+                System.out.println("HEADER " + atom.getResidueName().trim()
+                                       + "-" + atom.getResidueNumber()
+                                       + "-" + atom.getChainId()
+                                       + "-" + atom.getName().trim()
+                                 + Constants.LINE_SEPERATOR
+                                 + grid.toString()
+                                 + "TER");
+            }
+
             for (int i = 0; i < pairedAtoms.size(); i++) {
                 CrossLink crossLink = crossLinksByEuclideanDistance.get(
                                                               atom,
                                                               pairedAtoms.get(i)
                                                                        );
-
-                double dist = SolventPathDistance.extractTargetDistances(
+                // if the paths contain any grid cell, it means that a SASD path
+                // could be calculation. If the paths are empty, it means
+                // that the path calculation had to be stopped prematurely due
+                // to solvent inaccessibility.
+                double dist = 0;
+                if (paths.size() > 0) {
+                    dist = SolventPathDistance.extractTargetDistances(
                                                                     paths.get(i)
-                                                                        );
+                                                                     );
+                } else {
+                    dist = Double.MAX_VALUE;
+                }
+
                 maxDist = Double.parseDouble(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                             ));
@@ -1714,6 +1735,7 @@ public final class CrossLinkUtilities {
                          +
                          Constants.getCoordinateUncertainty(pairedAtoms.get(i));
 
+                // Conforming distance found!
                 if (dist <= maxDist + errorRange) {
                     crossLink.setSolventPathDistance(dist);
                     crossLink.setPath(paths.get(i));
@@ -1727,8 +1749,14 @@ public final class CrossLinkUtilities {
                     // if no distance could be calculated, check whether its
                     // due to solvent inaccessibility
                     if (!CrossLinkUtilities.isSolventAccessible(crossLink,
-                                                                grid,
+                                                                complex,
+                                                                gridCellSize,
                                                                 verbose)) {
+                        continue;
+                    } else if (dist == Double.MAX_VALUE) {
+                        crossLink.setSolventPathDistance(
+                                  xwalk.constants.Constants.FIRST_ATOM_IS_BURIED
+                                                        );
                         continue;
                     }
 
@@ -1765,11 +1793,10 @@ public final class CrossLinkUtilities {
      * {@link xwalk.constants.Constants.SECOND_ATOM_IS_SOLVENT_INACCESSIBLE}
      * @param crossLink
      *        - CrossLink object to checked for solvent accessibility.
-     * @param grid
-     *        - Grid object that holds all grid cells including the {@code cell}
-     *          and all neighboring grid cells. Prior to the execution of this
-     *          method, the Grid object must have been searched for the boundary
-     *          cells with the BoundarySearch class.
+     * @param complex
+     *      - PolyPeptideList object holding all atoms of the protein.
+    * @param gridCellSize
+     *        - double value representing the cell edge length of each grid cell
      * @param verbose
      *        - if {@code TRUE} than information on the size of solvent
      *          accessibility will be printed out on STDERR.
@@ -1777,28 +1804,38 @@ public final class CrossLinkUtilities {
      *         accessible, {@code FALSE} otherwise
      */
     private static boolean isSolventAccessible(final CrossLink crossLink,
-                                               final AtomGrid grid,
+                                               final PolyPeptideList complex,
+                                               final double gridCellSize,
                                                final boolean verbose) {
 
         Atom atom1 = crossLink.getPreAtom();
         Atom atom2 = crossLink.getPostAtom();
 
-        if (!GridUtilities.isAccessible(atom1, grid, verbose)
+        AtomGrid grid1 = new AtomGrid(complex.getAllAtoms(),
+                                      atom1,
+                                      atom1.getVanDerWaalsRadius() + 1,
+                                      gridCellSize);
+        AtomGrid grid2 = new AtomGrid(complex.getAllAtoms(),
+                                      atom2,
+                                      atom1.getVanDerWaalsRadius() + 2,
+                                      gridCellSize);
+
+        if (!GridUtilities.isAccessible(atom1, grid1, verbose)
                 &&
             !GridUtilities.isAccessible(atom2,
-                                        grid,
+                                        grid2,
                                         verbose)) {
             crossLink.setSolventPathDistance(
            xwalk.constants.Constants.BOTH_ATOMS_ARE_SOLVENT_INACCESSIBLE
                                             );
             return false;
-        } else if (!GridUtilities.isAccessible(atom1, grid, verbose)) {
+        } else if (!GridUtilities.isAccessible(atom1, grid1, verbose)) {
                 crossLink.setSolventPathDistance(
             xwalk.constants.Constants.FIRST_ATOM_IS_SOLVENT_INACCESSIBLE
                                                 );
                 return false;
         } else if (!GridUtilities.isAccessible(atom2,
-                                               grid,
+                                               grid2,
                                                verbose)) {
                 crossLink.setSolventPathDistance(
            xwalk.constants.Constants.SECOND_ATOM_IS_SOLVENT_INACCESSIBLE
