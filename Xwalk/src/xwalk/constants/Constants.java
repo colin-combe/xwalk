@@ -102,6 +102,12 @@ public class Constants {
      * Default SASD value for cross-links with solvent inaccessible atoms.
      */
     public static final double BOTH_ATOMS_ARE_SOLVENT_INACCESSIBLE = -4.0;
+    //--------------------------------------------------------------------------
+    /**
+     * Default SASD value for cross-linked atom that are buried and unreachable
+     * to solvent despite having a positive solvent accessibility.
+     */
+    public static final double FIRST_ATOM_IS_BURIED = -5.0;
 
     //--------------------------------------------------------------------------
     // CONSTANT STRING VALUES

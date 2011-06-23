@@ -316,7 +316,9 @@ public class GridCell {
      */
     public final GridCell copy() {
         GridCell copy = new GridCell(this.getPoint3d().copy(), this.getSize());
-        copy.setPoint3i(this.getPoint3i().copy());
+        if (this.getPoint3i() != null) {
+            copy.setPoint3i(this.getPoint3i().copy());
+        }
         copy.setValue(Value.CLUSTER_NO, this.getValue(Value.CLUSTER_NO));
         copy.setValue(Value.GENERAL, this.getValue(Value.GENERAL));
         copy.setValue(Value.DISTANCE, this.getValue(Value.DISTANCE));

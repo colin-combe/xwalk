@@ -22,6 +22,8 @@ import structure.grid.Grid;
 import structure.grid.GridCell;
 import structure.grid.Path;
 import structure.grid.GridCell.Value;
+import structure.math.Point3d;
+import structure.math.Point3i;
 import structure.math.algorithms.BreadthFirstSearch;
 import structure.matter.Atom;
 import structure.matter.AtomList;
@@ -93,6 +95,16 @@ public class SolventPathDistance {
             // if atom2 is not solvent accessible than leave atom2cells list
             // empty.
             GridCell atom2cell = atomGrid.get(atom2);
+            // given a distance file, a residue pair might have a larger
+            // distance then the size of the grid, in which case a NULLPOINTER
+            // error would occur. Create a dummy grid cell in those cases.
+            if (atom2cell == null) {
+                atom2cell = new GridCell(atom2.getPoint3d(),
+                                         atomGrid.get(0, 0, 0).getSize());
+                atom2cell.setPoint3i(new Point3i(Integer.MAX_VALUE,
+                                                 Integer.MAX_VALUE,
+                                                 Integer.MAX_VALUE));
+            }
             atom2cell.reset();
             atom2cells.add(atom2cell);
             atomCells = atomGrid.getAllGridCells(atom2);
@@ -114,7 +126,9 @@ public class SolventPathDistance {
      *        - double value representing the maximum allowed distance between
      *          source and target.
      * @return List of Path objects, one for each solvent path distance
-     *         calculation
+     *         calculation. An empty path list is returned, if the path
+     *         calculation did not succeed due to the solvent inaccessibility of
+     *         the source cell neighbourhood.
      */
     public final ArrayList < Path > getShortestPath(final double maxDist) {
         // initialize distance calculation
@@ -126,6 +140,9 @@ public class SolventPathDistance {
                                                                     grid,
                                                                     maxDist
                                                                     );
+        if (!shortestPathAlgo.hasFinished) {
+            return new ArrayList < Path >();
+        }
         return paths;
     }
     //--------------------------------------------------------------------------

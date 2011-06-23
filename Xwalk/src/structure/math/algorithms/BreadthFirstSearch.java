@@ -41,8 +41,16 @@ public class BreadthFirstSearch {
      * Constant, indicating that the target cell is the first in the path.
      */
     public static final int CELL_NO_OF_TARGET_CELL_IN_PATH = 0;
+
     /**
-     *
+     * Boolean indicating whether distance assignment had to end prematurely,
+     * due to solvent inaccessibility of cross-link
+     */
+    public boolean hasFinished = false;
+
+    /**
+     * Global variable to keep track on targets that have already been assigned
+     * a distance.
      */
     private Hashtable < GridCell, String > targetsFoundInSearch =
                                           new Hashtable < GridCell, String >();
@@ -56,14 +64,15 @@ public class BreadthFirstSearch {
      *          distance calculation.
      * @param targets
      *        - List of target grid cells, which represent the end point in the
-     *        distance calcuation
+     *        distance calculation
      * @param grid
      *        - Grid object in which the entire search is done.
      * @param maxDist
      *        - double value representing the maximum distance to search for in
      *          the grid
      * @return List of path objects, holding each the path between the source
-     *         and one target cell.
+     *         and one target cell. If no path could be found, than each
+     *         path object holds only the target cell.
      */
     public final ArrayList < Path > findShortestPath(
                                            final GridCell source,
@@ -156,11 +165,13 @@ public class BreadthFirstSearch {
                           }
                       }
                   }
-                  // remove target from list of targets if is has been found.
+                  // check whether we have reached the target cell already.
+                  // If so, remove target from list of targets.
                   GridCell equal = GridUtilities.equals(neighbour, targets);
                   if (equal != null) {
                       this.targetsFoundInSearch.put(neighbour, "");
                       if (targets.size() == this.targetsFoundInSearch.size()) {
+                          this.hasFinished = true;
                           return;
                       }
                   }
@@ -180,6 +191,7 @@ public class BreadthFirstSearch {
                                                            );
              if (neighbourDistance > maxDist) {
                  maxDistCount++;
+                 this.hasFinished = true;
              }
         }
         // break up recursive loop.
