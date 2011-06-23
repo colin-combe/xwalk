@@ -1,4 +1,4 @@
-Xwalk (version 0.1)
+Xwalk (version 0.2.1)
 -------------------
 
 INTRODUCTION
@@ -139,6 +139,12 @@ Any of the above conditions can be waived if the authors give permission.
 
 VERSION HISTORY
 ---------------
+0.2.1: -Fixed a bug that caused Xwalk to crash on cases where cross-linked atoms
+        were located outside the grid.
+       -Added a further number code to the SASD column for atom pairs that
+        are located in closed cavities prohibiting a shortest path calculation.
+       -Bug fixes   
+
 0.2: -Probability calculation with option -prob
      -Number code in SASD column (see -help)
      -Euclidean distance for all residue pairs in a distance file (-dist)
