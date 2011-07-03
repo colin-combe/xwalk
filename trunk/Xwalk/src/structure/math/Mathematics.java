@@ -225,7 +225,7 @@ public class Mathematics {
             minY = Math.min(minY, point.getY());
             minZ = Math.min(minZ, point.getZ());
         }
-        return new Point3d((float)minX, minY, minZ);
+        return new Point3d(minX, minY, minZ);
     }
     //--------------------------------------------------------------------------
     /**
@@ -454,7 +454,7 @@ public class Mathematics {
      * @return Euclidean distance as a double value.
      */
     public static float distance(final Point3f xyz1, final Point3f xyz2) {
-        return (float)Math.sqrt(Math.pow(xyz2.getX() - xyz1.getX(), 2)
+        return (float) Math.sqrt(Math.pow(xyz2.getX() - xyz1.getX(), 2)
                        + Math.pow(xyz2.getY() - xyz1.getY(), 2)
                        + Math.pow(xyz2.getZ() - xyz1.getZ(), 2)
                         );
