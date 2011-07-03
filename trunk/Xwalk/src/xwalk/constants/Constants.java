@@ -47,12 +47,12 @@ public class Constants {
     /**
      * Default cross-linker length.
      */
-    public static final double DEFAULT_CROSS_LINKER_LENGTH = 34;
+    public static final float DEFAULT_CROSS_LINKER_LENGTH = 34;
     //--------------------------------------------------------------------------
     /**
      * Default size of cross-linker ends.
      */
-    public static final double CROSS_LINKER_END_SIZE = 10;
+    public static final float CROSS_LINKER_END_SIZE = 10;
     //--------------------------------------------------------------------------
     /**
      * Minimum length of peptide in order to be detected by xQuest.
@@ -72,42 +72,42 @@ public class Constants {
     /**
      * Maximum allowed distance for calculating SASD.
      */
-    public static final double MAX_SASD_DISTANCE = 80.0;
+    public static final float MAX_SASD_DISTANCE = 80.0f;
     //--------------------------------------------------------------------------
     /**
      * Solvent radius when SASD calculations are done on the backbone
      * coordinates only.
      */
-    public static final double SOLVENT_RADIUS_BACKBONE = 2.0;
+    public static final float SOLVENT_RADIUS_BACKBONE = 2.0f;
     //--------------------------------------------------------------------------
     /**
      * Default SASD value for cross-links that exceed with their SASD the user
      * given maximum distance.
      */
-    public static final double NON_CONFORMING_CROSS_LINK = -1.0;
+    public static final float NON_CONFORMING_CROSS_LINK = -1.0f;
     //--------------------------------------------------------------------------
     /**
      * Default SASD value for cross-links with a solvent inaccessible first
      * atom.
      */
-    public static final double FIRST_ATOM_IS_SOLVENT_INACCESSIBLE = -2.0;
+    public static final float FIRST_ATOM_IS_SOLVENT_INACCESSIBLE = -2.0f;
     //--------------------------------------------------------------------------
     /**
      * Default SASD value for cross-links with a solvent inaccessible first
      * atom.
      */
-    public static final double SECOND_ATOM_IS_SOLVENT_INACCESSIBLE = -3.0;
+    public static final float SECOND_ATOM_IS_SOLVENT_INACCESSIBLE = -3.0f;
     //--------------------------------------------------------------------------
     /**
      * Default SASD value for cross-links with solvent inaccessible atoms.
      */
-    public static final double BOTH_ATOMS_ARE_SOLVENT_INACCESSIBLE = -4.0;
+    public static final float BOTH_ATOMS_ARE_SOLVENT_INACCESSIBLE = -4.0f;
     //--------------------------------------------------------------------------
     /**
      * Default SASD value for cross-linked atom that are buried and unreachable
      * to solvent despite having a positive solvent accessibility.
      */
-    public static final double FIRST_ATOM_IS_BURIED = -5.0;
+    public static final float FIRST_ATOM_IS_BURIED = -5.0f;
 
     //--------------------------------------------------------------------------
     // CONSTANT STRING VALUES

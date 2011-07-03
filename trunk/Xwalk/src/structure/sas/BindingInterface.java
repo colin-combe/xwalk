@@ -46,7 +46,7 @@ public class BindingInterface {
     /**
      * Buried surface area of this interface.
      */
-    private double bsa;
+    private float bsa;
     //--------------------------------------------------------------------------
     /**
      * Constructor to calculate the amino acids at the binding interface
@@ -101,14 +101,14 @@ public class BindingInterface {
         write.write(proteinA);
         naccess.run(tempFileName);
         naccess.setSolventAccessibility(proteinA);
-        double sasaA = naccess.getTotalSolventAccessibility();
+        float sasaA = naccess.getTotalSolventAccessibility();
 
         tempFileName = "proteinB.pdb";
         write.setFile(tempFileName);
         write.write(proteinB);
         naccess.run(tempFileName);
         naccess.setSolventAccessibility(proteinB);
-        double sasaB = naccess.getTotalSolventAccessibility();
+        float sasaB = naccess.getTotalSolventAccessibility();
 
         tempFileName = "proteinAB.pdb";
         write.setFile(tempFileName);
@@ -121,7 +121,7 @@ public class BindingInterface {
         aminoAcidsAB.addAll(proteinB.copy());
         PolyPeptide proteinAB = new PolyPeptide(aminoAcidsAB);
         naccess.setSolventAccessibility(proteinAB);
-        double sasaAB = naccess.getTotalSolventAccessibility();
+        float sasaAB = naccess.getTotalSolventAccessibility();
 
         //----------------------------------------------------------------------
         // Calculate buried surface area from SASA of single proteins & complex
@@ -148,7 +148,7 @@ public class BindingInterface {
             for (AminoAcid aa2 : surfaces.get(chainId)) {
                 if (MatterUtilities.equalsResidue(aa1.getAtom(0),
                                                   aa2.getAtom(0))) {
-                    double sasDiff = aa1.getTotalSas() - aa2.getTotalSas();
+                    float sasDiff = aa1.getTotalSas() - aa2.getTotalSas();
                     if (Math.abs(sasDiff)
                         >
                         Constants.MINUMUM_SASA_DIFFERECE_FOR_INTERFACE) {
@@ -175,9 +175,9 @@ public class BindingInterface {
     //--------------------------------------------------------------------------
     /**
      * Returns the buried buried surface area at this interface.
-     * @return double value representing the buried surface area.
+     * @return float value representing the buried surface area.
      */
-    public final double getBSA() {
+    public final float getBSA() {
         return bsa;
     }
     //--------------------------------------------------------------------------

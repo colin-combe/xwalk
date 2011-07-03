@@ -23,7 +23,7 @@ import structure.constants.Constants;
 import structure.constants.Constants.BondTypes;
 import structure.constants.Constants.ElementTypes;
 import structure.math.Mathematics;
-import structure.math.Point3d;
+import structure.math.Point3f;
 import structure.matter.parameter.Element;
 import structure.matter.protein.PolyPeptide;
 import structure.matter.protein.PolyPeptideList;
@@ -96,7 +96,7 @@ public abstract class MatterUtilities {
      *         coordinates, {@code FALSE} otherwise.
      */
     public static boolean equalsPosition(final Atom atom1, final Atom atom2) {
-        return atom1.getPoint3d().equals(atom2.getPoint3d());
+        return atom1.getXYZ().equals(atom2.getXYZ());
     }
     //--------------------------------------------------------------------------
 
@@ -111,16 +111,16 @@ public abstract class MatterUtilities {
      */
      public static AtomList getClosestAtomPair(final AtomList list1,
                                                final AtomList list2) {
-        double minDist = Integer.MAX_VALUE;
+        float minDist = Integer.MAX_VALUE;
         AtomList minList = new AtomList();
         minList.add(list1.get(0));
         minList.add(list2.get(0));
 
         for (Atom atom1 : list1) {
             for (Atom atom2 : list2) {
-                double dist = Mathematics.distance(atom1.getPoint3d(),
-                                                   atom2.getPoint3d()
-                                                  );
+                float dist = Mathematics.distance(atom1.getXYZ(),
+                                                  atom2.getXYZ()
+                                                 );
                 if (dist < minDist) {
                     minDist = dist;
                     minList.set(0, atom1);
@@ -141,18 +141,18 @@ public abstract class MatterUtilities {
      * @return Point3d object holding the maximum coordinates in each Cartesian
      *         dimension in its XYZ fields.
      */
-    public static Point3d getMaximumCooridnate(final AtomList coords) {
-        double maxX = Integer.MIN_VALUE;
-        double maxY = Integer.MIN_VALUE;
-        double maxZ = Integer.MIN_VALUE;
+    public static Point3f getMaximumCooridnate(final AtomList coords) {
+        float maxX = Integer.MIN_VALUE;
+        float maxY = Integer.MIN_VALUE;
+        float maxZ = Integer.MIN_VALUE;
         for (Atom atom : coords) {
-             Point3d xyz = atom.getPoint3d();
-             double r = atom.getVanDerWaalsRadius();
+             Point3f xyz = atom.getXYZ();
+             float r = atom.getVanDerWaalsRadius();
              maxX = Math.max(maxX, xyz.getX() + r);
              maxY = Math.max(maxY, xyz.getY() + r);
              maxZ = Math.max(maxZ, xyz.getZ() + r);
         }
-        return new Point3d(maxX, maxY, maxZ);
+        return new Point3f(maxX, maxY, maxZ);
     }
     //--------------------------------------------------------------------------
 
@@ -161,41 +161,41 @@ public abstract class MatterUtilities {
      * @param coords
      *        AtomList object holding the Cartesian coordinates of a list of
      *        atoms.
-     * @return Point3d object holding the minimum coordinates in each Cartesian
+     * @return Point3f object holding the minimum coordinates in each Cartesian
      *         dimension in its XYZ fields.
      */
-    public static Point3d getMinimumCooridnate(final AtomList coords) {
-        double minX = Integer.MAX_VALUE;
-        double minY = Integer.MAX_VALUE;
-        double minZ = Integer.MAX_VALUE;
+    public static Point3f getMinimumCooridnate(final AtomList coords) {
+        float minX = Integer.MAX_VALUE;
+        float minY = Integer.MAX_VALUE;
+        float minZ = Integer.MAX_VALUE;
         for (Atom atom : coords) {
-             Point3d xyz = atom.getPoint3d();
-             double r = atom.getVanDerWaalsRadius();
+             Point3f xyz = atom.getXYZ();
+             float r = atom.getVanDerWaalsRadius();
              minX = Math.min(minX, xyz.getX() - r);
              minY = Math.min(minY, xyz.getY() - r);
              minZ = Math.min(minZ, xyz.getZ() - r);
         }
-        return new Point3d(minX, minY, minZ);
+        return new Point3f(minX, minY, minZ);
     }
     //--------------------------------------------------------------------------
     /**
      * Returns the dimension of a protein complex.
      * @param complex
      *        - PolyPeptideList object to which dimension should be calculated.
-     * @return double value representing the dimension of the protein complex.
+     * @return float value representing the dimension of the protein complex.
      */
-    public static double getDimension(final PolyPeptideList complex) {
+    public static float getDimension(final PolyPeptideList complex) {
         AtomList allAtoms = complex.getAllAtoms();
-        Point3d max = MatterUtilities.getMaximumCooridnate(allAtoms);
-        Point3d min = MatterUtilities.getMinimumCooridnate(allAtoms);
-        Point3d diff = new Point3d(max.getX() - min.getX(),
+        Point3f max = MatterUtilities.getMaximumCooridnate(allAtoms);
+        Point3f min = MatterUtilities.getMinimumCooridnate(allAtoms);
+        Point3f diff = new Point3f(max.getX() - min.getX(),
                                    max.getY() - min.getY(),
                                    max.getZ() - min.getZ());
-        double sum = Math.pow(diff.getX(), 2)
-                   + Math.pow(diff.getY(), 2)
-                   + Math.pow(diff.getZ(), 2);
+        float sum = (float) (Math.pow(diff.getX(), 2)
+                           + Math.pow(diff.getY(), 2)
+                           + Math.pow(diff.getZ(), 2));
 
-        double dim = Math.sqrt(sum);
+        float dim = (float) Math.sqrt(sum);
     return dim;
     }
     //--------------------------------------------------------------------------
@@ -222,9 +222,9 @@ public abstract class MatterUtilities {
                         atom2.getElement().getType() == ElementTypes.METAL) {
                         continue;
                     }
-                    double dist = Mathematics.distance(atom1.getPoint3d(),
-                                                       atom2.getPoint3d());
-                    double maxDist;
+                    float dist = Mathematics.distance(atom1.getXYZ(),
+                                                       atom2.getXYZ());
+                    float maxDist;
                     if (atom1.getElement() == Element.HYDROGEN
                         ||
                         atom2.getElement() == Element.HYDROGEN) {

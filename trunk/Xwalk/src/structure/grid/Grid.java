@@ -14,7 +14,7 @@
 
 package structure.grid;
 
-import structure.math.Point3d;
+import structure.math.Point3f;
 import structure.math.Point3i;
 import structure.matter.Atom;
 
@@ -34,12 +34,12 @@ public class Grid {
     /**
      * Stores the maximum Cartesian coordinates of the grid.
      */
-    private Point3d max;
+    private Point3f max;
 
     /**
      * Stores the minimum Cartesian coordinates of the grid.
      */
-    private Point3d min;
+    private Point3f min;
 
     /**
      * Stores the number of cells in the X dimension.
@@ -58,18 +58,18 @@ public class Grid {
     /**
      * Constructor.
      * @param minimum
-     *        - Point3d object holding the minimum X,Y,Z Cartesian coordinates
+     *        - Point3f object holding the minimum X,Y,Z Cartesian coordinates
      *          of this grid.
      * @param maximum
-     *        - Point3d object holding the maximum X,Y,Z Cartesian coordinates
+     *        - Point3f object holding the maximum X,Y,Z Cartesian coordinates
      *          of this grid.
      * @param gridCellSize
-     *        - Double value representing the size of all grid cells i.e. their
+     *        - float value representing the size of all grid cells i.e. their
      *          cell edge length.
      */
-    public Grid(final Point3d minimum,
-                final Point3d maximum,
-                final double gridCellSize) {
+    public Grid(final Point3f minimum,
+                final Point3f maximum,
+                final float gridCellSize) {
         this.min = minimum;
         this.max = maximum;
         this.setNumberOfCells(gridCellSize);
@@ -80,16 +80,16 @@ public class Grid {
         for (int i = 0; i < this.noOfxCells; i++) {
             for (int j = 0; j < this.noOfyCells; j++) {
                 for (int k = 0; k < this.noOfzCells; k++) {
-                     double x = this.min.getX() + (i * gridCellSize)
+                     float x = this.min.getX() + (i * gridCellSize)
                                                            + (gridCellSize / 2);
-                     double y = this.min.getY() + (j * gridCellSize)
+                     float y = this.min.getY() + (j * gridCellSize)
                                                            + (gridCellSize / 2);
-                     double z = this.min.getZ() + (k * gridCellSize)
+                     float z = this.min.getZ() + (k * gridCellSize)
                                                            + (gridCellSize / 2);
 
-                    this.gridCells[i][j][k] = new GridCell(new Point3d(x, y, z),
+                    this.gridCells[i][j][k] = new GridCell(new Point3f(x, y, z),
                                                            gridCellSize);
-                    this.gridCells[i][j][k].setPoint3i(new Point3i(i, j, k));
+                    this.gridCells[i][j][k].setIndices(new Point3i(i, j, k));
                 }
             }
         }
@@ -98,29 +98,29 @@ public class Grid {
     //--------------------------------------------------------------------------
     /**
      * Returns the minimum Cartesian coordinate of this grid.
-     * @return Point3d
-     *        - Point3d object, which stores the minimum Cartesian coordinate.
+     * @return Point3f
+     *        - Point3f object, which stores the minimum Cartesian coordinate.
      */
-    protected final Point3d getMin() {
+    protected final Point3f getMin() {
         return this.min;
     }
     //--------------------------------------------------------------------------
     /**
      * Returns the maximum Cartesian coordinate of this grid.
-     * @return Point3d
-     *        - Point3d object, which stores the maximum Cartesian coordinate.
+     * @return Point3f
+     *        - Point3f object, which stores the maximum Cartesian coordinate.
      */
-    protected final Point3d getMax() {
+    protected final Point3f getMax() {
         return this.max;
     }
     //--------------------------------------------------------------------------
     /**
      * Calculates the number of cells in all three XYZ Cartesian dimensions.
      * @param gridCellSize
-     *        - Double value representing the size of all grid cells i.e. their
+     *        - float value representing the size of all grid cells i.e. their
      *          cell edge length.
      */
-    private void setNumberOfCells(final double gridCellSize) {
+    private void setNumberOfCells(final float gridCellSize) {
        this.noOfxCells = Math.round((float) ((this.max.getX() - this.min.getX())
                                              /
                                              gridCellSize

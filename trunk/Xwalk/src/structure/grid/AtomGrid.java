@@ -17,7 +17,6 @@ package structure.grid;
 import java.util.ArrayList;
 
 import structure.constants.Constants;
-import structure.grid.GridCell.Value;
 import structure.math.Mathematics;
 import structure.math.algorithms.BoundarySearch;
 import structure.matter.Atom;
@@ -44,17 +43,17 @@ public class AtomGrid extends Grid {
      * @param atomList
      *        - AtomList object on which Grid should be build upon.
      * @param gridCellSize
-     *        - double value representing the cell edge length of each grid cell
+     *        - float value representing the cell edge length of each grid cell
      * @param offSet
-     *        - double value by which grid should be in addition increased in
+     *        - float value by which grid should be in addition increased in
      *          size
      * @param doBoundaryCalculation
      *        - {@code TRUE} if boundary between occupied and unoccupied
      *          GridCell objects should be determined, {@code FALSE} otherwise.
      */
     public AtomGrid(final AtomList atomList,
-                    final double gridCellSize,
-                    final double offSet,
+                    final float gridCellSize,
+                    final float offSet,
                     final boolean doBoundaryCalculation) {
         super(MatterUtilities.getMinimumCooridnate(atomList).add(-offSet,
                                                                  -offSet,
@@ -79,14 +78,14 @@ public class AtomGrid extends Grid {
      * @param size
      *        - maximum size of local grid
      * @param gridCellSize
-     *        - double value representing the cell edge length of each grid cell
+     *        - float value representing the cell edge length of each grid cell
      */
     public AtomGrid(final AtomList atomList,
                     final Atom atom,
-                    final double size,
-                    final double gridCellSize) {
-        super(atom.getPoint3d().add(-size - 1, -size - 1, -size - 1),
-              atom.getPoint3d().add(size + 1, size + 1, size + 1),
+                    final float size,
+                    final float gridCellSize) {
+        super(atom.getXYZ().add(-size - 1, -size - 1, -size - 1),
+              atom.getXYZ().add(size + 1, size + 1, size + 1),
               gridCellSize);
 
         this.atoms = atomList;
@@ -118,15 +117,15 @@ public class AtomGrid extends Grid {
      */
     public final GridCell get(final Atom atom) {
 
-        int i = (int) ((atom.getPoint3d().getX() - this.getMin().getX())
+        int i = (int) ((atom.getXYZ().getX() - this.getMin().getX())
                        /
                        this.get(0, 0, 0).getSize());
 
-        int j = (int) ((atom.getPoint3d().getY() - this.getMin().getY())
+        int j = (int) ((atom.getXYZ().getY() - this.getMin().getY())
                        /
                        this.get(0, 0, 0).getSize());
 
-        int k = (int) ((atom.getPoint3d().getZ() - this.getMin().getZ())
+        int k = (int) ((atom.getXYZ().getZ() - this.getMin().getZ())
                        /
                        this.get(0, 0, 0).getSize());
 
@@ -135,8 +134,6 @@ public class AtomGrid extends Grid {
             && k > 0 && k < this.getNumberOfCells().getK()) {
 
             GridCell cell = this.get(i, j, k);
-
-            cell.setValue(Value.GENERAL, atom.getSerialNumber() + "");
 
             return cell;
         } else {
@@ -170,7 +167,7 @@ public class AtomGrid extends Grid {
                                                         final int expand) {
         ArrayList < GridCell > allCells = new ArrayList < GridCell >();
 
-        double radius = atom.getVanDerWaalsRadius();
+        float radius = atom.getVanDerWaalsRadius();
 
         GridCell centre = this.get(atom);
 
@@ -193,20 +190,15 @@ public class AtomGrid extends Grid {
            // check that grid cell really is located within atom vdW sphere.
            ArrayList < GridCell > neighbours = new ArrayList < GridCell >();
            for (GridCell neighbour : neighboursCube) {
-               double dist = Mathematics.distance(
-                                                  atom.getPoint3d(),
-                                                  neighbour.getPoint3d()
+               float dist = Mathematics.distance(
+                                                  atom.getXYZ(),
+                                                  neighbour.getXYZ()
                                                   );
                if (dist - radius - (centre.getSize() * expand) < 0) {
                    neighbours.add(neighbour);
                }
            }
 
-           for (GridCell neighbour : neighbours) {
-               neighbour.setValue(Value.GENERAL,
-                                  centre.getValue(Value.GENERAL)
-                                 );
-           }
            allCells.add(centre);
            allCells.addAll(neighbours);
         }

@@ -18,15 +18,12 @@ package xwalk.io;
 import java.io.IOException;
 
 import structure.constants.Constants;
-import structure.grid.GridCell.Value;
 import structure.io.ReadFile;
 import structure.matter.Atom;
-import structure.matter.AtomList;
 import xwalk.crosslink.CrossLink;
 import xwalk.crosslink.CrossLinkList;
 import xwalk.crosslink.MonoLink;
 import xwalk.crosslink.MonoLinkList;
-import xwalk.crosslink.CrossLinkParameter.Parameter;
 
 /**
  * This class converts distance files into CrossLink objects.
@@ -72,8 +69,8 @@ public class DistanceReader {
                 String file = "";
                 int index = 0;
                 int seqDist = -1;
-                double eucDist = -1;
-                double solvDist = -1;
+                float eucDist = -1;
+                float solvDist = -1;
                 try {
                     String[] array = line.trim().split("\t");
                     // if this line holds a mono-link than skip it.
@@ -100,14 +97,14 @@ public class DistanceReader {
                         seqDist = Integer.parseInt(array[4]);
                     }
                     if (array.length > 5) {
-                        eucDist = Double.parseDouble(array[5]);
+                        eucDist = Float.parseFloat(array[5]);
                     }
                     if (array.length > 6) {
-                        solvDist = Double.parseDouble(
+                        solvDist = Float.parseFloat(
                                                      Value.DISTANCE.getDefault()
                                                      );
                         if (!array[6].equals("-")) {
-                            solvDist = Double.parseDouble(array[6]);
+                            solvDist = Float.parseFloat(array[6]);
                         }
                     }
                     if (array.length > 7) {

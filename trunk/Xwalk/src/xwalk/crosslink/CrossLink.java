@@ -52,12 +52,12 @@ public class CrossLink extends Bond {
      * Distance that the cross-link spans in Euclidean space.
      * Default value is -1.
      */
-    private double eucDist = -1.0;
+    private float eucDist = -1.0f;
     /**
      * Distance that the cross-link spans in Solvent-Path distance space.
      * Default value is -0.5.
      */
-    private double solventPathDistance = -0.5;
+    private float solventPathDistance = -0.5f;
 
     /**
      * Probability of finding a cross-link with this Euclidean distance in a
@@ -65,14 +65,14 @@ public class CrossLink extends Bond {
      * cross-link distances in the literature and in the Aebersold lab.
      * Default value is 0.
      */
-    private double eucDistProbability = -1.0;
+    private float eucDistProbability = -1.0f;
     /**
      * Probability of finding a cross-link with this SAS distance in a
      * cross-linking experiment. The probability is based on observed
      * cross-link distances in the literature and in the Aebersold lab.
      * Default value is 0.
      */
-    private double sasdDistProbability = -1.0;
+    private float sasdDistProbability = -1.0f;
     /**
      * Stores the information whether a probability calculation has been
      * requested. As a consequence probabilities will be printed out
@@ -116,11 +116,11 @@ public class CrossLink extends Bond {
     /**
      * Hashtable holding all probabilities for certain SAS distance bins.
      */
-    private static Hashtable<Double, Double> sasdProb;
+    private static Hashtable<Float, Float> sasdProb;
     /**
      * Hashtable holding all probabilities for certain Euclidean distance bins.
      */
-    private static Hashtable<Double, Double> eucProb;
+    private static Hashtable<Float, Float> eucProb;
     //--------------------------------------------------------------------------
     /**
      * Constructor.
@@ -160,7 +160,7 @@ public class CrossLink extends Bond {
      * @param atom2
      *        - Second protein atom to be connected by the virtual cross-linker.
      * @param euclideanDistance
-     *        - double value representing the Euclidean distance between both
+     *        - float value representing the Euclidean distance between both
      *          atoms.
      * @param sequenceDistance
      *        - integer value representing the distance in sequence space of
@@ -170,7 +170,7 @@ public class CrossLink extends Bond {
                      final Atom atom1,
                      final Atom atom2,
                      final int sequenceDistance,
-                     final double euclideanDistance
+                     final float euclideanDistance
                     ) {
         super(atom1, atom2, BondTypes.CROSS_LINK);
         CrossLink.readProbabilities();
@@ -213,8 +213,8 @@ public class CrossLink extends Bond {
      */
     private void setEuclideanDistance() {
 
-        this.eucDist = Mathematics.distance(this.preAtom.getPoint3d(),
-                                            this.postAtom.getPoint3d());
+        this.eucDist = Mathematics.distance(this.preAtom.getXYZ(),
+                                            this.postAtom.getXYZ());
 
     }
     //--------------------------------------------------------------------------
@@ -225,7 +225,7 @@ public class CrossLink extends Bond {
      * @param dist
      *        - Distance in the Solvent-Path space.
      */
-    public final void setSolventPathDistance(final double dist) {
+    public final void setSolventPathDistance(final float dist) {
         this.solventPathDistance = dist;
     }
     //--------------------------------------------------------------------------
@@ -251,21 +251,21 @@ public class CrossLink extends Bond {
 
     /**
      * Returns the distance in Euclidean space.
-     * @return double number representing the distance in Euclidean space.
+     * @return float number representing the distance in Euclidean space.
      */
-    public final double getEuclideanDistance() {
-        return Double.parseDouble(
+    public final float getEuclideanDistance() {
+        return Float.parseFloat(
             xwalk.constants.Constants.DISTANCE_DEC_FORMAT.format(this.eucDist));
     }
     //--------------------------------------------------------------------------
 
     /**
      * Returns the distance in Solvent-Path distance space.
-     * @return double number representing the distance in Solvent-Path distance
+     * @return float number representing the distance in Solvent-Path distance
      *         space.
      */
-    public final double getSolventPathDistance() {
-        return Double.parseDouble(
+    public final float getSolventPathDistance() {
+        return Float.parseFloat(
                 xwalk.constants.Constants.DISTANCE_DEC_FORMAT.format(
                                                         this.solventPathDistance
                                                                     ));
@@ -275,10 +275,10 @@ public class CrossLink extends Bond {
     /**
      * Returns the probability of this cross-link to be observed with its
      * SAS distance in real experiments.
-     * @return double number representing the probability.
+     * @return float number representing the probability.
      */
-    public final double getSolventPathDistanceProbability() {
-        return Double.parseDouble(
+    public final float getSolventPathDistanceProbability() {
+        return Float.parseFloat(
                 xwalk.constants.Constants.PROBABILITY_DEC_FORMAT.format(
                                                         this.sasdDistProbability
                                                                        ));
@@ -288,10 +288,10 @@ public class CrossLink extends Bond {
     /**
      * Returns the probability of this cross-link to be observed with its
      * Euclidean distance in real experiments.
-     * @return double number representing the probability.
+     * @return float number representing the probability.
      */
-    public final double getEuclideanDistanceProbability() {
-        return Double.parseDouble(
+    public final float getEuclideanDistanceProbability() {
+        return Float.parseFloat(
                 xwalk.constants.Constants.PROBABILITY_DEC_FORMAT.format(
                                                          this.eucDistProbability
                                                                        ));
@@ -544,12 +544,12 @@ public class CrossLink extends Bond {
      * distance.
      */
     public void setEucProbability() {
-        double preProb = -1;
-        TreeSet<Double> sortedBins = new TreeSet<Double>(
+        float preProb = -1;
+        TreeSet<Float> sortedBins = new TreeSet<Float>(
                                                       CrossLink.eucProb.keySet()
                                                         );
-        for (double bin : sortedBins) {
-            double prob = CrossLink.eucProb.get(bin);
+        for (float bin : sortedBins) {
+            float prob = CrossLink.eucProb.get(bin);
             if (bin > this.eucDist) {
                 this.eucDistProbability = preProb;
                 break;
@@ -566,12 +566,12 @@ public class CrossLink extends Bond {
      * Sets the probability of observing this cross-link with its SAS distance.
      */
     public void setSASDprobability() {
-        double preProb = -1;
-        TreeSet<Double> sortedBins = new TreeSet<Double>(
+        float preProb = -1;
+        TreeSet<Float> sortedBins = new TreeSet<Float>(
                                                      CrossLink.sasdProb.keySet()
                                                         );
-        for (double bin : sortedBins) {
-            double prob = CrossLink.sasdProb.get(bin);
+        for (float bin : sortedBins) {
+            float prob = CrossLink.sasdProb.get(bin);
             if (bin > this.solventPathDistance) {
                 this.sasdDistProbability = preProb;
                 break;

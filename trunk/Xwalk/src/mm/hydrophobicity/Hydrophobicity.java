@@ -20,7 +20,7 @@ import java.util.Hashtable;
 
 import structure.constants.Constants;
 import structure.math.Mathematics;
-import structure.math.Point3d;
+import structure.math.Point3f;
 import structure.matter.Atom;
 import structure.matter.parameter.AminoAcidType;
 import structure.matter.parameter.AtomType;
@@ -69,21 +69,21 @@ public class Hydrophobicity {
      * Sets to all amino acids atoms in a protein their associated XlogP values.
      * @param reader
      *        ParameterReader object holding all atomic XlogP parameter values.
-     * @return double value representing the sum of XlogP values for the
+     * @return float value representing the sum of XlogP values for the
      *         protein complex.
      */
-    private double setAtomicXlogP(final ParameterReader reader) {
+    private float setAtomicXlogP(final ParameterReader reader) {
 
-        Hashtable <AminoAcidType, Hashtable <AtomType, Double>> xlogPs =
+        Hashtable <AminoAcidType, Hashtable <AtomType, Float>> xlogPs =
                                              reader.getXlogPparameterSet();
-        double sum = 0;
+        float sum = 0;
         for (PolyPeptide polyPeptide : this.polyPeptideComplex) {
             for (AminoAcid aa : polyPeptide) {
                 for (Atom atom : aa.getAllAtoms()) {
                     if (!atom.getElement().getSymbol().equals("H")) {
-                        Hashtable<AtomType, Double> atomicXlogPs =
+                        Hashtable<AtomType, Float> atomicXlogPs =
                                                        xlogPs.get(aa.getType());
-                        double xlogP = atomicXlogPs.get(atom.getType());
+                        float xlogP = atomicXlogPs.get(atom.getType());
                         atom.setXlogP(xlogP);
                         sum += xlogP;
                     }
@@ -101,29 +101,29 @@ public class Hydrophobicity {
      * in the potential calculation.
      * @param points
      *        List of points on which potential will be calculated.
-     * @return List of double values where each double value represents the
+     * @return List of float values where each float value represents the
      *         XlogP potential of its associated point in the points parameter.
      */
-    public final ArrayList<Double> mapHydrophobicity(
-                                                 final ArrayList<Point3d> points
+    public final ArrayList<Float> mapHydrophobicity(
+                                                 final ArrayList<Point3f> points
                                                ) {
 
-        ArrayList<Double> xlogPpotential = new ArrayList<Double>();
-        double max = mm.constants.Constants.PHYSICOCHEMICAL_INFLUENCE_RADIUS;
+        ArrayList<Float> xlogPpotential = new ArrayList<Float>();
+        float max = mm.constants.Constants.PHYSICOCHEMICAL_INFLUENCE_RADIUS;
 
         // Initialize xlogPpotential list
-        for (int i = 0; i < points.size(); i++) { xlogPpotential.add(0.0); }
+        for (int i = 0; i < points.size(); i++) { xlogPpotential.add(0.0f); }
 
         // get all protein residues that are within 9 Angstroem.
-        Hashtable<Atom, ArrayList<Point3d>> env =
-                                      new Hashtable<Atom, ArrayList<Point3d>>();
+        Hashtable<Atom, ArrayList<Point3f>> env =
+                                      new Hashtable<Atom, ArrayList<Point3f>>();
 
         for (PolyPeptide polyPeptide : this.polyPeptideComplex) {
             for (AminoAcid aa : polyPeptide) {
                 for (Atom atom : aa.getAllAtoms()) {
-                    for (Point3d point : points) {
-                        double dist = Mathematics.distance(
-                                                           atom.getPoint3d(),
+                    for (Point3f point : points) {
+                        float dist = Mathematics.distance(
+                                                           atom.getXYZ(),
                                                            point
                                                           );
                         if (dist <= max) {
@@ -131,8 +131,8 @@ public class Hydrophobicity {
                                                                           "H"
                                                                          )) {
                                 if (!env.containsKey(atom)) {
-                                    ArrayList<Point3d> coords =
-                                                       new ArrayList<Point3d>();
+                                    ArrayList<Point3f> coords =
+                                                       new ArrayList<Point3f>();
                                     coords.add(point);
                                     env.put(atom, coords);
                                 } else {
@@ -146,14 +146,15 @@ public class Hydrophobicity {
         }
 
         for (Atom atom : env.keySet()) {
-            ArrayList<Point3d> coords = env.get(atom);
+            ArrayList<Point3f> coords = env.get(atom);
 
-            for (Point3d point : coords) {
-                double h = atom.getXlogP();
-                double dist = Mathematics.distance(atom.getPoint3d(), point);
+            for (Point3f point : coords) {
+                float h = atom.getXlogP();
+                float dist = Mathematics.distance(atom.getXYZ(), point);
                 double s = Mathematics.sigmoidFunction(dist, max);
                 int index = points.indexOf(point);
-                xlogPpotential.set(index, xlogPpotential.get(index) + (h * s));
+                xlogPpotential.set(index, (float) (xlogPpotential.get(index)
+                                           + (h * s)));
             }
         }
     return xlogPpotential;

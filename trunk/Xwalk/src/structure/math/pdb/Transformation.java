@@ -15,7 +15,7 @@
 
 package structure.math.pdb;
 
-import structure.math.Point3d;
+import structure.math.Point3f;
 import structure.matter.Atom;
 import structure.matter.AtomList;
 
@@ -38,15 +38,15 @@ public class Transformation {
      * Returns the dimension of the AtomList object on the X,Y,Z axis.
      * @param atomList
      *           - AtomList object
-     * @return A Point3d object that holds the dimensions in X,Y,Z axis
-     *         in the X,Y,Z fields of the Point3d object.
+     * @return A Point3f object that holds the dimensions in X,Y,Z axis
+     *         in the X,Y,Z fields of the Point3f object.
      * @see #min(AtomList)
      * @see #max(AtomList)
      */
-    public static Point3d dimension(final AtomList atomList) {
-        Point3d min = Transformation.min(atomList);
-        Point3d max = Transformation.max(atomList);
-        Point3d dim = new Point3d(min.getX() - max.getX(),
+    public static Point3f dimension(final AtomList atomList) {
+        Point3f min = Transformation.min(atomList);
+        Point3f max = Transformation.max(atomList);
+        Point3f dim = new Point3f(min.getX() - max.getX(),
                                   min.getY() - max.getY(),
                                   min.getZ() - max.getZ());
     return dim;
@@ -57,26 +57,26 @@ public class Transformation {
      * Returns the minimum X,Y,Z coordinates within a list of atom coordinates.
      * @param atomList
      *           - AtomList object
-     * @return A Point3d object that holds the Cartesian coordinates of the
+     * @return A Point3f object that holds the Cartesian coordinates of the
      *         minimum
      *         X,Y,Z coordinates.
      * @see #max(AtomList)
      * @see #dimension(AtomList)
      */
-    public static Point3d min(final AtomList atomList) {
-        double xMin = Integer.MAX_VALUE;
-        double yMin = Integer.MAX_VALUE;
-        double zMin = Integer.MAX_VALUE;
+    public static Point3f min(final AtomList atomList) {
+        float xMin = Integer.MAX_VALUE;
+        float yMin = Integer.MAX_VALUE;
+        float zMin = Integer.MAX_VALUE;
         for (Atom atom : atomList) {
-             double x = atom.getPoint3d().getX();
-             double y = atom.getPoint3d().getY();
-             double z = atom.getPoint3d().getZ();
-             double r = atom.getVanDerWaalsRadius();
+             float x = atom.getXYZ().getX();
+             float y = atom.getXYZ().getY();
+             float z = atom.getXYZ().getZ();
+             float r = atom.getVanDerWaalsRadius();
              xMin = Math.min(xMin, x - r);
              yMin = Math.min(yMin, y - r);
              zMin = Math.min(zMin, z - r);
         }
-        return new Point3d(xMin, yMin, zMin);
+        return new Point3f(xMin, yMin, zMin);
     }
     //--------------------------------------------------------------------------
 
@@ -84,26 +84,26 @@ public class Transformation {
      * Returns the maximum X,Y,Z coordinates within a list of atom coordinates.
      * @param atomList
      *           - AtomList object
-     * @return A Point3d object that holds the Cartesian coordinates of the
+     * @return A Point3f object that holds the Cartesian coordinates of the
      *         maximum
      *         X,Y,Z coordinates.
      * @see #min(AtomList)
      * @see #dimension(AtomList)
      */
-    public static Point3d max(final AtomList atomList) {
-        double xMax = Integer.MIN_VALUE;
-        double yMax = Integer.MIN_VALUE;
-        double zMax = Integer.MIN_VALUE;
+    public static Point3f max(final AtomList atomList) {
+        float xMax = Integer.MIN_VALUE;
+        float yMax = Integer.MIN_VALUE;
+        float zMax = Integer.MIN_VALUE;
         for (Atom atom : atomList) {
-             double x = atom.getPoint3d().getX();
-             double y = atom.getPoint3d().getY();
-             double z = atom.getPoint3d().getZ();
-            double r = atom.getVanDerWaalsRadius();
+             float x = atom.getXYZ().getX();
+             float y = atom.getXYZ().getY();
+             float z = atom.getXYZ().getZ();
+            float r = atom.getVanDerWaalsRadius();
             xMax = Math.max(xMax, x + r);
             yMax = Math.max(yMax, y + r);
             zMax = Math.max(zMax, z + r);
         }
-        return new Point3d(xMax, yMax, zMax);
+        return new Point3f(xMax, yMax, zMax);
     }
     //--------------------------------------------------------------------------
 
@@ -111,14 +111,14 @@ public class Transformation {
      * Returns the center of geometry of any AtomList object.
      * @param atomList
      *        - AtomList object
-     * @return Point3d object that holds the Cartesian coordinates of the
+     * @return Point3f object that holds the Cartesian coordinates of the
      *         center of geometry of the AtomList object.
      * @see #centerOfMass(AtomList)
      */
-    public static Point3d centerOfGeometry(final AtomList atomList) {
-        Point3d min = Transformation.min(atomList);
-        Point3d max = Transformation.max(atomList);
-        return new Point3d(min.getX() + (
+    public static Point3f centerOfGeometry(final AtomList atomList) {
+        Point3f min = Transformation.min(atomList);
+        Point3f max = Transformation.max(atomList);
+        return new Point3f(min.getX() + (
                                          (max.getX() - min.getX())
                                                      /
                                                      2
@@ -140,39 +140,39 @@ public class Transformation {
      * Returns the center of mass of any AtomList object.
      * @param atomList
      *           - AtomList object
-     * @return A Point3d object that holds the Cartesian coordinates of the
+     * @return A Point3f object that holds the Cartesian coordinates of the
      *         center of mass of the AtomList object.
      * @see #centerOfGeometry(AtomList)
      */
-    public static Point3d centerOfMass(final AtomList atomList) {
-        double[] center = new double[3];
+    public static Point3f centerOfMass(final AtomList atomList) {
+        float[] center = new float[3];
         for (Atom atom : atomList) {
-             center[0] += atom.getWeight() * atom.getPoint3d().getX();
-             center[1] += atom.getWeight() * atom.getPoint3d().getY();
-             center[2] += atom.getWeight() * atom.getPoint3d().getZ();
+             center[0] += atom.getWeight() * atom.getXYZ().getX();
+             center[1] += atom.getWeight() * atom.getXYZ().getY();
+             center[2] += atom.getWeight() * atom.getXYZ().getZ();
         }
         center[0] /= atomList.size();
         center[1] /= atomList.size();
         center[2] /= atomList.size();
-    return new Point3d(center[0], center[1], center[2]);
+    return new Point3f(center[0], center[1], center[2]);
     }
     //--------------------------------------------------------------------------
 
     /**
      * Moves all atoms in an AtomList object by X,Y,Z given by the newPosition
-     * Point3d object.
+     * Point3f object.
      * @param atomList
      *           - AtomList object
      * @param newPosition
-     *           - Point3d object
+     *           - Point3f object
      */
     public static void move(final AtomList atomList,
-                            final Point3d newPosition) {
+                            final Point3f newPosition) {
         for (Atom atom : atomList) {
-             atom.setPoint3d(new Point3d(
-                                  atom.getPoint3d().getX() + newPosition.getX(),
-                                  atom.getPoint3d().getY() + newPosition.getY(),
-                                  atom.getPoint3d().getZ() + newPosition.getZ()
+             atom.setXYZ(new Point3f(
+                                  atom.getXYZ().getX() + newPosition.getX(),
+                                  atom.getXYZ().getY() + newPosition.getY(),
+                                  atom.getXYZ().getZ() + newPosition.getZ()
                                         )
                             );
         }
@@ -184,14 +184,14 @@ public class Transformation {
      * is aligned with the origin of the Cartesian coordinate system.
      * @param atomList
      *           - AtomList object
-     * @return Point3d object holding the old center of geometry coordinates.
+     * @return Point3f object holding the old center of geometry coordinates.
      *         Note that the new center of geometry is at [0,0,0].
      * @see #centerOfMass(AtomList)
      */
-    public static Point3d move2centreOfGeometry(final AtomList atomList) {
-        Point3d center = Transformation.centerOfGeometry(atomList);
+    public static Point3f move2centreOfGeometry(final AtomList atomList) {
+        Point3f center = Transformation.centerOfGeometry(atomList);
         Transformation.move(atomList,
-                            new Point3d(
+                            new Point3f(
                                     -center.getX(),
                                     -center.getY(),
                                     -center.getZ()
@@ -206,13 +206,13 @@ public class Transformation {
      * aligned with the origin of the Cartesian coordinate system.
      * @param atomList
      *           - AtomList object
-     * @return Point3d object holding the old center of mass coordinates. Note
+     * @return Point3f object holding the old center of mass coordinates. Note
      *         that the new center of geometry is at [0,0,0].
      * @see #centerOfGeometry(AtomList)
      */
-    public static Point3d move2centreOfMass(final AtomList atomList) {
-        Point3d center = Transformation.centerOfMass(atomList);
-        Transformation.move(atomList, new Point3d(-center.getX(),
+    public static Point3f move2centreOfMass(final AtomList atomList) {
+        Point3f center = Transformation.centerOfMass(atomList);
+        Transformation.move(atomList, new Point3f(-center.getX(),
                                                   -center.getY(),
                                                   -center.getZ()
                                                  )

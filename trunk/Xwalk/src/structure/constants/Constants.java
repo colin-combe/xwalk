@@ -42,18 +42,18 @@ public class Constants {
      * 0.28 Angstroem. See Laskowski, R.A. (2003) "Structural Quality
      * Assurance", Structural Bioinformatics, 273-303.
      */
-    public static final double COORDINATE_UNCERTAINTY = 0.28;
+    public static final float COORDINATE_UNCERTAINTY = 0.28f;
     //--------------------------------------------------------------------------
     /**
      * Returns the uncertainty of the atom's position in Angstroem, calculated
      * from the temperature factor and the average X-ray coordinate uncertainty.
      * @param atom
      *        Atom object from which the uncertainty shall be calculated.
-     * @return double value representing the atom's uncertainty
+     * @return float value representing the atom's uncertainty
      * @see #getCoordinateUncertainty(AtomList)
      */
-    public static double getCoordinateUncertainty(final Atom atom) {
-        double errorRange = atom.getAverageDislocation();
+    public static float getCoordinateUncertainty(final Atom atom) {
+        float errorRange = atom.getAverageDislocation();
         //  + Constants.COORDINATE_UNCERTAINTY
     return errorRange;
     }
@@ -65,14 +65,14 @@ public class Constants {
      * @param atoms
      *        List of Atom object from which the maximum uncertainty will be
      *        calculated.
-     * @return double value representing the maximum uncertainty found within
+     * @return float value representing the maximum uncertainty found within
      *         all atoms of the list.
      * @see #getCoordinateUncertainty(Atom)
      */
-    public static double getCoordinateUncertainty(final AtomList atoms) {
-        double maxUncertainty = Integer.MIN_VALUE;
+    public static float getCoordinateUncertainty(final AtomList atoms) {
+        float maxUncertainty = Integer.MIN_VALUE;
         for (Atom atom : atoms) {
-            maxUncertainty = Math.max(atom.getAverageDislocation()
+            maxUncertainty = (float)Math.max(atom.getAverageDislocation()
                                     + Constants.COORDINATE_UNCERTAINTY,
                                       maxUncertainty);
         }
@@ -82,56 +82,61 @@ public class Constants {
     /**
      * Bond length between a hydrogen and a non-hydrogen.
      */
-    public static final double BOND_LENGTH_TO_HYDROGEN = 1.2;
+    public static final float BOND_LENGTH_TO_HYDROGEN = 1.2f;
     //--------------------------------------------------------------------------
     /**
      * Default van der Waals radius for any atom type.
      */
-    public static final double DEFAULT_ATOM_RADIUS = 1.5;
+    public static final float DEFAULT_ATOM_RADIUS = 1.5f;
     //--------------------------------------------------------------------------
     /**
      * Default grid size.
      */
-    public static final double DEFAULT_GRID_CELL_SIZE = 1.0;
+    public static final float DEFAULT_GRID_CELL_SIZE = 1.0f;
+    //--------------------------------------------------------------------------
+    /**
+     * Default grid distance value.
+     */
+    public static final float DEFAULT_GRID_DISTANCE = Integer.MAX_VALUE;
     //--------------------------------------------------------------------------
     /**
      * Default grid size.
      */
-    public static final double SOLVENT_RADIUS = 1.4;
+    public static final float SOLVENT_RADIUS = 1.4f;
     //--------------------------------------------------------------------------
     /**
      * Minimum difference in the solvent accessible surface area of an atom
      * upon protein complexation in order to be counted at a binding interface.
      */
-    public static final double MINUMUM_SASA_DIFFERECE_FOR_INTERFACE = 0.1;
+    public static final float MINUMUM_SASA_DIFFERECE_FOR_INTERFACE = 0.1f;
     //--------------------------------------------------------------------------
     /**
      * Minimum relative solvent accessibility of an amino acid in order to be
      * considered to be on the surface of a protein molecule.
      */
-    public static final double MINIMUM_REL_SASA_ON_SURFACE = 5;
+    public static final float MINIMUM_REL_SASA_ON_SURFACE = 5;
     //--------------------------------------------------------------------------
     /**
      * Maximum value that fits into the occupancy and temperature factor
      * column.
      */
-    public static final double MIN_OCCUPANCY_TEMPERATURE_VALUE = -99.99;
+    public static final float MIN_OCCUPANCY_TEMPERATURE_VALUE = -99.99f;
     //--------------------------------------------------------------------------
     /**
      * Maximum value that fits into the occupancy and temperature factor
      * column.
      */
-    public static final double MAX_OCCUPANCY_TEMPERATURE_VALUE = 999.99;
+    public static final float MAX_OCCUPANCY_TEMPERATURE_VALUE = 999.99f;
     //--------------------------------------------------------------------------
     /**
      * Minimum XYZ coordinate values in PDB files.
      */
-    public static final double MIN_XYZ = -999.999;
+    public static final float MIN_XYZ = -999.999f;
     //--------------------------------------------------------------------------
     /**
      * Maximum XYZ coordinate values in PDB files.
      */
-    public static final double MAX_XYZ = 9999.999;
+    public static final float MAX_XYZ = 9999.999f;
     //--------------------------------------------------------------------------
     /**
      * Maximum serial number in PDB files.
@@ -197,6 +202,6 @@ public class Constants {
     /**
      * Supported bond types.
      */
-    public enum BondTypes { SINGLE_BOND, DOUBLE_BOND, TRIPLE_BOND,
+    public enum BondTypes { SINGLE_BOND, float_BOND, TRIPLE_BOND,
                             AROMATIC_BOND, CROSS_LINK};
 }

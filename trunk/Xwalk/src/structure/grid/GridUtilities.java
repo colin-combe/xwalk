@@ -17,7 +17,6 @@ package structure.grid;
 import java.util.ArrayList;
 
 import structure.constants.Constants;
-import structure.grid.GridCell.Value;
 import structure.math.Point3d;
 import structure.math.Point3i;
 import structure.matter.Atom;
@@ -60,80 +59,6 @@ public class GridUtilities {
                                   gridCellSize;
         }
         return Math.round((float) numberOfCellsInAtom);
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Assigns all grid cells that same unique number if they can be connected
-     * via other grid cells that have all the isOccupied() state set to
-     * {@code TRUE}.
-     * @param grid
-     *        - Grid object which has been set up for an AtomList object.
-     */
-    public static void cluster(final Grid grid) {
-        int clusterNo = 0;
-        Point3i noOfCells = grid.getNumberOfCells();
-        for (int i = 0; i < noOfCells.getI(); i++) {
-            for (int j = 0; j < noOfCells.getJ(); j++) {
-                for (int k = 0; k < noOfCells.getK(); k++) {
-                    if (!grid.get(i, j, k).isVisited()) {
-                        clusterNo++;
-                        grid.get(i, j, k).setValue(Value.CLUSTER_NO,
-                                                   Integer.toString(clusterNo)
-                                                  );
-                        grid.get(i, j, k).setVisitStatus();
-                        GridUtilities.search4neighbours(i, j, k, grid,
-                                                        clusterNo
-                                                       );
-                    }
-                }
-            }
-        }
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Recursive function to scan through the grid and assign the same cluster
-     * number to all grid cells that can be connected to each other via the
-     * isOccupied() state.
-     * @param i
-     *        - Integer value representing the X-axis position of the currently
-     *          scanned grid cell within the grid.
-     * @param j
-     *        - Integer value representing the Y-axis position of the grid cell.
-     * @param k
-     *        - Integer value representing the X-axis position of the grid cell.
-     * @param grid
-     *        - Grid object which has been set up for an AtomList object.
-     * @param clusterNo
-     *        - Integer value representing the clusterNo to be assigned to this
-     *          grid cell.
-     */
-    private static void search4neighbours(final int i, final int j, final int k,
-                                          final Grid grid, final int clusterNo)
-    {
-        Point3i noOfCells = grid.getNumberOfCells();
-        for (int m = i - 1;
-             m >= 0 && m <= i + 1 && m < noOfCells.getI();
-             m++) {
-             for (int n = j - 1;
-                  n >= 0 && n <= j + 1 && n < noOfCells.getJ();
-                  n++) {
-                  for (int o = k - 1;
-                       o >= 0 && o <= k + 1 && o < noOfCells.getK();
-                       o++) {
-                       if (grid.get(m, n, o).isOccupied()) {
-                           if (!grid.get(m, n, o).isVisited()) {
-                               grid.get(m, n, o).setValue(Value.CLUSTER_NO,
-                                                     Integer.toString(clusterNo)
-                                                         );
-                               grid.get(m, n, o).setVisitStatus();
-                               GridUtilities.search4neighbours(m, n, o, grid,
-                                                               clusterNo
-                                                              );
-                        }
-                    }
-                }
-            }
-        }
     }
     //--------------------------------------------------------------------------
     /**
@@ -210,7 +135,7 @@ public class GridUtilities {
                                                             final int cellSize
                                                              ) {
         ArrayList < GridCell > neighbours = new ArrayList < GridCell >();
-        Point3i ijk = cell.getPoint3i();
+        Point3i ijk = cell.getIndices();
 
         for (int m = -cellSize;
              m <= cellSize && ijk.getI() + m >= 0

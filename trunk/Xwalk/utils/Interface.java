@@ -27,7 +27,7 @@ import structure.constants.Constants;
 import structure.io.Commandline;
 import structure.io.ReadFile;
 import structure.io.pdb.PDBreader;
-import structure.math.Point3d;
+import structure.math.Point3f;
 import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.protein.AminoAcid;
@@ -300,22 +300,22 @@ public class Interface {
      *        List of AminoAcids that form the non-interface surface of a
      *        protein complex.
      * @param hesSurfaceCoords
-     *        List of double values for the nonInterfaceSurfaceAminoAcids
-     *        object, where each double value represents the HES value for the
+     *        List of float values for the nonInterfaceSurfaceAminoAcids
+     *        object, where each float value represents the HES value for the
      *        same amino acid.
      * @return String object holding PDB-like REMARK lines with statistics on
      *         the non-interface part of the protein surface.
      */
     private String getRemarksOnNonInterface(
                        final ArrayList<AminoAcid> nonInterfaceSurfaceAminoAcids,
-                       final ArrayList<Double> hesSurfaceCoords) {
+                       final ArrayList<Float> hesSurfaceCoords) {
         String nL = Constants.LINE_SEPERATOR;
         NumberFormat dec = xwalk.constants.Constants.DISTANCE_DEC_FORMAT;
         StringBuffer output = new StringBuffer();
 
         int nonInterfaceAaCount = 0;
         int nonInterfaceAtomCount = 0;
-        double nonInterfaceSumHes = 0;
+        float nonInterfaceSumHes = 0;
         int nonInterfaceSumConservation = 0;
         int nonInterfaceSumTypicInterfaceAA = 0;
         int nonInterfaceSumTypicNonInterfaceAA = 0;
@@ -349,12 +349,12 @@ public class Interface {
                     + nonInterfaceSumTypicNonInterfaceAA + nL);
         output.append("REMARK   0  AVERATE INTERFACE TYPIC RESIDUES AT "
                     + "NON-INTERFACE: "
-                    + dec.format((double) nonInterfaceSumTypicInterfaceAA
+                    + dec.format((float) nonInterfaceSumTypicInterfaceAA
                                  /
                                  nonInterfaceAaCount) + nL);
         output.append("REMARK   0  AVERAGE NON-INTERFACE TYPIC RESIDUES AT "
                     + "NON-INTERFACE: "
-                    + dec.format((double) nonInterfaceSumTypicNonInterfaceAA
+                    + dec.format((float) nonInterfaceSumTypicNonInterfaceAA
                                  /
                                  nonInterfaceAaCount) + nL);
         output.append("REMARK   0  HES SUM AT NON-INTERFACE: "
@@ -365,7 +365,7 @@ public class Interface {
                     + dec.format(nonInterfaceSumHes / nonInterfaceAtomCount)
                     + nL);
         output.append("REMARK   0  AVERAGE CONSERVATION AT NON-INTERFACE: "
-                    + dec.format((double) nonInterfaceSumConservation
+                    + dec.format((float) nonInterfaceSumConservation
                                  /
                                  nonInterfaceAaCount) + nL);
         output.append("REMARK" + nL);
@@ -381,15 +381,15 @@ public class Interface {
      * @param complexInterfaces
      *        List of BindingInterface objects found in a protein complex.
      * @param hesInterfaceCoords
-     *        List of double values for all AminoAcids in the BindingInterface
-     *        objects of the complexInterfaces object, where each double value
+     *        List of float values for all AminoAcids in the BindingInterface
+     *        objects of the complexInterfaces object, where each float value
      *        represents the HES value for the same amino acid.
      * @return String object holding PDB-like REMARK lines with statistics on
      *         the protein interfaces.
      */
     private String getRemarksOnInterface(
                        final ArrayList<BindingInterface> complexInterfaces,
-                       final ArrayList<Double> hesInterfaceCoords) {
+                       final ArrayList<Float> hesInterfaceCoords) {
 
         StringBuffer output = new StringBuffer();
         String nL = Constants.LINE_SEPERATOR;
@@ -400,7 +400,7 @@ public class Interface {
         for (BindingInterface bi : complexInterfaces) {
             int interfaceAaCount = 0;
             int interfaceAtomCount = 0;
-            double interfaceSumHes = 0;
+            float interfaceSumHes = 0;
             int interfaceSumConservation = 0;
             int interfaceTypicInterfaceAA = 0;
             int interfaceTypicNonInterfaceAA = 0;
@@ -431,7 +431,7 @@ public class Interface {
                     }
                 }
             }
-            double bsa = -1;
+            float bsa = -1;
             if (this.naccessPath != null) {
                 bsa = bi.getBSA();
             }
@@ -454,12 +454,12 @@ public class Interface {
                         + "INTERFACE: " + interfaceTypicNonInterfaceAA + nL);
             output.append("REMARK   " + k + "  AVERAGE INTERFACE TYPIC "
                         + "RESIDUES AT INTERFACE: "
-                        + dec.format((double) interfaceTypicInterfaceAA
+                        + dec.format((float) interfaceTypicInterfaceAA
                                      /
                                      interfaceAaCount) + nL);
         output.append("REMARK   " + k + "  AVERAGE NON-INTERFACE TYPIC "
                         + "RESIDUES AT INTERFACE: "
-                        + dec.format((double) interfaceTypicNonInterfaceAA
+                        + dec.format((float) interfaceTypicNonInterfaceAA
                                      /
                                      interfaceAaCount) + nL);
             output.append("REMARK   " + k + "  HES SUM AT INTERFACE: "
@@ -471,7 +471,7 @@ public class Interface {
                         + nL);
             output.append("REMARK   " + k + "  AVERAGE CONSERVATION AT "
                         + "INTERFACE: "
-                        + dec.format((double) interfaceSumConservation
+                        + dec.format((float) interfaceSumConservation
                                      /
                                      interfaceAaCount) + nL);
             output.append("REMARK" + nL);
@@ -572,18 +572,18 @@ public class Interface {
         //----------------------------------------------------------------------
         // Extract Cartesian coordinates of interface atoms
         //----------------------------------------------------------------------
-        ArrayList<Point3d> interfaceCoords = new ArrayList<Point3d>();
+        ArrayList<Point3f> interfaceCoords = new ArrayList<Point3f>();
         for (BindingInterface bi : complexInterfaces) {
             for (ArrayList<AminoAcid> halfInterface : bi.getInterface()) {
                 for (AminoAcid aa : halfInterface) {
                     for (Atom atom : aa.getAllAtoms()) {
-                        interfaceCoords.add(atom.getPoint3d());
+                        interfaceCoords.add(atom.getXYZ());
                     }
                 }
             }
         }
-        ArrayList<Double> hesInterfaceCoords = null;
-        ArrayList<Double> hesSurfaceCoords = null;
+        ArrayList<Float> hesInterfaceCoords = null;
+        ArrayList<Float> hesSurfaceCoords = null;
         if (interfase.doHes) {
             //------------------------------------------------------------------
             // Calculate HES for each interface atom
@@ -591,12 +591,12 @@ public class Interface {
             Hydrophobicity hes = new Hydrophobicity(proteinComplex);
             hesInterfaceCoords = hes.mapHydrophobicity(interfaceCoords);
             if (interfase.naccessPath != null) {
-                ArrayList<Point3d> nonInterfaceSurfaceCoords =
-                                                       new ArrayList<Point3d>();
+                ArrayList<Point3f> nonInterfaceSurfaceCoords =
+                                                       new ArrayList<Point3f>();
                 for (AminoAcid nonInterfaceSurfaceAA
                                               : nonInterfaceSurfaceAminoAcids) {
                     for (Atom atom : nonInterfaceSurfaceAA.getAllAtoms()) {
-                        nonInterfaceSurfaceCoords.add(atom.getPoint3d());
+                        nonInterfaceSurfaceCoords.add(atom.getXYZ());
                     }
                 }
                 hesSurfaceCoords = hes.mapHydrophobicity(

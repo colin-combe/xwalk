@@ -58,7 +58,7 @@ public class MonoLink extends Atom {
         this.setElement(atom.getElement());
         this.setFlag(atom.getFlag());
         this.setName(atom.getName());
-        this.setPoint3d(atom.getPoint3d());
+        this.setXYZ(atom.getXYZ());
         this.setOccupancy(atom.getOccupancy());
         this.setRank(atom.getRank());
         this.setResidueName(atom.getResidueName());

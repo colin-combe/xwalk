@@ -27,7 +27,7 @@ import structure.constants.Constants;
 import structure.exceptions.FileFormatException;
 import structure.io.GzipFileReader;
 import structure.io.ReadFile;
-import structure.math.Point3d;
+import structure.math.Point3f;
 import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
@@ -230,14 +230,14 @@ public class PDBreader {
 
             atom.setICode(line.charAt(26));
 
-            double x = Double.parseDouble(line.substring(30,38).trim());
-            double y = Double.parseDouble(line.substring(38,46).trim());
-            double z = Double.parseDouble(line.substring(46,54).trim());
-            atom.setPoint3d(new Point3d(x, y, z));
+            float x = Float.parseFloat(line.substring(30,38).trim());
+            float y = Float.parseFloat(line.substring(38,46).trim());
+            float z = Float.parseFloat(line.substring(46,54).trim());
+            atom.setXYZ(new Point3f(x, y, z));
 
-            atom.setOccupancy(Double.parseDouble(line.substring(54,60).trim()));
+            atom.setOccupancy(Float.parseFloat(line.substring(54,60).trim()));
 
-            double tempFact = Double.parseDouble(line.substring(60,66).trim());
+            float tempFact = Float.parseFloat(line.substring(60,66).trim());
             atom.setTemperatureFactor(tempFact);
 
             // set type of atom

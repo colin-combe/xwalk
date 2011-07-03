@@ -18,11 +18,11 @@ package structure.math.algorithms;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+import structure.constants.Constants;
 import structure.grid.Grid;
 import structure.grid.GridCell;
 import structure.grid.GridUtilities;
 import structure.grid.Path;
-import structure.grid.GridCell.Value;
 import structure.math.Mathematics;
 
 /**
@@ -44,9 +44,9 @@ public class BreadthFirstSearch {
 
     /**
      * Boolean indicating whether distance assignment had to end prematurely,
-     * due to solvent inaccessibility of cross-link
+     * due to solvent inaccessibility of cross-link.
      */
-    public boolean hasFinished = false;
+    private boolean hasFinished = false;
 
     /**
      * Global variable to keep track on targets that have already been assigned
@@ -68,7 +68,7 @@ public class BreadthFirstSearch {
      * @param grid
      *        - Grid object in which the entire search is done.
      * @param maxDist
-     *        - double value representing the maximum distance to search for in
+     *        - float value representing the maximum distance to search for in
      *          the grid
      * @return List of path objects, holding each the path between the source
      *         and one target cell. If no path could be found, than each
@@ -78,12 +78,12 @@ public class BreadthFirstSearch {
                                            final GridCell source,
                                            final ArrayList < GridCell > targets,
                                            final Grid grid,
-                                           final double maxDist
+                                           final float maxDist
                                                     ) {
         ArrayList < GridCell > actives = new ArrayList < GridCell >();
 
         // set value of source cell to 0.0
-        source.setValue(Value.DISTANCE, "0.0");
+        source.setDistance(0.0f);
         actives.add(source);
 
         // start breadth-first search from grid cell.
@@ -96,10 +96,7 @@ public class BreadthFirstSearch {
             // Last element will be the source cell.
             this.path.add(BreadthFirstSearch.CELL_NO_OF_TARGET_CELL_IN_PATH,
                           target.copy());
-            if (target.getValue(Value.DISTANCE).equals(
-                                                     Value.DISTANCE.getDefault()
-                                                      )
-                                     ) {
+            if (target.getDistance() == Constants.DEFAULT_GRID_DISTANCE) {
                 paths.add(this.path);
                 path = new Path();
                 continue;
@@ -125,13 +122,13 @@ public class BreadthFirstSearch {
      * @param grid
      *        - Grid object in which the entire search is done.
      * @param maxDist
-     *        - double value representing the maximum distance to search for in
+     *        - float value representing the maximum distance to search for in
      *          the grid
      */
     private void setDistanceRecursively(final ArrayList < GridCell > actives,
                                         final ArrayList < GridCell > targets,
                                         final Grid grid,
-                                        final double maxDist) {
+                                        final float maxDist) {
         // neighbouring grid cells become new actives for the next round of
         // breadth-first-search.
         ArrayList < GridCell > newActives = new ArrayList < GridCell >();
@@ -141,25 +138,21 @@ public class BreadthFirstSearch {
                             GridUtilities.getNeighbouringCells(active, grid, 1);
 
              for (GridCell neighbour : neighbours) {
-                  double currentDist = Integer.MIN_VALUE;
-                  double newDist = Integer.MIN_VALUE;
+                  float currentDist = Integer.MIN_VALUE;
+                  float newDist = Integer.MIN_VALUE;
 
                   if (!neighbour.isOccupied()) {
-                      currentDist = Double.parseDouble(
-                                              neighbour.getValue(Value.DISTANCE)
-                                                      );
+                      currentDist = neighbour.getDistance();
                       // The distance of the neighbouring grid cell is the
                       // distance of the current active cell + the distance
                       // between the active and the neighbouring cell.
-                      newDist = Double.parseDouble(active.getValue(
-                                                                 Value.DISTANCE)
-                                                                  )
-                              + Mathematics.distance(active.getPoint3d(),
-                                                     neighbour.getPoint3d()
-                                                    );
+                      newDist = active.getDistance()
+                              + (float) Mathematics.distance(   active.getXYZ(),
+                                                             neighbour.getXYZ()
+                                                           );
                       // distance from other active cell might be shorter.
                       if (newDist < currentDist) {
-                          neighbour.setValue(Value.DISTANCE, newDist + "");
+                          neighbour.setDistance(newDist);
                           if (!newActives.contains(neighbour)) {
                               newActives.add(neighbour);
                           }
@@ -185,11 +178,7 @@ public class BreadthFirstSearch {
         int maxDistCount = 0;
         for (GridCell neighbour : newActives) {
              neighbour.setVisitStatus();
-             double neighbourDistance = Double.parseDouble(
-                                               neighbour.getValue(Value.DISTANCE
-                                                                 )
-                                                           );
-             if (neighbourDistance > maxDist) {
+             if (neighbour.getDistance() > maxDist) {
                  maxDistCount++;
                  this.hasFinished = true;
              }
@@ -217,12 +206,10 @@ public class BreadthFirstSearch {
                                final Grid grid) {
         ArrayList < GridCell > neighbours =
                             GridUtilities.getNeighbouringCells(target, grid, 1);
-        double minDist = Double.parseDouble(target.getValue(Value.DISTANCE));
+        float minDist = target.getDistance();
         GridCell minGridCell = target;
         for (GridCell neighbour : neighbours) {
-             double dist = Double.parseDouble(
-                                              neighbour.getValue(Value.DISTANCE)
-                                             );
+             float dist = neighbour.getDistance();
             if (dist < minDist) {
                 minDist = dist;
                 minGridCell = neighbour;
@@ -234,5 +221,15 @@ public class BreadthFirstSearch {
         }
         this.path.add(minGridCell.copy());
         this.backtrackPath(minGridCell, source, grid);
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns whether the search for a target was successful, hence could
+     * be finished.
+     * @return {@code TRUE} if search found target cell, {@code FALSE}
+     * otherwise.
+     */
+    public final boolean hasFinished() {
+        return this.hasFinished;
     }
 }
