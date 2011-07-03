@@ -35,19 +35,19 @@ public class ParameterReader {
     /**
      * Holds van der Waals radii from the various supported force fields.
      */
-    private Hashtable < Element, Double > vdWradii =
-                                           new Hashtable < Element, Double >();
+    private Hashtable < Element, Float > vdWradii =
+                                           new Hashtable < Element, Float >();
     /**
      * Holds atomic XlogP values for all standard PDB amino acid atom types.
      */
-    private Hashtable <AminoAcidType, Hashtable <AtomType, Double >> xlogP =
-                 new Hashtable <AminoAcidType, Hashtable <AtomType, Double >>();
+    private Hashtable <AminoAcidType, Hashtable <AtomType, Float >> xlogP =
+                 new Hashtable <AminoAcidType, Hashtable <AtomType, Float >>();
 
     /**
      * Holds the probabilities for the cross-link distances.
      */
-    private Hashtable < Double, Double > probablities =
-                                           new Hashtable < Double, Double >();
+    private Hashtable < Float, Float > probablities =
+                                           new Hashtable < Float, Float >();
 
     /**
      * Location of parameter molecular mechanics parameter files.
@@ -195,17 +195,17 @@ public class ParameterReader {
                     if (parameterFileName.indexOf(this.EUC_PROB_FILENAME) != -1
                        ||
                      parameterFileName.indexOf(this.SASD_PROB_FILENAME) != -1) {
-                        double distBin = Double.parseDouble(
+                        float distBin = Float.parseFloat(
                                        column[ParameterReader.distanceBinColumn]
                                                            );
-                        double prob = Double.parseDouble(
+                        float prob = Float.parseFloat(
                                        column[ParameterReader.probabilityColumn]
                                                         );
                         this.probablities.put(distBin, prob);
                     } else {
                         String elementName =
                                       column[ParameterReader.elementNameColumn];
-                        double radius = Double.parseDouble(
+                        float radius = Float.parseFloat(
                                          column[ParameterReader.vdWradiusColumn]
                                                       );
                         for (Element e : Element.values()) {
@@ -218,7 +218,7 @@ public class ParameterReader {
                     String aminoAcidName =
                                     column[ParameterReader.aminoAcidNameColumn];
                     String atomName = column[ParameterReader.atomNameColumn];
-                    double xlogPvalue = Double.parseDouble(
+                    float xlogPvalue = Float.parseFloat(
                                              column[ParameterReader.xlogPcolumn]
                                                           );
 
@@ -227,8 +227,8 @@ public class ParameterReader {
                             for (AtomType at : AtomType.values()) {
                                 if (at.getAbbreviation().equals(atomName)) {
                                     if (this.xlogP.get(aat) == null) {
-                                        Hashtable<AtomType, Double> atomXlogP =
-                                              new Hashtable<AtomType, Double>();
+                                        Hashtable<AtomType, Float> atomXlogP =
+                                              new Hashtable<AtomType, Float>();
                                         atomXlogP.put(at, xlogPvalue);
                                         this.xlogP.put(aat, atomXlogP);
                                     } else {
@@ -246,26 +246,26 @@ public class ParameterReader {
     //--------------------------------------------------------------------------
     /**
      * Returns the set of atom van der Waals radius parameter.
-     * @return Hashtable with Element keys and double elements as radii.
+     * @return Hashtable with Element keys and float elements as radii.
      */
-    public final Hashtable < Element, Double > getVdwRadiusParameterSet() {
+    public final Hashtable < Element, Float > getVdwRadiusParameterSet() {
         return this.vdWradii;
     }
     /**
      * Returns the set of atomic XlogP values for all protein amino acid atoms.
      * @return Hashtable with XlogP values for all protein amino acid atoms.
      */
-    public final Hashtable <AminoAcidType, Hashtable <AtomType, Double >>
+    public final Hashtable <AminoAcidType, Hashtable <AtomType, Float >>
                                                         getXlogPparameterSet() {
         return this.xlogP;
     }
     //--------------------------------------------------------------------------
     /**
      * Returns the set of probabilities for a certain distance bin.
-     * @return Hashtable with distance keys and double elements as
+     * @return Hashtable with distance keys and float elements as
      * probabilities.
      */
-    public final Hashtable < Double, Double > getDistanceProbabilitySet() {
+    public final Hashtable < Float, Float > getDistanceProbabilitySet() {
         return this.probablities;
     }
 

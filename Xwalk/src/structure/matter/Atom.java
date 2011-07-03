@@ -20,7 +20,7 @@ import java.util.Hashtable;
 
 import structure.constants.Constants;
 import structure.io.pdb.PDBwriter;
-import structure.math.Point3d;
+import structure.math.Point3f;
 import structure.matter.parameter.AtomType;
 import structure.matter.parameter.Element;
 import structure.matter.parameter.ParameterReader;
@@ -263,15 +263,15 @@ public class Atom {
     /**
      * column 30-37, 38-45, 46-53.
      */
-    private Point3d xyz;
+    private Point3f xyz;
     /**
      * column 54-59.
      */
-    private double occupancy;
+    private float occupancy;
     /**
      * column 60-65.
      */
-    private double temperaturFactor;
+    private float temperaturFactor;
     /**
      * column 76-77.
      */
@@ -294,11 +294,11 @@ public class Atom {
     /**
      * van der Waals radius of atom.
      */
-    private double vanDerWaalsRadius;
+    private float vanDerWaalsRadius;
     /**
      * atomic weight of atom.
      */
-    private double weight;
+    private float weight;
     /**
      * aromatic state of atom.
      */
@@ -310,7 +310,7 @@ public class Atom {
     /**
      * XlogP hydrophobicity value of atom.
      */
-    private double xlogP;
+    private float xlogP;
 
     //--------------------------------------------------------------------------
     /**
@@ -326,9 +326,9 @@ public class Atom {
         this.chainId = ' ';
         this.residueNumber = 0;
         this.iCode = ' ';
-        this.xyz = new Point3d(0.0, 0.0, 0.0);
-        this.occupancy = 0.0;
-        this.temperaturFactor = 0.0;
+        this.xyz = new Point3f(0.0f, 0.0f, 0.0f);
+        this.occupancy = 0.0f;
+        this.temperaturFactor = 0.0f;
         this.element = Element.CARBON;
         this.chargeState = 0;
         this.rank = 0;
@@ -358,23 +358,22 @@ public class Atom {
                              (new Integer(this.getResidueNumber())).intValue()
                              );
         atom.setICode(new Character(this.getICode()).charValue());
-        atom.setPoint3d(new Point3d(this.xyz.getX(),
-                                    this.xyz.getY(),
-                                    this.xyz.getZ()
-                                   )
-                       );
-        atom.setOccupancy((new Double(this.getOccupancy())).doubleValue());
+        atom.setXYZ(new Point3f(this.xyz.getX(),
+                                this.xyz.getY(),
+                                this.xyz.getZ()
+                               ));
+        atom.setOccupancy((new Float(this.getOccupancy())).floatValue());
         atom.setTemperatureFactor(
-                         (new Double(this.getTemperatureFactor())).doubleValue()
+                         (new Float(this.getTemperatureFactor())).floatValue()
                                  );
         atom.setElement(this.getElement());
         atom.setChargeState((new Integer(this.getChargeState())).intValue());
         atom.setRank(new Integer(this.getRank()).intValue());
         atom.setVanDerWaalsRadius(
-                           new Double(this.getVanDerWaalsRadius()).doubleValue()
+                           new Float(this.getVanDerWaalsRadius()).floatValue()
                                  );
-        atom.setWeight(new Double(this.getWeight()).doubleValue());
-        atom.setXlogP(new Double(this.getXlogP()).doubleValue());
+        atom.setWeight(new Float(this.getWeight()).floatValue());
+        atom.setXlogP(new Float(this.getXlogP()).floatValue());
     return atom;
     }
     //--------------------------------------------------------------------------
@@ -621,9 +620,9 @@ public class Atom {
      *          Each coordinate is allowed to vary between -999.999 and 9999.999
      * @return {@code TRUE} if the coordinates are within limits, {@code FALSE}
      *          otherwise.
-     * @see #getPoint3d()
+     * @see #getXYZ()
      */
-    public final boolean setPoint3d(final Point3d xyz) {
+    public final boolean setXYZ(final Point3f xyz) {
         this.xyz = xyz;
         if (xyz.getX() > Constants.MAX_XYZ || xyz.getX() < Constants.MIN_XYZ) {
             System.err.println("WARNING: X-coordinate is out of bounds!: "
@@ -649,9 +648,9 @@ public class Atom {
     /**
      * Gets the atom's XYZ coordinates.
      * @return Point3d object holding the Cartesian coordinates of the atom.
-     * @see #setPoint3d(Point3d)
+     * @see #setXYZ(Point3d)
      */
-    public final Point3d getPoint3d() {
+    public final Point3f getXYZ() {
         return this.xyz;
     }
     //--------------------------------------------------------------------------
@@ -659,12 +658,12 @@ public class Atom {
      * Sets the atom's occupancy value. If the value is out of limits, the limit
      * value will be set.
      * @param occupancy
-     *        - double value between -99.99 and 999.99.
+     *        - float value between -99.99 and 999.99.
      * @return {@code TRUE} if the occupancy value is within limits,
      *         {@code FALSE} otherwise.
      * @see #getOccupancy()
      */
-    public final boolean setOccupancy(final double occupancy) {
+    public final boolean setOccupancy(final float occupancy) {
         if (occupancy > Constants.MAX_OCCUPANCY_TEMPERATURE_VALUE) {
             this.occupancy = Constants.MAX_OCCUPANCY_TEMPERATURE_VALUE;
             System.err.println("WARNING: Occupancy value (" + occupancy + ") "
@@ -687,10 +686,10 @@ public class Atom {
     //--------------------------------------------------------------------------
     /**
      * Gets the atom's occupancy value.
-     * @return double value representing the occupancy value.
-     * @see #setOccupancy(double)
+     * @return float value representing the occupancy value.
+     * @see #setOccupancy(float)
      */
-    public final double getOccupancy() {
+    public final float getOccupancy() {
         return this.occupancy;
     }
     //--------------------------------------------------------------------------
@@ -698,12 +697,12 @@ public class Atom {
      * Sets the atom's temperature factor value. If the value is out of limits,
      * the limit value will be set.
      * @param temperaturFactor
-     *        - double value between -99.99 and 999.99.
+     *        - float value between -99.99 and 999.99.
      * @return {@code TRUE} if the temperature factor value is within limits,
      * {@code FALSE} otherwise.
      * @see #getTemperatureFactor()
      */
-    public final boolean setTemperatureFactor(final double temperaturFactor) {
+    public final boolean setTemperatureFactor(final float temperaturFactor) {
         if (temperaturFactor > Constants.MAX_OCCUPANCY_TEMPERATURE_VALUE) {
             this.temperaturFactor = Constants.MAX_OCCUPANCY_TEMPERATURE_VALUE;
             System.err.println("WARNING: Temperature factor value ("
@@ -730,10 +729,10 @@ public class Atom {
     //--------------------------------------------------------------------------
     /**
      * Gets the atom's temperature factor value.
-     * @return double value representing the temperature factor
-     * @see #setTemperatureFactor(double)
+     * @return float value representing the temperature factor
+     * @see #setTemperatureFactor(float)
      */
-    public final double getTemperatureFactor() {
+    public final float getTemperatureFactor() {
         return this.temperaturFactor;
     }
     //--------------------------------------------------------------------------
@@ -742,16 +741,16 @@ public class Atom {
      * factor value by
      * Bj= 8  * Math.pow(Math.PI,2) * Math.pow(avgDis,2)
      * Bj= 79 * Math.pow(avgDis,2).
-     * @return double value representing the average dislocation of the atoms
+     * @return float value representing the average dislocation of the atoms
      *         position.
      */
-    public final double getAverageDislocation() {
+    public final float getAverageDislocation() {
         if (this.temperaturFactor > 0) {
-            return Math.sqrt(this.temperaturFactor
+            return (float)Math.sqrt(this.temperaturFactor
                              /
                              79);
         } else {
-            return 0;
+            return 0f;
         }
     }
     //--------------------------------------------------------------------------
@@ -804,11 +803,11 @@ public class Atom {
     /**
      * Sets the van der Waals radius of the atom.
      * @param vanDerWaalsRadius
-     *        - double value representing a vdW radius of the atom.
+     *        - float value representing a vdW radius of the atom.
      * @see #setVanDerWaalsRadius(structure.constants.Constants.ParameterSets)
      * @see #getVanDerWaalsRadius()
      */
-    public final void setVanDerWaalsRadius(final double vanDerWaalsRadius) {
+    public final void setVanDerWaalsRadius(final float vanDerWaalsRadius) {
         this.vanDerWaalsRadius = vanDerWaalsRadius;
     }
     //--------------------------------------------------------------------------
@@ -819,43 +818,43 @@ public class Atom {
      * @param parameterSet
      *        - One of the existing ParameterSets of atom radii.
      * @throws IOException if an error occurs while reading the parameter file.
-     * @see #setVanDerWaalsRadius(double)
+     * @see #setVanDerWaalsRadius(float)
      * @see #getVanDerWaalsRadius()
      */
     public final void setVanDerWaalsRadius(
                                    final Constants.ParameterSets parameterSet)
                                                             throws IOException {
         ParameterReader params = new ParameterReader(parameterSet);
-        Hashtable < Element, Double > radii = params.getVdwRadiusParameterSet();
+        Hashtable < Element, Float > radii = params.getVdwRadiusParameterSet();
         this.setVanDerWaalsRadius(radii.get(this.getElement()));
     }
     //--------------------------------------------------------------------------
     /**
      * Gets the van der Waals radius of the atom.
-     * @return double value representing the vdW radius the atom.
-     * @see #setVanDerWaalsRadius(double)
+     * @return float value representing the vdW radius the atom.
+     * @see #setVanDerWaalsRadius(float)
      * @see #setVanDerWaalsRadius(structure.constants.Constants.ParameterSets)
      */
-    public final double getVanDerWaalsRadius() {
+    public final float getVanDerWaalsRadius() {
         return this.vanDerWaalsRadius;
     }
     //--------------------------------------------------------------------------
     /**
      * Sets the atomic weight of the atom.
      * @param weight
-     *        - double value representing a atomic weight of the atom.
+     *        - float value representing a atomic weight of the atom.
      * @see #getWeight()
      */
-    public final void setWeight(final double weight) {
+    public final void setWeight(final float weight) {
         this.weight = weight;
     }
     //--------------------------------------------------------------------------
     /**
      * Gets the atomic weight of the atom.
-     * @return double value representing the atomic weight of the atom.
-     * @see #setWeight(double)
+     * @return float value representing the atomic weight of the atom.
+     * @see #setWeight(float)
      */
-    public final double getWeight() {
+    public final float getWeight() {
         return this.weight;
     }
     //--------------------------------------------------------------------------
@@ -921,19 +920,19 @@ public class Atom {
     /**
      * Sets the XlogP hydrophobicity of the atom.
      * @param xlogP
-     *        double value representing the atom's XlogP hydrophobicity.
+     *        float value representing the atom's XlogP hydrophobicity.
      * @see #getXlogP
      */
-    public final void setXlogP(double xlogP) {
+    public final void setXlogP(float xlogP) {
         this.xlogP = xlogP;
     }
     //--------------------------------------------------------------------------
     /**
      * Gets the XlogP hydrophobicity of the atom.
-     * @return double value representing the atoms XlogP value.
-     * @see #setXlogP(double)
+     * @return float value representing the atoms XlogP value.
+     * @see #setXlogP(float)
      */
-    public final double getXlogP() {
+    public final float getXlogP() {
         return this.xlogP;
     }
     //--------------------------------------------------------------------------
@@ -962,7 +961,7 @@ public class Atom {
                             &&
                             this.getResidueNumber() == atom.getResidueNumber();
 
-        final double errorMargin = 0.0001;
+        final float errorMargin = 0.0001f;
         boolean hasSameCoordinates =
                       Math.abs(this.xyz.getX() - atom.xyz.getX()) < errorMargin
                       &&

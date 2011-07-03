@@ -21,8 +21,6 @@ import structure.grid.AtomGrid;
 import structure.grid.Grid;
 import structure.grid.GridCell;
 import structure.grid.Path;
-import structure.grid.GridCell.Value;
-import structure.math.Point3d;
 import structure.math.Point3i;
 import structure.math.algorithms.BreadthFirstSearch;
 import structure.matter.Atom;
@@ -99,9 +97,9 @@ public class SolventPathDistance {
             // distance then the size of the grid, in which case a NULLPOINTER
             // error would occur. Create a dummy grid cell in those cases.
             if (atom2cell == null) {
-                atom2cell = new GridCell(atom2.getPoint3d(),
+                atom2cell = new GridCell(atom2.getXYZ(),
                                          atomGrid.get(0, 0, 0).getSize());
-                atom2cell.setPoint3i(new Point3i(Integer.MAX_VALUE,
+                atom2cell.setIndices(new Point3i(Integer.MAX_VALUE,
                                                  Integer.MAX_VALUE,
                                                  Integer.MAX_VALUE));
             }
@@ -123,14 +121,14 @@ public class SolventPathDistance {
      * Returns a list of Path objects, where each path corresponds to a single
      * source-target distance measure.
      * @param maxDist
-     *        - double value representing the maximum allowed distance between
+     *        - float value representing the maximum allowed distance between
      *          source and target.
      * @return List of Path objects, one for each solvent path distance
      *         calculation. An empty path list is returned, if the path
      *         calculation did not succeed due to the solvent inaccessibility of
      *         the source cell neighbourhood.
      */
-    public final ArrayList < Path > getShortestPath(final double maxDist) {
+    public final ArrayList < Path > getShortestPath(final float maxDist) {
         // initialize distance calculation
         this.grid.resetSoft();
         BreadthFirstSearch shortestPathAlgo = new BreadthFirstSearch();
@@ -140,7 +138,7 @@ public class SolventPathDistance {
                                                                     grid,
                                                                     maxDist
                                                                     );
-        if (!shortestPathAlgo.hasFinished) {
+        if (!shortestPathAlgo.hasFinished()) {
             return new ArrayList < Path >();
         }
         return paths;
@@ -152,14 +150,13 @@ public class SolventPathDistance {
      * @param path
      *        - Path object holding the source and target grid cells and all
      *          grid cells inbetween.
-     * @return double value representing the distance extracted from the target
+     * @return float value representing the distance extracted from the target
      *         grid cell.
      */
-    public static double extractTargetDistances(final Path path) {
-        return Double.parseDouble(path.get(
-                               BreadthFirstSearch.CELL_NO_OF_TARGET_CELL_IN_PATH
-                                          ).getValue(Value.DISTANCE)
-                                 );
+    public static float extractTargetDistances(final Path path) {
+        return path.get(
+                        BreadthFirstSearch.CELL_NO_OF_TARGET_CELL_IN_PATH
+                       ).getDistance();
     }
     //--------------------------------------------------------------------------
 }

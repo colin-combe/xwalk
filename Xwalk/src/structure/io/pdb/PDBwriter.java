@@ -196,7 +196,7 @@ public class PDBwriter extends WriteFile {
         output.append(atom.getICode());
         output.append("   ");
         for (int j = Constants.CARTESIAN_DEC_FORMAT.format(
-                                                        atom.getPoint3d().getX()
+                                                        atom.getXYZ().getX()
                                                           ).length();
              j < 8;
              j++
@@ -204,10 +204,10 @@ public class PDBwriter extends WriteFile {
             output.append(" ");
         }
         output.append(Constants.CARTESIAN_DEC_FORMAT.format(
-                                                        atom.getPoint3d().getX()
+                                                        atom.getXYZ().getX()
                                                            ));
         for (int j = Constants.CARTESIAN_DEC_FORMAT.format(
-                                                        atom.getPoint3d().getY()
+                                                        atom.getXYZ().getY()
                                                           ).length();
              j < 8;
              j++
@@ -215,10 +215,10 @@ public class PDBwriter extends WriteFile {
             output.append(" ");
         }
         output.append(Constants.CARTESIAN_DEC_FORMAT.format(
-                                                        atom.getPoint3d().getY()
+                                                        atom.getXYZ().getY()
                                                            ));
         for (int j = Constants.CARTESIAN_DEC_FORMAT.format(
-                                                        atom.getPoint3d().getZ()
+                                                        atom.getXYZ().getZ()
                                                           ).length();
              j < 8;
              j++
@@ -226,7 +226,7 @@ public class PDBwriter extends WriteFile {
             output.append(" ");
         }
         output.append(Constants.CARTESIAN_DEC_FORMAT.format(
-                                                        atom.getPoint3d().getZ()
+                                                        atom.getXYZ().getZ()
                                                            ));
         for (int j = Constants.OCCUPANCY_TEMP_DEC_FORMAT.format(
                                                                 occupancy

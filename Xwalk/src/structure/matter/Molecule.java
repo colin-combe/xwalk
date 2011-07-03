@@ -45,12 +45,12 @@ public abstract class Molecule {
     /**
      * Total solvent accessibility of this residue.
      */
-    private double totalSolventAccessibility;
+    private float totalSolventAccessibility;
     //--------------------------------------------------------------------------
     /**
      * Relative solvent accessibility of this residue.
      */
-    private double relativeSolventAccessibility;
+    private float relativeSolventAccessibility;
     //--------------------------------------------------------------------------
 
     /**
@@ -215,37 +215,37 @@ public abstract class Molecule {
     //--------------------------------------------------------------------------
     /**
      * Returns the total solvent accessibility of this amino acid.
-     * @return double value value representing this amino acid's total SAS.
-     * @see #setTotalSas(double)
+     * @return float value value representing this amino acid's total SAS.
+     * @see #setTotalSas(float)
      */
-    public final double getTotalSas() {
+    public final float getTotalSas() {
         return totalSolventAccessibility;
     }
     //--------------------------------------------------------------------------
     /**
      * Sets the absolute solvent accessibility of this amino acid.
      * @param sas
-     *        double value value representing this amino acid's total SAS.
+     *        float value value representing this amino acid's total SAS.
      */
-    public final void setTotalSas(final double sas) {
+    public final void setTotalSas(final float sas) {
         this.totalSolventAccessibility = sas;
     }
     //--------------------------------------------------------------------------
     /**
      * Returns the relative solvent accessibility of this amino acid.
-     * @return double value value representing this amino acid's relative SAS.
-     * @see #setRelativeSas(double)
+     * @return float value value representing this amino acid's relative SAS.
+     * @see #setRelativeSas(float)
      */
-    public final double getRelativeSas() {
+    public final float getRelativeSas() {
         return relativeSolventAccessibility;
     }
     //--------------------------------------------------------------------------
     /**
      * Sets the relative solvent accessibility of this amino acid.
      * @param sas
-     *        double value value representing this amino acid's relative SAS.
+     *        float value value representing this amino acid's relative SAS.
      */
-    public final void setRelativeSas(final double sas) {
+    public final void setRelativeSas(final float sas) {
         this.relativeSolventAccessibility = sas;
     }
     //--------------------------------------------------------------------------

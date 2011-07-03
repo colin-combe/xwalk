@@ -91,15 +91,15 @@ public class Naccess {
     /**
      * Returns the total solvent accessible surface area of the protein, which
      * is found in the TOTAL line of NACCESS's *.rsa files.
-     * @return double value, representing the total SASA. If no information on
+     * @return float value, representing the total SASA. If no information on
      *         the total SASA can be found in the .rsa file, then -1 will be
      *         returned.
      */
-    public final double getTotalSolventAccessibility() {
+    public final float getTotalSolventAccessibility() {
         for (String line : this.rsaFile) {
             if (line.startsWith("TOTAL")) {
                 String[] array = line.split("\\s+");
-                return Double.parseDouble(array[1]);
+                return Float.parseFloat(array[1]);
             }
         }
         return -1;
@@ -123,10 +123,10 @@ public class Naccess {
                                             line.substring(9, 13).trim()
                                                        ));
                 dummy.setChainId(line.substring(8, 9).charAt(0));
-                double totalSasa = Double.parseDouble(
+                float totalSasa = Float.parseFloat(
                                                    line.substring(13, 22).trim()
                                                   );
-                double relSasa = Double.parseDouble(
+                float relSasa = Float.parseFloat(
                                                    line.substring(22, 28).trim()
                                                   );
                 for (AminoAcid aa : copy) {

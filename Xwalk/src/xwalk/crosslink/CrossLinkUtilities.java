@@ -224,12 +224,12 @@ public final class CrossLinkUtilities {
         for (int i = 0; i < complexes.size(); i++) {
             PolyPeptideList complex = complexes.get(i);
 
-            double gridCellSize = Double.parseDouble(parameter.getParameter(
+            float gridCellSize = Float.parseFloat(parameter.getParameter(
                                                         Parameter.GRID_CELL_SIZE
                                                                            ));
             // assume that cross-linker requires around 10 Angstroem of space.
             // This number is purely random.
-            double maxDist = xwalk.constants.Constants.CROSS_LINKER_END_SIZE;
+            float maxDist = xwalk.constants.Constants.CROSS_LINKER_END_SIZE;
 
             MonoLinkList monoLinkList = new MonoLinkList();
 
@@ -406,11 +406,11 @@ public final class CrossLinkUtilities {
             for (Atom atom2 : relevantAtomPairs.get(atom1)) {
                 PolyPeptide atom2TrypticPeptide = null;
                 boolean conforming = false;
-                double errorRange = Constants.getCoordinateUncertainty(atom1)
+                float errorRange = Constants.getCoordinateUncertainty(atom1)
                                   + Constants.getCoordinateUncertainty(atom2);
-                double dist = Mathematics.distance(atom1.getPoint3d(),
-                                                   atom2.getPoint3d());
-                if (dist <= Double.parseDouble(parameter.getParameter(
+                float dist = Mathematics.distance(atom1.getXYZ(),
+                                                   atom2.getXYZ());
+                if (dist <= Float.parseFloat(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                                                      )
                                               ) + errorRange) {
@@ -668,7 +668,7 @@ public final class CrossLinkUtilities {
            Boolean.parseBoolean(parameter.getParameter(Parameter.DO_SAS))) {
 */
 
-            double solventRadius = Double.parseDouble(parameter.getParameter(
+            float solventRadius = Float.parseFloat(parameter.getParameter(
                                                         Parameter.SOLVENT_RADIUS
                                                                             )
                                                      );
@@ -889,16 +889,16 @@ public final class CrossLinkUtilities {
              ArrayList<AtomList> postAtomCandidates =
                                        xlAtomMatchingComplexAtoms.get(postAtom);
 
-             double minDist = Integer.MAX_VALUE;
+             float minDist = Integer.MAX_VALUE;
              Atom minPreAtom = null;
              Atom minPostAtom = null;
              for (AtomList preAtoms : preAtomCandidates) {
                  for (Atom preAtomCandidate : preAtoms) {
                      for (AtomList postAtoms : postAtomCandidates) {
                          for (Atom postAtomCandidate : postAtoms) {
-                             double dist = Mathematics.distance(
-                                                  preAtomCandidate.getPoint3d(),
-                                                  postAtomCandidate.getPoint3d()
+                             float dist = Mathematics.distance(
+                                                  preAtomCandidate.getXYZ(),
+                                                  postAtomCandidate.getXYZ()
                                                                );
                              if (dist < minDist) {
                                  minDist = dist;
@@ -1453,12 +1453,12 @@ public final class CrossLinkUtilities {
                     AtomList minimumDistanceAtomPair =
                             MatterUtilities.getClosestAtomPair(list1, list2);
 
-                    double dist = Mathematics.distance(
-                                    minimumDistanceAtomPair.get(0).getPoint3d(),
-                                    minimumDistanceAtomPair.get(1).getPoint3d()
+                    float dist = Mathematics.distance(
+                                    minimumDistanceAtomPair.get(0).getXYZ(),
+                                    minimumDistanceAtomPair.get(1).getXYZ()
                                                       );
 
-                    double errorRange = Constants.getCoordinateUncertainty(
+                    float errorRange = Constants.getCoordinateUncertainty(
                                                   minimumDistanceAtomPair.get(0)
                                                                           )
                                         +
@@ -1466,7 +1466,7 @@ public final class CrossLinkUtilities {
                                                 minimumDistanceAtomPair.get(1)
                                                                           );
 
-                    if (dist > Double.parseDouble(parameter.getParameter(
+                    if (dist > Float.parseFloat(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                                                            )
                                                  ) + errorRange
@@ -1623,14 +1623,14 @@ public final class CrossLinkUtilities {
         // Euclidean/SolventPath distance.
         for (CrossLink crossLink1 : redundantCrossLinksCandidates.keySet()) {
              CrossLink minXL = crossLink1;
-             double minDist =
+             float minDist =
                 (minXL.getSolventPathDistance() < 0.0 ?
                  minXL.getEuclideanDistance() : minXL.getSolventPathDistance());
             for (CrossLink crossLink2 : redundantCrossLinksCandidates.get(
                                                                       crossLink1
                                                                          )
                 ) {
-                double dist2 =
+                float dist2 =
                     (crossLink2.getSolventPathDistance() < 0.0 ?
                      crossLink2.getEuclideanDistance()
                                          : crossLink2.getSolventPathDistance());
@@ -1669,7 +1669,7 @@ public final class CrossLinkUtilities {
                                                      Parameter.DO_VERBOSE_OUTPUT
                                                                      ));
 
-        double gridCellSize = Double.parseDouble(parameter.getParameter(
+        float gridCellSize = Float.parseFloat(parameter.getParameter(
                                                         Parameter.GRID_CELL_SIZE
                                                                        ));
 
@@ -1679,7 +1679,7 @@ public final class CrossLinkUtilities {
         for (Atom atom : pairs.keySet()) {
             AtomList pairedAtoms = pairs.get(atom);
 
-            double maxDist = Double.parseDouble(parameter.getParameter(
+            float maxDist = Float.parseFloat(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                                                       ))
                            + Constants.getCoordinateUncertainty(atom)
@@ -1718,19 +1718,19 @@ public final class CrossLinkUtilities {
                 // could be calculation. If the paths are empty, it means
                 // that the path calculation had to be stopped prematurely due
                 // to solvent inaccessibility.
-                double dist = 0;
+                float dist = 0;
                 if (paths.size() > 0) {
                     dist = SolventPathDistance.extractTargetDistances(
                                                                     paths.get(i)
                                                                      );
                 } else {
-                    dist = Double.MAX_VALUE;
+                    dist = Float.MAX_VALUE;
                 }
 
-                maxDist = Double.parseDouble(parameter.getParameter(
+                maxDist = Float.parseFloat(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                             ));
-                double errorRange =
+                float errorRange =
                          Constants.getCoordinateUncertainty(atom)
                          +
                          Constants.getCoordinateUncertainty(pairedAtoms.get(i));
@@ -1753,7 +1753,7 @@ public final class CrossLinkUtilities {
                                                                 gridCellSize,
                                                                 verbose)) {
                         continue;
-                    } else if (dist == Double.MAX_VALUE) {
+                    } else if (dist == Float.MAX_VALUE) {
                         crossLink.setSolventPathDistance(
                                   xwalk.constants.Constants.FIRST_ATOM_IS_BURIED
                                                         );
@@ -1796,7 +1796,7 @@ public final class CrossLinkUtilities {
      * @param complex
      *      - PolyPeptideList object holding all atoms of the protein.
     * @param gridCellSize
-     *        - double value representing the cell edge length of each grid cell
+     *        - float value representing the cell edge length of each grid cell
      * @param verbose
      *        - if {@code TRUE} than information on the size of solvent
      *          accessibility will be printed out on STDERR.
@@ -1805,7 +1805,7 @@ public final class CrossLinkUtilities {
      */
     private static boolean isSolventAccessible(final CrossLink crossLink,
                                                final PolyPeptideList complex,
-                                               final double gridCellSize,
+                                               final float gridCellSize,
                                                final boolean verbose) {
 
         Atom atom1 = crossLink.getPreAtom();
@@ -1869,7 +1869,7 @@ public final class CrossLinkUtilities {
                                               final AtomList atoms2,
                                               final CrossLinkParameter parameter
                                                             ) {
-        double maxDist = Double.parseDouble(parameter.getParameter(
+        float maxDist = Float.parseFloat(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                                                   ))
                        + Constants.getCoordinateUncertainty(atom1)

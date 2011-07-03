@@ -40,17 +40,17 @@ public class Constants {
      * XlogP value added to organic ions like COO- in order to correct for their
      * charge and thus higher solvation tendency.
      */
-    public static final double ORGANIC_ION_CORRECTION_FACTOR = -1.083;
+    public static final float ORGANIC_ION_CORRECTION_FACTOR = -1.083f;
     /**
      * XlogP value given to all metal ions. Value is more or less arbitrary, but
      * should be lower than any charged amino acid.
      */
-    public static final double METAL_XLOGP = -3;
+    public static final float METAL_XLOGP = -3;
     /**
      * Radius above which any physicochemical property calculations will be
      * omitted.
      */
-    public static final double PHYSICOCHEMICAL_INFLUENCE_RADIUS = 9.0;
+    public static final float PHYSICOCHEMICAL_INFLUENCE_RADIUS = 9.0f;
 
     //--------------------------------------------------------------------------
     // CONSTANT STRING VALUES

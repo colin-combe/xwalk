@@ -262,8 +262,8 @@ public class AvgInterface {
             for (PolyPeptide protein : complex) {
                 for (AminoAcid aa : protein) {
                     for (Atom atom : aa.getAllAtoms()) {
-                        atom.setOccupancy(0.0);
-                        atom.setTemperatureFactor(0.0);
+                        atom.setOccupancy(0.0f);
+                        atom.setTemperatureFactor(0.0f);
                     }
                 }
             }
@@ -284,7 +284,7 @@ public class AvgInterface {
                             int count = interfaceCounts.get(id);
                             for (Atom atom : aa1.getAllAtoms()) {
                                 atom.setOccupancy(count);
-                                atom.setTemperatureFactor((double) count
+                                atom.setTemperatureFactor((float) count
                                                           /
                                                           complexCount);
                             }
