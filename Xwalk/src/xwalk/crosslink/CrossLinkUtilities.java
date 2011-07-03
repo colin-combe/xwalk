@@ -1111,8 +1111,10 @@ public final class CrossLinkUtilities {
                         } else {
                             System.err.println("WARNING: "
                                  + parameter.getParameter(Parameter.INFILE_PATH)
-                                 + "\tAtom \"-aa1 "
-                                 + parameter.getParameter(Parameter.ATOM_TYPE1)
+                                 + "\tAtom \"-a1 "
+                                 + parameter.getParameter(
+                                                    Parameter.ATOM_TYPE1
+                                                   ).replaceAll("#", " ").trim()
                                  + "\" not found in residue "
                                  + residue.getAtom(0).getResidueName()
                                  + residue.getAtom(0).getResidueNumber()
@@ -1180,8 +1182,10 @@ public final class CrossLinkUtilities {
                         } else {
                             dataNotFoundMessage.append("WARNING: "
                                  + parameter.getParameter(Parameter.INFILE_PATH)
-                                 + "\tAtom \"-aa2 "
-                                 + parameter.getParameter(Parameter.ATOM_TYPE2)
+                                 + "\tAtom \"-a2 "
+                                 + parameter.getParameter(
+                                                     Parameter.ATOM_TYPE2
+                                                   ).replaceAll("#", " ").trim()
                                  + "\" not found in residue "
                                  + residue.getAtom(0).getResidueName()
                                  + residue.getAtom(0).getResidueNumber()
