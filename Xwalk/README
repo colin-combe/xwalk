@@ -1,4 +1,4 @@
-Xwalk (version 0.2.1)
+Xwalk (version 0.3)
 -------------------
 
 INTRODUCTION
@@ -139,6 +139,9 @@ Any of the above conditions can be waived if the authors give permission.
 
 VERSION HISTORY
 ---------------
+0.3: -Improved performance and memory usage. Xwalk runs now 3-5 times
+      faster, while using a third of the previous memory.
+
 0.2.1: -Fixed a bug that caused Xwalk to crash on cases where cross-linked atoms
         were located outside the grid.
        -Added a further number code to the SASD column for atom pairs that
@@ -151,6 +154,6 @@ VERSION HISTORY
      -PyMol option changed from -p to -pymol
      -Removed -grid, -global and -all commandline options
      -Bug fixes
-     
 
-0.1: First version of Xwalk  
+0.1: First version of Xwalk
+  
