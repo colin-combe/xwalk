@@ -277,6 +277,12 @@ public class PDBreader {
         ArrayList < PolyPeptideList > complexes =
                                             new ArrayList < PolyPeptideList >();
 
+        StringBuffer tmp = new StringBuffer();
+        for (AminoAcidType aa : AminoAcidType.values()) {
+            tmp.append("#" + aa.getThreeLetterCode() + "#");
+        }
+        String aaTypes = tmp.toString();
+
         for (AtomList atoms : this.allAtoms) {
             // First put all atoms of user requested protein chains into a
             // selection hashtable.
@@ -284,14 +290,8 @@ public class PDBreader {
                                        new Hashtable < Character, AtomList >();
             for (Atom atom : atoms) {
                 // check if atom is part of common amino acids
-                boolean aaIsProtein = false;
-                for (AminoAcidType aa : AminoAcidType.values()) {
-                    if (aa.getThreeLetterCode().equals(atom.getResidueName())) {
-                        aaIsProtein = true;
-                    }
-                }
 
-                if (aaIsProtein
+                if (aaTypes.indexOf("#" + atom.getResidueName() + "#") != -1
                     &&
                     (atom.getFlag().equals("ATOM  ")
                     &&
@@ -390,30 +390,37 @@ public class PDBreader {
         ArrayList < AminoAcid > aminoAcids = new ArrayList < AminoAcid >();
         Atom preAtom = atomList.get(0);
         AtomList residueAtoms = new AtomList();
+
+        StringBuffer tmp = new StringBuffer();
+        for (AminoAcidType aa : AminoAcidType.values()) {
+            tmp.append("#" + aa.getThreeLetterCode() + "#");
+        }
+        String aaTypes = tmp.toString();
+
         for (Atom atom : atomList) {
             // check if atom is part of common amino acids
-            boolean aaIsAA = false;
-            for (AminoAcidType aa : AminoAcidType.values()) {
-                if (aa.getThreeLetterCode().equals(atom.getResidueName())) {
-                    aaIsAA = true;
-                }
-            }
-            if (aaIsAA) {
-                if (!MatterUtilities.equalsResidue(atom, preAtom)) {
-                    AminoAcid aa = new AminoAcid(residueAtoms);
-                    aa.setElement();
+            if (!MatterUtilities.equalsResidue(atom, preAtom)) {
+                AminoAcid aa = new AminoAcid(residueAtoms);
+                aa.setElement();
+                if (aaTypes.indexOf("#" + atom.getResidueName() + "#") != -1) {
                     aminoAcids.add(aa);
-                    preAtom = atom;
-                    residueAtoms = new AtomList();
-                    residueAtoms.add(atom);
-                } else {
-                    residueAtoms.add(atom);
                 }
+                preAtom = atom;
+                residueAtoms = new AtomList();
+                residueAtoms.add(atom);
+            } else {
+                residueAtoms.add(atom);
             }
         }
         AminoAcid aa = new AminoAcid(residueAtoms);
         aa.setElement();
-        aminoAcids.add(aa);
+        if (aa.getAllAtoms().size() > 0) {
+            if (aaTypes.indexOf("#" + aa.getAtom(0).getResidueName() + "#")
+                !=
+                -1) {
+                aminoAcids.add(aa);
+            }
+        }
     return aminoAcids;
     }
     //--------------------------------------------------------------------------
