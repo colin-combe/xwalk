@@ -36,9 +36,12 @@ public class DistanceComparator implements Comparator < CrossLink > {
      *        - First CrossLink Object.
      * @param xl2
      *        - Second CrossLink Object.
-     * @return -1 if the first has a shorter distance/higher probability.<br>
-     *         0 if both objects span equal distances/probabilities.<br>
-     *         1 if the second has a larger distance/lower probability
+     * @return -1 if the first has a shorter distance/higher probability/lower
+     *            chainID/lower residue number.<br>
+     *          0 if both objects span equal distances/probabilities/equal
+     *            chainID/equal residue number.<br>
+     *          1 if the second has a larger distance/lower probability/higher
+     *            chainID/higher residue number
      */
     public final int compare(final CrossLink xl1, final CrossLink xl2) {
         if (xl1.getSolventPathDistanceProbability()
@@ -94,6 +97,42 @@ public class DistanceComparator implements Comparator < CrossLink > {
            return -1;
         }
         if (xl1.getEuclideanDistance() > xl2.getEuclideanDistance()) {
+            return 1;
+        }
+
+        // if distances are equal, then sort further by chain ID.
+        if (xl1.getPreAtom().getChainId() < xl2.getPreAtom().getChainId()) {
+            return -1;
+        }
+        if (xl1.getPreAtom().getChainId() > xl2.getPreAtom().getChainId()) {
+            return 1;
+        }
+        if (xl1.getPostAtom().getChainId() < xl2.getPostAtom().getChainId()) {
+            return -1;
+        }
+        if (xl1.getPostAtom().getChainId() > xl2.getPostAtom().getChainId()) {
+            return 1;
+        }
+
+        // if still no sorting could be achieved then sort by residue number
+        if (xl1.getPreAtom().getResidueNumber()
+            <
+            xl2.getPreAtom().getResidueNumber()) {
+            return -1;
+        }
+        if (xl1.getPreAtom().getResidueNumber()
+            >
+            xl2.getPreAtom().getResidueNumber()) {
+            return 1;
+        }
+        if (xl1.getPostAtom().getResidueNumber()
+            <
+            xl2.getPostAtom().getResidueNumber()) {
+            return -1;
+        }
+        if (xl1.getPostAtom().getResidueNumber()
+            >
+            xl2.getPostAtom().getResidueNumber()) {
             return 1;
         }
         return 0;
