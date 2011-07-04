@@ -392,13 +392,13 @@ public class PDBreader {
         AtomList residueAtoms = new AtomList();
         for (Atom atom : atomList) {
             // check if atom is part of common amino acids
-            boolean aaIsAA = false;;
-            for(AminoAcidType aa : AminoAcidType.values()) {
-                if(aa.getThreeLetterCode().equals(atom.getResidueName())) {
+            boolean aaIsAA = false;
+            for (AminoAcidType aa : AminoAcidType.values()) {
+                if (aa.getThreeLetterCode().equals(atom.getResidueName())) {
                     aaIsAA = true;
                 }
             }
-            if(aaIsAA) {
+            if (aaIsAA) {
                 if (!MatterUtilities.equalsResidue(atom, preAtom)) {
                     AminoAcid aa = new AminoAcid(residueAtoms);
                     aa.setElement();
