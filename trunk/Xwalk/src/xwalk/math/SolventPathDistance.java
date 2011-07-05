@@ -112,9 +112,9 @@ public class SolventPathDistance {
                 cell.reset();
             }
         }
+        this.grid = atomGrid;
         this.sourceCell = atomGrid.get(atom1);
         this.targetCells = atom2cells;
-        this.grid = atomGrid;
     }
     //--------------------------------------------------------------------------
     /**
@@ -131,13 +131,13 @@ public class SolventPathDistance {
     public final ArrayList < Path > getShortestPath(final float maxDist) {
         // initialize distance calculation
         this.grid.resetSoft();
-        BreadthFirstSearch shortestPathAlgo = new BreadthFirstSearch();
-        ArrayList < Path > paths = shortestPathAlgo.findShortestPath(
-                                                                    sourceCell,
-                                                                    targetCells,
-                                                                    grid,
-                                                                    maxDist
+        BreadthFirstSearch shortestPathAlgo = new BreadthFirstSearch(
+                                                               this.grid,
+                                                               this.sourceCell,
+                                                               this.targetCells,
+                                                               maxDist
                                                                     );
+        ArrayList < Path > paths = shortestPathAlgo.findShortestPath();
         if (!shortestPathAlgo.hasFinished()) {
             return new ArrayList < Path >();
         }

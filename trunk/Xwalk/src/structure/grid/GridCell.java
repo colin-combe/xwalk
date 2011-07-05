@@ -63,12 +63,6 @@ public class GridCell {
      * Default is {@code FALSE}.
      */
     private boolean isBoundary = false;
-    /**
-     * Stores boolean information about whether grid cell has been visited
-     * e.g. while searching through the parent grid.
-     * Default is {@code FALSE}.
-     */
-    private boolean hasBeenVisited = false;
 
     /**
      * Stores the distance to some reference GridCell object in a grid.
@@ -177,30 +171,6 @@ public class GridCell {
     }
     //-------------------------------------------------------------------------
     /**
-     * Sets the visited status of this grid cell to {@code TRUE}.
-     */
-    public final void setVisitStatus() {
-        this.hasBeenVisited = true;
-    }
-    //-------------------------------------------------------------------------
-    /**
-     * Sets the visited status of this grid cell to {@code FALSE}.
-     */
-    public final void unsetVisitStatus() {
-        this.hasBeenVisited = false;
-    }
-    //-------------------------------------------------------------------------
-
-    /**
-     * Returns the visited status of this grid cell.
-     * @return {@code TRUE} if cell has been labeled as visited,
-     *         {@code FALSE} otherwise.
-     */
-    public final boolean isVisited() {
-        return this.hasBeenVisited;
-    }
-    //-------------------------------------------------------------------------
-    /**
      * Sets the boundary status of this grid cell to {@code TRUE}.
      */
     public final void setBoundaryStatus() {
@@ -249,25 +219,22 @@ public class GridCell {
     //-------------------------------------------------------------------------
 
     /**
-     * Resets the distance and cluster_no value, visited and occupied status of
-     * this grid cells.
+     * Resets the distance value and occupied status of this grid cells.
      * @see #resetSoft()
      */
     public final void reset() {
         this.setDistance(Constants.DEFAULT_GRID_DISTANCE);
-        this.unsetVisitStatus();
         this.unsetOccupation();
     }
     //-------------------------------------------------------------------------
 
     /**
-     * Resets only the distance value and visited status of this grid cells,
-     * but not the occupied status.
+     * Resets only the distance value of this grid cells, but not the occupied
+     * status.
      * @see #reset()
      */
     public final void resetSoft() {
         this.setDistance(Constants.DEFAULT_GRID_DISTANCE);
-        this.unsetVisitStatus();
     }
     //-------------------------------------------------------------------------
 
@@ -284,9 +251,6 @@ public class GridCell {
 
         if (this.isOccupied()) {
             copy.setOccupation();
-        }
-        if (this.isVisited()) {
-            copy.setVisitStatus();
         }
         if (this.isBoundary()) {
             copy.setBoundaryStatus();
