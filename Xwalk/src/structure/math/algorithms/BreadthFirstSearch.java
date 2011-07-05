@@ -16,7 +16,7 @@
 package structure.math.algorithms;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashSet;
 
 import structure.constants.Constants;
 import structure.grid.Grid;
@@ -52,58 +52,99 @@ public class BreadthFirstSearch {
      * Global variable to keep track on targets that have already been assigned
      * a distance.
      */
-    private Hashtable < GridCell, String > targetsFoundInSearch =
-                                          new Hashtable < GridCell, String >();
-    //--------------------------------------------------------------------------
+    private HashSet < GridCell > targetsFoundInSearch =
+                                                     new HashSet < GridCell >();
+
 
     /**
-     * Perform breadth-first search on the grid to find the shortest path
-     * between a single grid cell and a list of other grid cells.
+     * List of target grid cells, which represent the end point in the
+     * distance calculation.
+     */
+    private ArrayList < GridCell > targets;
+
+    /**
+     * Grid object in which the entire search is done.
+     */
+    private Grid grid;
+
+    /**
+     * float value representing the maximum distance to search for in the grid.
+     */
+    private float maxDist;
+
+    /**
+     * Source grid cell, which represents the starting point for the
+     * distance calculation.
+     */
+    private GridCell source;
+
+    /**
+     * Trash for removing grid cells from the search for the shortest path.
+     */
+    static private ArrayList <GridCell> TRASH = new ArrayList<GridCell>();
+
+    //--------------------------------------------------------------------------
+    /**
+     * Constructor.
+     * @param grid
+     *        - Grid object in which the entire search is done.
      * @param source
      *        - Source grid cell, which represents the starting point for the
      *          distance calculation.
      * @param targets
      *        - List of target grid cells, which represent the end point in the
-     *        distance calculation
-     * @param grid
-     *        - Grid object in which the entire search is done.
+     *          distance calculation
      * @param maxDist
      *        - float value representing the maximum distance to search for in
      *          the grid
+     */
+    public BreadthFirstSearch(
+                              final Grid grid,
+                              final GridCell source,
+                              final ArrayList < GridCell > targets,
+                              final float maxDist) {
+        this.grid = grid;
+        this.source = source;
+        this.targets = targets;
+        this.maxDist = maxDist;
+
+        // set value of source cell to 0.0
+        this.source.setDistance(0.0f);
+
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Perform breadth-first search on the grid to find the shortest path
+     * between a single grid cell and a list of other grid cells.
      * @return List of path objects, holding each the path between the source
      *         and one target cell. If no path could be found, than each
      *         path object holds only the target cell.
      */
     public final ArrayList < Path > findShortestPath(
-                                           final GridCell source,
-                                           final ArrayList < GridCell > targets,
-                                           final Grid grid,
-                                           final float maxDist
                                                     ) {
+
         ArrayList < GridCell > actives = new ArrayList < GridCell >();
 
-        // set value of source cell to 0.0
-        source.setDistance(0.0f);
-        actives.add(source);
+        actives.add(this.source);
 
         // start breadth-first search from grid cell.
-        this.setDistanceRecursively(actives, targets, grid, maxDist);
+        this.setDistanceRecursively(actives);
 
         // trace back the path
         ArrayList < Path > paths = new ArrayList < Path >();
-        for (GridCell target : targets) {
+        for (GridCell target : this.targets) {
             // first element in the path is the target cell itself.
             // Last element will be the source cell.
             this.path.add(BreadthFirstSearch.CELL_NO_OF_TARGET_CELL_IN_PATH,
                           target.copy());
             if (target.getDistance() == Constants.DEFAULT_GRID_DISTANCE) {
                 paths.add(this.path);
-                path = new Path();
+                this.path = new Path();
                 continue;
             } else {
-                this.backtrackPath(target, source, grid);
+                this.backtrackPath(target);
                 paths.add(this.path);
-                path = new Path();
+                this.path = new Path();
             }
         }
         return paths;
@@ -116,26 +157,17 @@ public class BreadthFirstSearch {
      * @param actives
      *        - List of GridCells for which neighbouring cells have to be
      *          determined and distances calculated.
-     * @param targets
-     *        - List of GridCell objects that represent the target grid cell to
-     *          be reached.
-     * @param grid
-     *        - Grid object in which the entire search is done.
-     * @param maxDist
-     *        - float value representing the maximum distance to search for in
-     *          the grid
      */
-    private void setDistanceRecursively(final ArrayList < GridCell > actives,
-                                        final ArrayList < GridCell > targets,
-                                        final Grid grid,
-                                        final float maxDist) {
+    private void setDistanceRecursively(final ArrayList < GridCell > actives) {
         // neighbouring grid cells become new actives for the next round of
         // breadth-first-search.
         ArrayList < GridCell > newActives = new ArrayList < GridCell >();
         for (GridCell active : actives) {
 
              ArrayList < GridCell > neighbours =
-                            GridUtilities.getNeighbouringCells(active, grid, 1);
+                            GridUtilities.getNeighbouringCells(active,
+                                                               this.grid,
+                                                               1);
 
              for (GridCell neighbour : neighbours) {
                   float currentDist = Integer.MIN_VALUE;
@@ -147,7 +179,7 @@ public class BreadthFirstSearch {
                       // distance of the current active cell + the distance
                       // between the active and the neighbouring cell.
                       newDist = active.getDistance()
-                              + (float) Mathematics.distance(   active.getXYZ(),
+                              + (float) Mathematics.distance(active.getXYZ(),
                                                              neighbour.getXYZ()
                                                            );
                       // distance from other active cell might be shorter.
@@ -160,9 +192,10 @@ public class BreadthFirstSearch {
                   }
                   // check whether we have reached the target cell already.
                   // If so, remove target from list of targets.
-                  GridCell equal = GridUtilities.equals(neighbour, targets);
+                  GridCell equal = GridUtilities.equals(neighbour,
+                                                        this.targets);
                   if (equal != null) {
-                      this.targetsFoundInSearch.put(neighbour, "");
+                      this.targetsFoundInSearch.add(neighbour);
                       if (targets.size() == this.targetsFoundInSearch.size()) {
                           this.hasFinished = true;
                           return;
@@ -177,9 +210,10 @@ public class BreadthFirstSearch {
         // than maxDist.
         int maxDistCount = 0;
         for (GridCell neighbour : newActives) {
-             neighbour.setVisitStatus();
-             if (neighbour.getDistance() > maxDist) {
+             double neighbourDistance = neighbour.getDistance();
+             if (neighbourDistance > maxDist) {
                  maxDistCount++;
+                 BreadthFirstSearch.TRASH.add(neighbour);
                  this.hasFinished = true;
              }
         }
@@ -187,25 +221,24 @@ public class BreadthFirstSearch {
         if (maxDistCount == newActives.size()) {
             return;
         }
-        this.setDistanceRecursively(newActives, targets, grid, maxDist);
+
+        newActives.removeAll(BreadthFirstSearch.TRASH);
+        BreadthFirstSearch.TRASH.clear();
+
+        this.setDistanceRecursively(newActives);
     }
     //--------------------------------------------------------------------------
     /**
      * Backtraces the path starting between a target cell and source cell.
-     * @param source
-     *        - Source grid cell, which represents the starting point for the
-     *          distance calculation.
      * @param target
      *        - Target grid cell, which represent the end point in the
      *        distance calculation.
-     * @param grid
-     *        - Grid object in which the entire search is done.
      */
-    private void backtrackPath(final GridCell target,
-                               final GridCell source,
-                               final Grid grid) {
+    private void backtrackPath(final GridCell target) {
         ArrayList < GridCell > neighbours =
-                            GridUtilities.getNeighbouringCells(target, grid, 1);
+                            GridUtilities.getNeighbouringCells(target,
+                                                               this.grid,
+                                                               1);
         float minDist = target.getDistance();
         GridCell minGridCell = target;
         for (GridCell neighbour : neighbours) {
@@ -215,12 +248,12 @@ public class BreadthFirstSearch {
                 minGridCell = neighbour;
             }
         }
-        if (minGridCell == source) {
+        if (minGridCell == this.source) {
             this.path.add(minGridCell.copy());
             return;
         }
         this.path.add(minGridCell.copy());
-        this.backtrackPath(minGridCell, source, grid);
+        this.backtrackPath(minGridCell);
     }
     //--------------------------------------------------------------------------
     /**

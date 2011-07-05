@@ -15,6 +15,8 @@
 
 package structure.math;
 
+import structure.constants.Constants;
+
 /**
  * Simple class for handling Cartesian coordinates in 3 dimensional space with
  * integer numbers.
@@ -139,4 +141,15 @@ public class Point3i {
                            this.getK(),
                            this.getRadius());
     }
+
+    //--------------------------------------------------------------------------
+    /**
+     * Creates a copy of this Point3i object.
+     * @return Copy of this Point3i object
+     */
+    public final String toString() {
+        return this.getI() + ", " + this.getJ() + ", " + this.getK() + ", "
+             + this.getRadius() + Constants.LINE_SEPERATOR;
+    }
+
 }
