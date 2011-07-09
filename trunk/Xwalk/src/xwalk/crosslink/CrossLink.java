@@ -121,6 +121,10 @@ public class CrossLink extends Bond {
      * Hashtable holding all probabilities for certain Euclidean distance bins.
      */
     private static Hashtable<Float, Float> eucProb;
+    /**
+     * Hash value.
+     */
+    private int hashValue;
     //--------------------------------------------------------------------------
     /**
      * Constructor.
@@ -130,27 +134,11 @@ public class CrossLink extends Bond {
      *        - Second protein atom to be connected by the virtual cross-linker.
      */
     public CrossLink(final Atom atom1, final Atom atom2) {
-        super(atom1, atom2, BondTypes.CROSS_LINK);
-        CrossLink.readProbabilities();
-
-        ArrayList < Atom > list = new ArrayList < Atom >();
-        list.add(atom1);
-        list.add(atom2);
-        // sorting atom pair by chain id.
-        Collections.sort(list, new Comparator < Atom >() {
-                                  public int compare(final Atom atom1,
-                                                     final Atom atom2) {
-                                     String chainId1 = atom1.getChainId() + "";
-                                     String chainId2 = atom2.getChainId() + "";
-                                     return chainId1.compareTo(chainId2);
-                                  }
-                              }
-                        );
-        this.preAtom = list.get(0);
-        this.postAtom = list.get(1);
-
-        this.setSequenceDistance();
-        this.setEuclideanDistance();
+        this(atom1,
+             atom2,
+             Math.abs(atom1.getRank() - atom2.getRank()),
+             Mathematics.distance(atom1.getXYZ(), atom2.getXYZ())
+            );
     }
     //--------------------------------------------------------------------------
     /**
@@ -194,27 +182,14 @@ public class CrossLink extends Bond {
         this.seqDist = sequenceDistance;
         this.eucDist = euclideanDistance;
 
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Calculates the distance in sequence space, which corresponds to the
-     * difference of the amino acid rank to which both atoms are associated.
-     */
-    private void setSequenceDistance() {
-
-        this.seqDist = Math.abs(this.postAtom.getRank()
-                                -
-                                this.preAtom.getRank());
-    }
-    //--------------------------------------------------------------------------
-
-    /**
-     * Calculates the distance in Euclidean space.
-     */
-    private void setEuclideanDistance() {
-
-        this.eucDist = Mathematics.distance(this.preAtom.getXYZ(),
-                                            this.postAtom.getXYZ());
+        this.hashValue = this.getPreAtom().getResidueName().hashCode()
+                       + this.getPreAtom().getResidueNumber()
+                       + this.getPreAtom().getChainId()
+                       + this.getPreAtom().getName().hashCode()
+                       + this.getPostAtom().getResidueName().hashCode()
+                       + this.getPostAtom().getResidueNumber()
+                       + this.getPostAtom().getChainId()
+                       + this.getPostAtom().getName().hashCode();
 
     }
     //--------------------------------------------------------------------------
@@ -372,6 +347,16 @@ public class CrossLink extends Bond {
         }
         return false;
     }
+    //-------------------------------------------------------------------------
+    /*
+     * Returns the hash value of this cross-link, which incorporates information
+     * from its residue names, residue numbers, chainID and atom names.
+     * @return integer variable representing the hash value of this CrossLink
+     *         object.
+     */
+//    public final int hashCode() {
+//        return this.hashValue;
+//    }
     //--------------------------------------------------------------------------
     /**
      * Sets the ranking index of this cross-link.

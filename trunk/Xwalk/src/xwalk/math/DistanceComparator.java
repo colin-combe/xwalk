@@ -65,14 +65,17 @@ public class DistanceComparator implements Comparator < CrossLink > {
             return -1;
         }
 
-        if (xl1.getSolventPathDistance() < 0
+        // cross-links that do not conform to maxsub
+        // will have a SASD of -1. The default
+        // SASD is -0.5.
+        if (xl1.getSolventPathDistance() < -0.9
                 &&
-           xl2.getSolventPathDistance() > 0) {
+           xl2.getSolventPathDistance() > -0.6) {
             return 1;
         }
-        if (xl1.getSolventPathDistance() > 0
+        if (xl1.getSolventPathDistance() > -0.6
                 &&
-           xl2.getSolventPathDistance() < 0) {
+           xl2.getSolventPathDistance() < -0.9) {
             return -1;
         }
 
