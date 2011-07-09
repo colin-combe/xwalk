@@ -977,6 +977,17 @@ public class Atom {
         }
     return false;
     }
+    //-------------------------------------------------------------------------
+    /*
+     * Returns the hash value of this Atom, which incorporates information
+     * from its XYZ coordinates, chainID, alternative location, residue number
+     * residue name and atom name.
+     * @return integer variable representing the hash value of this Atom
+     *         object.
+     */
+//    public int hashCode() {
+//        return this.toString().hashCode();
+//    }
     //--------------------------------------------------------------------------
     /**
      * Returns all PDB related information of this atom in PDB format.

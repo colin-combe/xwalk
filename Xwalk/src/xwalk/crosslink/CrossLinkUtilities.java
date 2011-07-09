@@ -810,7 +810,7 @@ public final class CrossLinkUtilities {
      * @return Hashtable of atom pairs that conform to the user set identifiers.
      * @throws IOException if input file could not be read.
      */
-    private static Hashtable < Atom, AtomList > extractRelevantPairs(
+    private static Hashtable < Atom, AtomList > 	(
                                              final PolyPeptideList complex,
                                              final CrossLinkList crossLinks,
                                              final CrossLinkParameter parameter
@@ -889,12 +889,12 @@ public final class CrossLinkUtilities {
              ArrayList<AtomList> postAtomCandidates =
                                        xlAtomMatchingComplexAtoms.get(postAtom);
 
-             float minDist = Integer.MAX_VALUE;
-             Atom minPreAtom = null;
-             Atom minPostAtom = null;
              for (AtomList preAtoms : preAtomCandidates) {
-                 for (Atom preAtomCandidate : preAtoms) {
-                     for (AtomList postAtoms : postAtomCandidates) {
+                 for (AtomList postAtoms : postAtomCandidates) {
+                     float minDist = Integer.MAX_VALUE;
+                     Atom minPreAtom = null;
+                     Atom minPostAtom = null;
+                     for (Atom preAtomCandidate : preAtoms) {
                          for (Atom postAtomCandidate : postAtoms) {
                              float dist = Mathematics.distance(
                                                   preAtomCandidate.getXYZ(),
@@ -907,17 +907,16 @@ public final class CrossLinkUtilities {
                              }
                          }
                      }
+                     AtomList pair = pairs.get(minPreAtom);
+                     if (pair == null) {
+                         pair = new AtomList();
+                         pair.add(minPostAtom);
+                         pairs.put(minPreAtom, pair);
+                     } else {
+                         pair.add(minPostAtom);
+                         pairs.put(minPreAtom, pair);
+                     }
                  }
-             }
-
-             AtomList pair = pairs.get(minPreAtom);
-             if (pair == null) {
-                 pair = new AtomList();
-                 pair.add(minPostAtom);
-                 pairs.put(minPreAtom, pair);
-             } else {
-                 pair.add(minPostAtom);
-                 pairs.put(minPreAtom, pair);
              }
         }
         return pairs;
@@ -1587,37 +1586,23 @@ public final class CrossLinkUtilities {
         Hashtable < CrossLink, ArrayList < CrossLink > >
                                                    redundantCrossLinksCandidates
                       = new Hashtable < CrossLink, ArrayList < CrossLink > >();
-        String assigned = new String();
-        for (CrossLink crossLink1 : crossLinkList) {
-            // don't include the homologs into the candidate list as these
-            // have been included already as members to the first homolog
-            // member
-            String id1 = crossLink1.getPreAtom().getResidueNumber()
-                       + crossLink1.getPreAtom().getResidueName()
-                       + crossLink1.getPostAtom().getResidueNumber()
-                       + crossLink1.getPostAtom().getResidueName();
-            String id2 = crossLink1.getPostAtom().getResidueNumber()
-                       + crossLink1.getPostAtom().getResidueName()
-                       + crossLink1.getPreAtom().getResidueNumber()
-                       + crossLink1.getPreAtom().getResidueName();
-            if (assigned.indexOf("#" + id1 + "#") != -1
-                    ||
-                assigned.indexOf("#" + id2 + "#") != -1) {
-                continue;
-            } else {
-                assigned += "#" + id1 + "#";
-            }
-
-            for (CrossLink crossLink2 : crossLinkList) {
-                if (crossLink1 != crossLink2) {
+        ArrayList <CrossLink> homologList = new ArrayList <CrossLink> ();
+        for (int i = 0; i < crossLinkList.size(); i++) {
+            CrossLink crossLink1 = crossLinkList.get(i);
+            if (!homologList.contains(crossLink1)) {
+                for (int j = i + 1; j < crossLinkList.size(); j++) {
+                    CrossLink crossLink2 = crossLinkList.get(j);
                     if (crossLink1.equalsInHomolog(crossLink2)) {
                         ArrayList < CrossLink > list =
-                                  redundantCrossLinksCandidates.get(crossLink1);
+                            redundantCrossLinksCandidates.get(crossLink1);
                         if (list == null) {
-                                list = new ArrayList < CrossLink >();
+                          list = new ArrayList < CrossLink >();
                         }
-                        list.add(crossLink2);
-                        redundantCrossLinksCandidates.put(crossLink1, list);
+                        if (!list.contains(crossLink1)) {
+                            homologList.add(crossLink2);
+                            list.add(crossLink2);
+                            redundantCrossLinksCandidates.put(crossLink1, list);
+                        }
                     }
                 }
             }
@@ -1626,27 +1611,28 @@ public final class CrossLinkUtilities {
         // remove all redundant cross links except of the one with the lowest
         // Euclidean/SolventPath distance.
         for (CrossLink crossLink1 : redundantCrossLinksCandidates.keySet()) {
-             CrossLink minXL = crossLink1;
-             float minDist =
+            ArrayList <CrossLink> toBremoved = new ArrayList<CrossLink>();
+            CrossLink minXL = crossLink1;
+            float minDist =
                 (minXL.getSolventPathDistance() < 0.0 ?
                  minXL.getEuclideanDistance() : minXL.getSolventPathDistance());
             for (CrossLink crossLink2 : redundantCrossLinksCandidates.get(
                                                                       crossLink1
-                                                                         )
-                ) {
+                                                                          )) {
                 float dist2 =
                     (crossLink2.getSolventPathDistance() < 0.0 ?
                      crossLink2.getEuclideanDistance()
                                          : crossLink2.getSolventPathDistance());
 
-                if (minDist < dist2) {
-                    crossLinkList.remove(crossLink2);
+                if (minDist <= dist2) {
+                    toBremoved.add(crossLink2);
                 } else {
-                    crossLinkList.remove(minXL);
+                    toBremoved.add(minXL);
                     minDist = dist2;
                     minXL = crossLink2;
                 }
             }
+            crossLinkList.removeAll(toBremoved);
         }
     }
    //--------------------------------------------------------------------------

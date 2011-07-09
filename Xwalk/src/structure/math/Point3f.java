@@ -156,7 +156,17 @@ public class Point3f {
         }
     return false;
     }
-    //--------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    /*
+     * Returns the hash value of this point, which corresponds to the
+     * hashCode of the toString() method.
+     * @return integer variable representing the hash value of this Point3f
+     *         object.
+     */
+//    public final int hashCode() {
+//        return this.toString().hashCode();
+//    }
+   //--------------------------------------------------------------------------
     /**
      * Creates a copy of this Point3d object.
      * @return Copy of this Point3d object

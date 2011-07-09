@@ -106,7 +106,6 @@ public class MonoLink extends Atom {
         return false;
     }
     //--------------------------------------------------------------------------
-
     /**
      * Checks whether a second mono-link has the same atom identifier, i.e.
      * residue name, residue number, chain Id and atom name.
@@ -128,6 +127,20 @@ public class MonoLink extends Atom {
         }
         return false;
     }
+
+    //--------------------------------------------------------------------------
+    /*
+     * Returns the hash value of this mono-link, which incorporates information
+     * of its residue name, residue number, chainID and atom name.
+     * @return integer variable representing the hash value of this MonoLink
+     *         object.
+     */
+//    public int hashCode() {
+//        return this.getResidueName().hashCode()
+//             + this.getResidueNumber()
+//            + this.getChainId()
+//             + this.getName().hashCode();
+//    }
     //--------------------------------------------------------------------------
     /**
      * Sets the ranking index of this mono-link.

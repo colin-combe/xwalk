@@ -33,15 +33,13 @@ public class GridCell {
      * Length of the grid cell edge.
      * Default {@code size = 0.5}.
      */
-    private static float size = Constants.DEFAULT_GRID_CELL_SIZE;
+    private float size = Constants.DEFAULT_GRID_CELL_SIZE;
 
     /**
      * Diagonal of the grid cell.
      * Default {@code diagonal = Math.sqrt(0.5)}
      */
-    private static float diagonal = (float)Math.sqrt(2 * Math.pow(
-                                                               GridCell.size, 2)
-                                                                 );
+    private float diagonal = (float)Math.sqrt(2 * Math.pow(size, 2));
 
     /**
      * Cartesian coordinates of the grid cell center.
@@ -125,8 +123,8 @@ public class GridCell {
      *        - float value representing the size of the grid cell.
      */
     private void setSize(final float edgeLength) {
-        GridCell.size = edgeLength;
-        GridCell.diagonal = (float)Math.sqrt(2 * Math.pow(GridCell.size, 2));
+        this.size = edgeLength;
+        this.diagonal = (float)Math.sqrt(2 * Math.pow(this.size, 2));
     }
     //-------------------------------------------------------------------------
     /**
@@ -134,7 +132,7 @@ public class GridCell {
      * @return float value representing the size of the grid cell.
      */
     public final float getSize() {
-        return GridCell.size;
+        return this.size;
     }
     //-------------------------------------------------------------------------
     /**
@@ -142,7 +140,7 @@ public class GridCell {
      * @return float value representing the diagonal of the grid cell.
      */
     public final float getDiagonalLength() {
-        return GridCell.diagonal;
+        return this.diagonal;
     }
     //-------------------------------------------------------------------------
     /**
@@ -258,7 +256,6 @@ public class GridCell {
         return copy;
     }
     //-------------------------------------------------------------------------
-
     /**
      * Checks whether a second GridCell object is the same as this GridCell
      * object.
@@ -275,6 +272,16 @@ public class GridCell {
                 &&
                 this.getSize() == cell.getSize() ? true : false;
     }
+    //-------------------------------------------------------------------------
+    /*
+     * Returns the hash value of this GridCell, which corresponds to the
+     * following equation: hashValue = (int)(radius + X + 1000*Y + 10000000*Z).
+     * @return integer variable representing the hash value of this GridCell
+     *         object.
+     */
+//    public final int hashCode() {
+//        return (int) this.size + this.toString().hashCode();
+//    }
     //-------------------------------------------------------------------------
     /**
      * Returns the grid cell as an Atom Object.
