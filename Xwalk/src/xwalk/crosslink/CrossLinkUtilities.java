@@ -810,7 +810,7 @@ public final class CrossLinkUtilities {
      * @return Hashtable of atom pairs that conform to the user set identifiers.
      * @throws IOException if input file could not be read.
      */
-    private static Hashtable < Atom, AtomList > 	(
+    private static Hashtable < Atom, AtomList > extractRelevantPairs(
                                              final PolyPeptideList complex,
                                              final CrossLinkList crossLinks,
                                              final CrossLinkParameter parameter
