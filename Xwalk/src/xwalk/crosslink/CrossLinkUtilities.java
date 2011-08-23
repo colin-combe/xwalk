@@ -1687,7 +1687,7 @@ public final class CrossLinkUtilities {
 // the size of the grid should only be determined by maxDist.
 //                           + Constants.getCoordinateUncertainty(atom)
 //                           + Constants.getCoordinateUncertainty(pairedAtoms);
-
+//
             AtomGrid grid = new AtomGrid(complex.getAllAtoms(),
                                          atom,
                                          maxDist,
