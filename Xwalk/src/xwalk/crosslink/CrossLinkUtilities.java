@@ -549,6 +549,9 @@ public final class CrossLinkUtilities {
         ArrayList < PolyPeptideList > proteinComplexes =
             new ArrayList < PolyPeptideList >();
 
+        /* All coordinates in a PDB file should be read in. The -c1 and -c2
+         * flags should not limit the coordinate retrieval but only
+         * the amino acid selection for calculating the SASD.
         if (parameter.getParameter(
                 Parameter.CHAIN_ID1).equals(
                         parameter.getParameter(Parameter.CHAIN_ID2)
@@ -568,6 +571,7 @@ public final class CrossLinkUtilities {
                                 );
             }
         } else {
+
             for (PDBreader reader : pdbReaders) {
                 proteinComplexes.addAll(reader.getProteinComplex(
                          parameter.getParameter(Parameter.CHAIN_ID1)
@@ -577,6 +581,13 @@ public final class CrossLinkUtilities {
                                                          )
                                 );
             }
+        }
+*/
+        for (PDBreader reader : pdbReaders) {
+            proteinComplexes.addAll(reader.getProteinComplex(
+                                                         Constants.ALPHANUMERIC,
+                                                         Constants.ALPHANUMERIC
+                                                            ));
         }
 
         if (Boolean.parseBoolean(parameter.getParameter(
@@ -1671,9 +1682,11 @@ public final class CrossLinkUtilities {
 
             float maxDist = Float.parseFloat(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
-                                                                      ))
-                           + Constants.getCoordinateUncertainty(atom)
-                           + Constants.getCoordinateUncertainty(pairedAtoms);
+                                                                      ));
+// To have more consistent results when pairedAtoms consist of different atoms
+// the size of the grid should only be determined by maxDist.
+//                           + Constants.getCoordinateUncertainty(atom)
+//                           + Constants.getCoordinateUncertainty(pairedAtoms);
 
             AtomGrid grid = new AtomGrid(complex.getAllAtoms(),
                                          atom,
@@ -1719,7 +1732,7 @@ public final class CrossLinkUtilities {
 
                 maxDist = Float.parseFloat(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
-                                            ));
+                                                                 ));
                 float errorRange =
                          Constants.getCoordinateUncertainty(atom)
                          +
@@ -1861,9 +1874,9 @@ public final class CrossLinkUtilities {
                                                             ) {
         float maxDist = Float.parseFloat(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
-                                                                  ))
-                       + Constants.getCoordinateUncertainty(atom1)
-                       + Constants.getCoordinateUncertainty(atoms2);
+                                                                  ));
+//                       + Constants.getCoordinateUncertainty(atom1)
+//                       + Constants.getCoordinateUncertainty(atoms2);
 
         ArrayList < Path > paths  = new ArrayList < Path >();
         // as soon as one of atom2 is solvent accessible calculate shortest
