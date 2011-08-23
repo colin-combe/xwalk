@@ -120,8 +120,7 @@ public class BreadthFirstSearch {
      *         and one target cell. If no path could be found, than each
      *         path object holds only the target cell.
      */
-    public final ArrayList < Path > findShortestPath(
-                                                    ) {
+    public final ArrayList < Path > findShortestPath() {
 
         ArrayList < GridCell > actives = new ArrayList < GridCell >();
 
@@ -196,8 +195,17 @@ public class BreadthFirstSearch {
                                                         this.targets);
                   if (equal != null) {
                       this.targetsFoundInSearch.add(neighbour);
-                      if (targets.size() == this.targetsFoundInSearch.size()) {
+                      if (this.targets.size()
+                          ==
+                          this.targetsFoundInSearch.size()) {
                           this.hasFinished = true;
+                          // The next return command could be removed
+                          // which would allow a consistent SASD calculation
+                          // between Xwalk runs with explicit AA information
+                          // via command line and AA provided by a distance
+                          // file. However at the same time the calculation
+                          // time increases by 100%. For the moment the
+                          // preference is put on speed.
                           return;
                       }
                   }
@@ -211,7 +219,7 @@ public class BreadthFirstSearch {
         int maxDistCount = 0;
         for (GridCell neighbour : newActives) {
              double neighbourDistance = neighbour.getDistance();
-             if (neighbourDistance > maxDist) {
+             if (neighbourDistance > this.maxDist) {
                  maxDistCount++;
                  BreadthFirstSearch.TRASH.add(neighbour);
                  this.hasFinished = true;

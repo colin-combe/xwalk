@@ -135,7 +135,7 @@ public class PDBreader {
             TarPDBreader tarPdb = new TarPDBreader(gzip.getGZIPInputStream());
             pdbReaders.addAll(tarPdb.getPDBreaders());
 
-        } else if (infile.endsWith(".gz")) {
+        } else if (infile.endsWith(".gz") || infile.endsWith(".gzip")) {
             GzipPDBreader gzipReader = new GzipPDBreader(infile);
             pdbReaders.add(gzipReader.getPDBreader());
         } else if (infile.endsWith(".tar")) {
