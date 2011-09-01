@@ -398,6 +398,9 @@ public class PDBreader {
         String aaTypes = tmp.toString();
 
         for (Atom atom : atomList) {
+
+            atom.setMoleculeName(new File(this.filePath).getName());
+
             // check if atom is part of common amino acids
             if (!MatterUtilities.equalsResidue(atom, preAtom)) {
                 AminoAcid aa = new AminoAcid(residueAtoms);

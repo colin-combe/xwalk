@@ -51,6 +51,11 @@ public class CommandlineArguments {
      */
     private String distanceInfile = "";
     /**
+     * To keep the name in the second column of the output as in a distance
+     * file.
+     */
+    private boolean doKeepFileName = false;
+    /**
      * To read in only atoms in the backbone of the atom plus beta-carbon.
      */
     private boolean doBackboneReadOnly = false;
@@ -237,6 +242,7 @@ public class CommandlineArguments {
         this.readInfileArgument();
         this.readBackBoneOnlyArgument();
         this.readDistanceInfileArgument();
+        this.readKeepNameArgument();
         this.readInterMolecularDistanceArgument();
         this.readIntraMolecularDistanceArgument();
         this.readMonoCrossLinkArgument();
@@ -338,6 +344,9 @@ public class CommandlineArguments {
               + "columns of the Xwalk output format. The file will be used to "
               + "extract the indices and the residue pairs for the distance "
               + "calculation [optional]."
+              + NL
+              + "\t-keepName\t[switch]\tUses the same name (2nd column) in the "
+              + "output as in the distance file. [optional]."
               + NL
               + "\t-out\t<path>\tWrites output to this file, otherwise "
               + "output is directed to the STDOUT channel. If -pymol is "
@@ -1418,6 +1427,31 @@ public class CommandlineArguments {
      */
     public final boolean isBackboneOnlyArgumentSet() {
         return this.doBackboneReadOnly;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Determines whether the argument -keepName has been set on the
+     * commandline.
+     * @see #isKeepNameArgumentSet()
+     */
+    private void readKeepNameArgument() {
+        if (Commandline.get(this.arguments,
+                            "-keepName",
+                            false).equals("EXISTS")) {
+            this.doKeepFileName = true;
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the a boolean expression whether the file name in the second
+     * column of a distance file should be kept in the output or whether
+     * the current input PDB file name should be output.
+     * @return {@code TRUE} if file name form distance file should be kept.
+     * read in, {@code FALSE} otherwise.
+     * @see #readKeepNameArgument()
+     */
+    public final boolean isKeepNameArgumentSet() {
+        return this.doKeepFileName;
     }
     //--------------------------------------------------------------------------
 }

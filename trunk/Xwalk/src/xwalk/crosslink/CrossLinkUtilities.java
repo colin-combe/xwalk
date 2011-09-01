@@ -263,7 +263,13 @@ public final class CrossLinkUtilities {
                                       GridUtilities.isAccessible(monoLink,
                                                                  grid,
                                                                  verbose));
-                                monoLink.setFileName(complex.getName());
+
+                                if (!Boolean.parseBoolean(
+                                              parameter.getParameter(
+                                                      Parameter.DO_KEEP_FILENAME
+                                                                    ))) {
+                                    monoLink.setFileName(complex.getName());
+                                }
                                 monoLinkList.add(monoLink);
                             }
                         }
@@ -409,7 +415,7 @@ public final class CrossLinkUtilities {
                 float errorRange = Constants.getCoordinateUncertainty(atom1)
                                   + Constants.getCoordinateUncertainty(atom2);
                 float dist = Mathematics.distance(atom1.getXYZ(),
-                                                   atom2.getXYZ());
+                                                  atom2.getXYZ());
                 if (dist <= Float.parseFloat(parameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                                                      )
@@ -420,7 +426,13 @@ public final class CrossLinkUtilities {
                 CrossLink xl = new CrossLink(atom1, atom2);
                 // set file name of each cross-link to the file name of
                 // its protein complex
-                xl.setFileName(complex.getName());
+                if (distanceFileCrossLinks == null
+                    ||
+                    !Boolean.parseBoolean(parameter.getParameter(
+                                                     Parameter.DO_KEEP_FILENAME
+                                                               ))) {
+                    xl.setFileName(complex.getName());
+                }
 
                 if (Boolean.parseBoolean(parameter.getParameter(
                                                         Parameter.DO_PROBABILITY
@@ -788,6 +800,9 @@ public final class CrossLinkUtilities {
                     }
                 } else {
                     for (Atom atom : aa1.getAllAtoms()) {
+
+                        atom.setMoleculeName(crossLinkAtom.getMoleculeName());
+
                         if (atom.getName().trim().equals(
                                                   crossLinkAtom.getName().trim()
                                                          )) {

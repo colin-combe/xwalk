@@ -170,6 +170,9 @@ public class DistanceReader {
                                      + "format" + Constants.LINE_SEPERATOR + e);
                 }
 
+                atom1.setMoleculeName(file);
+                atom2.setMoleculeName(file);
+
                 CrossLink crossLink = new CrossLink(atom1, atom2, seqDist,
                                                     eucDist);
                 crossLink.setFileName(file);
@@ -220,7 +223,10 @@ public class DistanceReader {
                     index = Integer.parseInt(array[0]);
                     monoLink.setIndex(index);
                     file = array[1];
+
                     monoLink.setFileName(file);
+                    monoLink.setMoleculeName(file);
+
                     String atominfo = array[2];
                     array = atominfo.split("-");
                     if (array.length < 2) {

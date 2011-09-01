@@ -53,6 +53,7 @@ public class CrossLinkParameter {
                             CHAIN_ID1,
                             CHAIN_ID2,
                             DISTANCE_FILE_PATH,
+                            DO_KEEP_FILENAME,
                             DO_FORCE_OUTPUT,
                             DO_VERBOSE_OUTPUT,
                             DO_GRID_OUTPUT,
@@ -117,6 +118,8 @@ public class CrossLinkParameter {
                                               arg.isBackboneOnlyArgumentSet()));
         this.setParameter(Parameter.DISTANCE_FILE_PATH,
                                                arg.getDistanceInfileArgument());
+        this.setParameter(Parameter.DO_KEEP_FILENAME, Boolean.toString(
+                                                  arg.isKeepNameArgumentSet()));
         this.setParameter(Parameter.OUTFILE_PATH, arg.getOutfileArgument());
         this.setParameter(Parameter.IS_HOMOMERIC, Boolean.toString(
                                                          arg.isHomomericSet()));
