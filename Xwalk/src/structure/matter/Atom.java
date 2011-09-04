@@ -288,10 +288,6 @@ public class Atom {
      */
     private AtomType type;
     /**
-     * Molecule name from which atom originates.
-     */
-    private String moleculeName;
-    /**
      * Rank of the amino acid within the PDB sequence.
      */
     private int rank;
@@ -341,7 +337,6 @@ public class Atom {
         this.isAromatic = false;
         this.isMetalic = false;
         this.xlogP = 0;
-        this.moleculeName = "";
     }
     //--------------------------------------------------------------------------
     /**
@@ -350,7 +345,6 @@ public class Atom {
      */
     public Atom copy() {
         Atom atom = new Atom();
-        atom.setMoleculeName(this.moleculeName + "");
         atom.type = this.getType();
         atom.setFlag(new String(this.getFlag()));
         atom.setSerialNumber((new Integer(this.getSerialNumber())).intValue());
@@ -994,25 +988,6 @@ public class Atom {
 //    public int hashCode() {
 //        return this.toString().hashCode();
 //    }
-    //--------------------------------------------------------------------------
-    /**
-     * Sets the molecule name of this atom.
-     * @param molName
-     *        - String object holding the molecule name.
-     * @see #getMoleculeName()
-     */
-    public final void setMoleculeName(final String molName) {
-        this.moleculeName = molName;
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Returns the molecule name, which was assigned at one point.
-     * @return String object holding the molecule name.
-     * @see #setMoleculeName(String)
-     */
-    public final String getMoleculeName() {
-        return this.moleculeName;
-    }
     //--------------------------------------------------------------------------
     /**
      * Returns all PDB related information of this atom in PDB format.

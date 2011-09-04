@@ -71,8 +71,6 @@ public class MonoLink extends Atom {
         this.setXlogP(atom.getXlogP());
         this.setChargeState(atom.getChargeState());
         this.setICode(atom.getICode());
-        this.setMoleculeName(atom.getMoleculeName());
-        this.setFileName(atom.getMoleculeName());
     }
     //--------------------------------------------------------------------------
     /**

@@ -170,9 +170,6 @@ public class DistanceReader {
                                      + "format" + Constants.LINE_SEPERATOR + e);
                 }
 
-                atom1.setMoleculeName(file);
-                atom2.setMoleculeName(file);
-
                 CrossLink crossLink = new CrossLink(atom1, atom2, seqDist,
                                                     eucDist);
                 crossLink.setFileName(file);
@@ -183,6 +180,11 @@ public class DistanceReader {
                     &&
                     set.get(atom2, atom1) == null) {
                         set.add(crossLink);
+                } else {
+                    System.err.print("WARNING: Following cross-link is "
+                                   + "redundant and will be ignored. "
+                                   + "Consider to be more specific with "
+                                   + "the atom information: " + crossLink);
                 }
             }
         }
@@ -225,7 +227,6 @@ public class DistanceReader {
                     file = array[1];
 
                     monoLink.setFileName(file);
-                    monoLink.setMoleculeName(file);
 
                     String atominfo = array[2];
                     array = atominfo.split("-");
@@ -257,6 +258,11 @@ public class DistanceReader {
 
                 if (set.get(monoLink) == null) {
                     set.add(monoLink);
+                } else {
+                    System.err.print("WARNING: Following monolink is "
+                                   + "redundant and will be ignored. "
+                                   + "Consider to be more specific with "
+                                   + "the atom information: " + monoLink);
                 }
             }
         }

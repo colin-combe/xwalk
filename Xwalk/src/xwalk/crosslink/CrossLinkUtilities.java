@@ -179,7 +179,8 @@ public final class CrossLinkUtilities {
 
             //---------------------------------
             // set indices of cross-links
-            CrossLinkUtilities.setCrossLinkIndices(crossLinkList, parameter);
+            CrossLinkUtilities.setCrossLinkIndicesAndFileName(crossLinkList,
+                                                              parameter);
             allCrossLinkList.addAll(crossLinkList);
         }
 
@@ -263,13 +264,6 @@ public final class CrossLinkUtilities {
                                       GridUtilities.isAccessible(monoLink,
                                                                  grid,
                                                                  verbose));
-
-                                if (!Boolean.parseBoolean(
-                                              parameter.getParameter(
-                                                      Parameter.DO_KEEP_FILENAME
-                                                                    ))) {
-                                    monoLink.setFileName(complex.getName());
-                                }
                                 monoLinkList.add(monoLink);
                             }
                         }
@@ -801,8 +795,6 @@ public final class CrossLinkUtilities {
                 } else {
                     for (Atom atom : aa1.getAllAtoms()) {
 
-                        atom.setMoleculeName(crossLinkAtom.getMoleculeName());
-
                         if (atom.getName().trim().equals(
                                                   crossLinkAtom.getName().trim()
                                                          )) {
@@ -959,9 +951,10 @@ public final class CrossLinkUtilities {
      *        necessary for the virtual cross-link calculation.
      * @throws IOException if an error occurs while reading a distance file.
      */
-    private static void setCrossLinkIndices(final CrossLinkList crossLinkList,
-                                            final CrossLinkParameter parameter)
-                                                            throws IOException {
+    private static void setCrossLinkIndicesAndFileName(
+                                              final CrossLinkList crossLinkList,
+                                              final CrossLinkParameter parameter
+                                              ) throws IOException {
         if (parameter.getParameter(Parameter.DISTANCE_FILE_PATH).equals("")) {
             for (int i = 0; i < crossLinkList.size(); i++) {
                 crossLinkList.get(i).setIndex(i + 1);
@@ -1078,6 +1071,11 @@ public final class CrossLinkUtilities {
                             continue;
                         }
                         xl.setIndex(dxl.getIndex());
+                        if (Boolean.parseBoolean(parameter.getParameter(
+                                                      Parameter.DO_KEEP_FILENAME
+                                                                       ))) {
+                            xl.setFileName(dxl.getFileName());
+                        }
                     }
                 }
             }

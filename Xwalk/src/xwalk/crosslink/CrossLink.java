@@ -191,16 +191,6 @@ public class CrossLink extends Bond {
                        + this.getPostAtom().getChainId()
                        + this.getPostAtom().getName().hashCode();
 
-        if (atom1.getMoleculeName().equals(atom2.getMoleculeName())) {
-            this.filePath = preAtom.getMoleculeName();
-        } else {
-            this.filePath = preAtom.getMoleculeName()
-                            +
-                            "_"
-                            +
-                            postAtom.getMoleculeName();
-
-        }
     }
     //--------------------------------------------------------------------------
 
