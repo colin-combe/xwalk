@@ -51,13 +51,17 @@ public class DistanceReader {
      * @param onlyInterLinks
      *        - boolean object determining whether only inter links should be
      *          read out.
+     * @param verbose
+     *        - boolean object determining whether information should be output
+     *        while distance file is read in.
      * @return List of CrossLink objects extracted from the distance file.
      * @throws IOException if an error occurs while reading the BufferedReader
      *         object.
      */
     public static CrossLinkList getCrossLinks(final String fileName,
                                               final boolean onlyIntraLinks,
-                                              final boolean onlyInterLinks)
+                                              final boolean onlyInterLinks,
+                                              final boolean verbose)
                                                             throws IOException {
         CrossLinkList set = new CrossLinkList();
 
@@ -113,10 +117,13 @@ public class DistanceReader {
 */
                     array = atom1info.split("-");
                     if (array.length < 2) {
-                        System.err.println("WARNING: First atom of cross-link "
-                                         + "number " + index + " must list a "
-                                         + "residue name and residue "
-                                         + "number.");
+                        if (verbose) {
+                            System.err.println("WARNING: First atom of "
+                            		         + "cross-link number " + index
+                            		         + " must list a "
+                            		         + "residue name and residue "
+                                             + "number.");
+                        }
                     } else {
                         atom1.setResidueName(array[0].trim());
                         atom1.setResidueNumber(
@@ -135,10 +142,13 @@ public class DistanceReader {
 
                     array = atom2info.split("-");
                     if (array.length < 2) {
-                        System.err.println("WARNING: Second atom of cross-link "
-                                         + "number " + index + " must list a "
-                                         + "residue name and residue "
-                                         + "number.");
+                        if (verbose) {
+                            System.err.println("WARNING: Second atom of"
+                            		         + "cross-link "
+                            		         + "number " + index + " must list "
+                            		         + "a residue name and residue "
+                            		         + "number.");
+                        }
                     } else {
                         atom2.setResidueName(array[0].trim().toUpperCase());
                         atom2.setResidueNumber(
@@ -181,10 +191,12 @@ public class DistanceReader {
                     set.get(atom2, atom1) == null) {
                         set.add(crossLink);
                 } else {
-                    System.err.print("WARNING: Following cross-link is "
-                                   + "redundant and will be ignored. "
-                                   + "Consider to be more specific with "
-                                   + "the atom information: " + crossLink);
+                    if (verbose) {
+                        System.err.print("WARNING: Following cross-link is "
+                                       + "redundant and will be ignored. "
+                                       + "Consider to be more specific with "
+                                       + "the atom information: " + crossLink);
+                    }
                 }
             }
         }
