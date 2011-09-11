@@ -93,7 +93,8 @@ public final class CrossLinkUtilities {
                                                     );
             distXlList = DistanceReader.getCrossLinks(fileName,
                                                       onlyIntra,
-                                                      onlyInter);
+                                                      onlyInter,
+                                                      true);
             if (Boolean.parseBoolean(parameter.getParameter(
                                                       Parameter.DO_PROBABILITY))
                                                            ) {
@@ -264,6 +265,8 @@ public final class CrossLinkUtilities {
                                       GridUtilities.isAccessible(monoLink,
                                                                  grid,
                                                                  verbose));
+                            }
+                            if (monoLinkList.get(monoLink) == null) {
                                 monoLinkList.add(monoLink);
                             }
                         }
@@ -301,9 +304,11 @@ public final class CrossLinkUtilities {
                                                                  grid,
                                                                  verbose));
                     if (monoLink.isSolventAccessible()) {
+
+                        monoLink.setFileName(complex.getName());
+
                         monoLinkList.add(monoLink);
                     }
-                    monoLink.setFileName(complex.getName());
                 }
                 monoLinkList.setIndices();
             }
@@ -971,8 +976,11 @@ public final class CrossLinkUtilities {
                                                         );
 
             CrossLinkList distanceFileCrossLinks = DistanceReader.getCrossLinks(
-                                                  fileName, onlyIntra, onlyInter
-                                                                              );
+                                                                      fileName,
+                                                                      onlyIntra,
+                                                                      onlyInter,
+                                                                      false);
+            
             // assign indices of distance file to newly found cross-links.
             if (distanceFileCrossLinks.size() != 0) {
                 for (CrossLink dxl : distanceFileCrossLinks) {

@@ -72,7 +72,7 @@ public class Constants {
     /**
      * Maximum allowed distance for calculating SASD.
      */
-    public static final float MAX_SASD_DISTANCE = 80.0f;
+    public static final float MAX_SASD_DISTANCE = 100.0f;
     //--------------------------------------------------------------------------
     /**
      * Solvent radius when SASD calculations are done on the backbone
