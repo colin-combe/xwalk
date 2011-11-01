@@ -196,7 +196,6 @@ public class DistanceWriter extends WriteFile {
         output.append("set dash_radius, 1, " + infileWithoutExtension + nl);
         output.append("set dash_width, 15, " + infileWithoutExtension + nl);
         output.append("set dash_gap, 0, " + infileWithoutExtension + nl);
-        output.append("bg_color white" + nl);
         output.append("util.cbc" + nl);
         output.append("create het, hetatm and " + infileWithoutExtension + nl);
         output.append("show sticks, het" + nl);

@@ -267,6 +267,12 @@ public final class CrossLinkUtilities {
                                                                  verbose));
                             }
                             if (monoLinkList.get(monoLink) == null) {
+                                if (!Boolean.parseBoolean(
+                                                 parameter.getParameter(
+                                                      Parameter.DO_KEEP_FILENAME
+                                                                       ))) {
+                                    monoLink.setFileName(complex.getName());
+                                }
                                 monoLinkList.add(monoLink);
                             }
                         }
@@ -295,6 +301,7 @@ public final class CrossLinkUtilities {
                 for (Atom atom : relevantAtoms) {
                     MonoLink monoLink = new MonoLink();
                     monoLink.set(atom);
+
                     AtomGrid grid = new AtomGrid(complex.getAllAtoms(),
                                                  monoLink,
                                                  maxDist,
@@ -304,9 +311,7 @@ public final class CrossLinkUtilities {
                                                                  grid,
                                                                  verbose));
                     if (monoLink.isSolventAccessible()) {
-
                         monoLink.setFileName(complex.getName());
-
                         monoLinkList.add(monoLink);
                     }
                 }
@@ -980,7 +985,7 @@ public final class CrossLinkUtilities {
                                                                       onlyIntra,
                                                                       onlyInter,
                                                                       false);
-            
+
             // assign indices of distance file to newly found cross-links.
             if (distanceFileCrossLinks.size() != 0) {
                 for (CrossLink dxl : distanceFileCrossLinks) {
