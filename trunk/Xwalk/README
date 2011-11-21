@@ -1,4 +1,4 @@
-Xwalk (version 0.3)
+Xwalk (version 0.4)
 -------------------
 
 INTRODUCTION
@@ -139,6 +139,12 @@ Any of the above conditions can be waived if the authors give permission.
 
 VERSION HISTORY
 ---------------
+0.4: - Maximum distance threshold for SASD calculation has been increased to 100Å.
+     - Added option to read in .gzip files
+     - Warning messages are output for redundant XL entries in -dist files. 
+     - Added parameter -keepName to keep protein names from -dist files in the output.
+     - white background colour command in PyMOL scripts has been removed.
+
 0.3: -Improved performance and memory usage. Xwalk runs now 3-5 times
       faster, while using a third of the previous memory.
 

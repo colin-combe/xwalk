@@ -341,7 +341,7 @@ public class DistanceWriter extends WriteFile {
             output.append("select pk2, " + selection2 + nl);
             output.append("show spheres, pk1" + nl);
             output.append("show spheres, pk2" + nl);
-            output.append("distance " + distName + nl);
+            output.append("distance \"" + distName + "\"" + nl);
 //            output.append("cmd.color(\"red\", \"" + distName + "\")" + nl);
         }
         output.append("delete pk1" + nl);
