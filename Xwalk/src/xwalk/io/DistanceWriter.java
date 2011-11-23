@@ -306,11 +306,17 @@ public class DistanceWriter extends WriteFile {
                               + " and chain " + atom1.getChainId()
                               + " and name " + atom1.getName().trim() + " and "
                               + infileWithoutExtension;
+            if (atom1.getAlternativeLocation() != ' ') {
+                selection1 += " and alt " + atom1.getAlternativeLocation();
+            }
             String selection2 = "resn " + atom2.getResidueName().trim()
                               + " and resi " + atom2.getResidueNumber()
                               + " and chain " + atom2.getChainId()
                               + " and name " + atom1.getName().trim() + " and "
                               + infileWithoutExtension;
+            if (atom2.getAlternativeLocation() != ' ') {
+                selection2 += " and alt " + atom2.getAlternativeLocation();
+            }
 
             String distName = crossLink.getIndex() + "_";
             if (Boolean.parseBoolean(parameter.getParameter(
@@ -330,12 +336,18 @@ public class DistanceWriter extends WriteFile {
             distName += atom1.getResidueName().trim() + ""
                       + atom1.getResidueNumber() + ""
                       + atom1.getChainId()
-//                      + "_" + atom1.getName().trim()
-                      + "-"
+                      + atom1.getName().trim();
+            if (atom1.getAlternativeLocation() != ' ') {
+                distName += atom1.getAlternativeLocation();
+            }
+            distName += "-"
                       + atom2.getResidueName().trim() + ""
                       + atom2.getResidueNumber() + ""
-                      + atom2.getChainId();
-//                      + "_" + atom2.getName().trim();
+                      + atom2.getChainId()
+                      + atom2.getName().trim();
+            if (atom2.getAlternativeLocation() != ' ') {
+                distName += atom2.getAlternativeLocation();
+            }
 
             output.append("select pk1, " + selection1 + nl);
             output.append("select pk2, " + selection2 + nl);
