@@ -139,6 +139,10 @@ public class DistanceReader {
                     if (array.length >= 4) {
                             atom1.setName(array[3].trim());
                     }
+                    if (array.length >= 5) {
+                        atom1.setAlternativeLocation(array[4].trim().charAt(0));
+                    }
+
 
                     array = atom2info.split("-");
                     if (array.length < 2) {
@@ -173,6 +177,10 @@ public class DistanceReader {
                     }
                     if (array.length >= 4) {
                         atom2.setName(array[3].trim());
+                    }
+
+                    if (array.length >= 5) {
+                        atom2.setAlternativeLocation(array[4].trim().charAt(0));
                     }
                 } catch (Exception e) {
                     System.err.println("WARNING: Distance file \"" + fileName

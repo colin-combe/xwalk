@@ -815,8 +815,18 @@ public final class CrossLinkUtilities {
                             } else if (
                                  crossLinkAtom.getChainId() == atom.getChainId()
                                      ) {
-                                list.add(atom);
-                                candidate.add(list);
+                                if (crossLinkAtom.getAlternativeLocation()
+                                                                       == ' ') {
+                                    list.add(atom);
+                                    candidate.add(list);
+                                } else {
+                                    if (crossLinkAtom.getAlternativeLocation()
+                                        ==
+                                        atom.getAlternativeLocation()) {
+                                        list.add(atom);
+                                        candidate.add(list);
+                                    }
+                                }
                             }
                         }
                     }
