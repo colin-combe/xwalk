@@ -186,10 +186,12 @@ public class CrossLink extends Bond {
                        + this.getPreAtom().getResidueNumber()
                        + this.getPreAtom().getChainId()
                        + this.getPreAtom().getName().hashCode()
+                       + this.getPreAtom().getAlternativeLocation()
                        + this.getPostAtom().getResidueName().hashCode()
                        + this.getPostAtom().getResidueNumber()
                        + this.getPostAtom().getChainId()
-                       + this.getPostAtom().getName().hashCode();
+                       + this.getPostAtom().getName().hashCode()
+                       + this.getPostAtom().getAlternativeLocation();
 
     }
     //--------------------------------------------------------------------------
@@ -388,6 +390,14 @@ public class CrossLink extends Bond {
         String atomId2 = AminoAcid.getAminoAcidId(postAtom)
                          + "-"
                          + postAtom.getName().trim();
+
+        if (preAtom.getAlternativeLocation() != ' ') {
+            atomId1 += "-" + preAtom.getAlternativeLocation();
+        }
+
+        if (postAtom.getAlternativeLocation() != ' ') {
+            atomId2 += "-" + postAtom.getAlternativeLocation();
+        }
 
         StringBuffer output = new StringBuffer();
         int maxPeptideLength = xwalk.constants.Constants.MAX_PEPTIDE_LENGTH;
