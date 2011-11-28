@@ -409,7 +409,7 @@ public class DistanceWriter extends WriteFile {
             name += monoLink.getResidueName().trim() + ""
                   + monoLink.getResidueNumber() + ""
                   + monoLink.getChainId()
-                  + monoLink.getName();
+                  + monoLink.getName().trim();
             if (monoLink.getAlternativeLocation() != ' ') {
                 name += monoLink.getAlternativeLocation();
             }
