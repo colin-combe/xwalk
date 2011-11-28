@@ -396,6 +396,10 @@ public class DistanceWriter extends WriteFile {
                              + " and name " + monoLink.getName().trim()
                              + " and " + infileWithoutExtension;
 
+            if (monoLink.getAlternativeLocation() != ' ') {
+                selection += " and alt " + monoLink.getAlternativeLocation();
+            }
+
             String name = monoLink.getIndex()  + "_";
             if (monoLink.isSolventAccessible()) {
                 name += "1_";
@@ -404,7 +408,11 @@ public class DistanceWriter extends WriteFile {
             }
             name += monoLink.getResidueName().trim() + ""
                   + monoLink.getResidueNumber() + ""
-                  + monoLink.getChainId();
+                  + monoLink.getChainId()
+                  + monoLink.getName();
+            if (monoLink.getAlternativeLocation() != ' ') {
+                name += monoLink.getAlternativeLocation();
+            }
 
             output.append("create " + name + ", " + selection + nl);
             output.append("show spheres, " + name + nl);
