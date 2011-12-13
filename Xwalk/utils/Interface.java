@@ -85,13 +85,15 @@ public class Interface {
 
         //-----------user information-------------------------------------------
         if (args.length == 0) {
-            System.out.print("\njava " + Interface.class.getName() + " -help");
+            System.out.println(nL
+                             + "java " + Interface.class.getName() + " -help"
+                             + nL);
             System.exit(0);
         }
 
         //----------------------------------------------------------------------
         if (Commandline.get(args, "-help", false).equals("EXISTS")) {
-            System.err.print(nL + nL
+            System.err.println(nL + nL
                            + "java " + Interface.class.getName()
                            + " -in 1b14.pdb"
                            + nL
@@ -321,18 +323,22 @@ public class Interface {
         int nonInterfaceSumTypicNonInterfaceAA = 0;
 
         int i = 0;
-        for (AminoAcid aa : nonInterfaceSurfaceAminoAcids) {
-            nonInterfaceAaCount++;
-            nonInterfaceSumConservation += aa.getConservationGrade();
-            if (aa.isInterfaceTypic()) {
-                nonInterfaceSumTypicInterfaceAA++;
-            }
-            if (aa.isNonInterfaceTypic()) {
-                nonInterfaceSumTypicNonInterfaceAA++;
-            }
-            for (Atom atom : aa.getAllAtoms()) {
-                nonInterfaceAtomCount++;
-                nonInterfaceSumHes += hesSurfaceCoords.get(i++);
+        if (nonInterfaceSurfaceAminoAcids != null) {
+            for (AminoAcid aa : nonInterfaceSurfaceAminoAcids) {
+                nonInterfaceAaCount++;
+                nonInterfaceSumConservation += aa.getConservationGrade();
+                if (aa.isInterfaceTypic()) {
+                    nonInterfaceSumTypicInterfaceAA++;
+                }
+                if (aa.isNonInterfaceTypic()) {
+                    nonInterfaceSumTypicNonInterfaceAA++;
+                }
+                for (Atom atom : aa.getAllAtoms()) {
+                    nonInterfaceAtomCount++;
+                    if (hesSurfaceCoords != null) {
+                        nonInterfaceSumHes += hesSurfaceCoords.get(i++);
+                    }
+                }
             }
         }
 
