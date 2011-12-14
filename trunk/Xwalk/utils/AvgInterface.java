@@ -195,7 +195,7 @@ public class AvgInterface {
             System.err.print(nL
                           + "Usage: " + nL
                           + nL
-                          +  "java " + BindingInterface.class.getName()
+                          +  "java " + AvgInterface.class.getName()
                           + " decoys.tar.gz map.pdb "
                           + "/Application/naccess/naccess" + nL
                           + nL);

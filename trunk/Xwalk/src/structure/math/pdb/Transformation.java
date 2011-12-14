@@ -15,6 +15,7 @@
 
 package structure.math.pdb;
 
+import structure.math.Mathematics;
 import structure.math.Point3f;
 import structure.matter.Atom;
 import structure.matter.AtomList;
@@ -163,60 +164,77 @@ public class Transformation {
      * Point3f object.
      * @param atomList
      *           - AtomList object
-     * @param newPosition
+     * @param extent
      *           - Point3f object
      */
     public static void move(final AtomList atomList,
-                            final Point3f newPosition) {
+                            final Point3f extent) {
         for (Atom atom : atomList) {
              atom.setXYZ(new Point3f(
-                                  atom.getXYZ().getX() + newPosition.getX(),
-                                  atom.getXYZ().getY() + newPosition.getY(),
-                                  atom.getXYZ().getZ() + newPosition.getZ()
+                                  atom.getXYZ().getX() + extent.getX(),
+                                  atom.getXYZ().getY() + extent.getY(),
+                                  atom.getXYZ().getZ() + extent.getZ()
                                         )
                             );
         }
     }
+
     //--------------------------------------------------------------------------
 
     /**
-     * Moves all atoms in an AtomList object such that their center of geometry
-     * is aligned with the origin of the Cartesian coordinate system.
+     * Rotates all atoms in an AtomList object by a rotation matrix.
      * @param atomList
      *           - AtomList object
-     * @return Point3f object holding the old center of geometry coordinates.
-     *         Note that the new center of geometry is at [0,0,0].
-     * @see #centerOfMass(AtomList)
+     * @param rotationMatrix
+     *           - double[][] rotation matrix
+     * @see Mathematics.getEulerRotationMatrix(double, double, double).
      */
-    public static Point3f move2centreOfGeometry(final AtomList atomList) {
-        Point3f center = Transformation.centerOfGeometry(atomList);
-        Transformation.move(atomList,
-                            new Point3f(
-                                    -center.getX(),
-                                    -center.getY(),
-                                    -center.getZ()
-                                       )
-                           );
-    return center;
-    }
-    //--------------------------------------------------------------------------
+    public static void rotate(final AtomList atomList,
+                       final double[][] rotationMatrix) {
 
+        for (Atom atom : atomList) {
+            double[] dxyz = {atom.getXYZ().getX(),
+                             atom.getXYZ().getY(),
+                             atom.getXYZ().getZ()};
+
+            double[] rotatedXYZ =
+                    structure.math.Mathematics.multiplyMatrixWithVector(
+                                                       rotationMatrix, dxyz
+                                                       );
+
+            atom.setXYZ(new Point3f(Float.parseFloat(
+                    structure.constants.Constants.CARTESIAN_DEC_FORMAT.format(
+                                                                rotatedXYZ[0])),
+                                    Float.parseFloat(
+                    structure.constants.Constants.CARTESIAN_DEC_FORMAT.format(
+                                                                rotatedXYZ[1])),
+                                    Float.parseFloat(
+                    structure.constants.Constants.CARTESIAN_DEC_FORMAT.format(
+                                                                rotatedXYZ[2])))
+                                                                              );
+        }
+    } // end of method turnDependOnInertia()
+
+    //--------------------------------------------------------------------------
     /**
-     * Moves all atoms in an AtomList object such that their center of mass is
-     * aligned with the origin of the Cartesian coordinate system.
+     * Rotates all atoms in an AtomList object by a rotation matrix only
+     * after translating the AtomList to the coordinate origin such that 
+     * the coordinate origin aligns with the AtomList's center of geometry.
      * @param atomList
      *           - AtomList object
-     * @return Point3f object holding the old center of mass coordinates. Note
-     *         that the new center of geometry is at [0,0,0].
-     * @see #centerOfGeometry(AtomList)
+     * @param rotationMatrix
+     *           - double[][] rotation matrix
+     * @see Mathematics.getEulerRotationMatrix(double, double, double).
+     * @see Transformation.rotate(AtomList, double[][])
      */
-    public static Point3f move2centreOfMass(final AtomList atomList) {
-        Point3f center = Transformation.centerOfMass(atomList);
-        Transformation.move(atomList, new Point3f(-center.getX(),
-                                                  -center.getY(),
-                                                  -center.getZ()
-                                                 )
-                           );
-    return center;
+    public static void rotateAtOrigin(final AtomList atomList,
+                                      final double[][] rotationMatrix) {
+        
+        Point3f cog = Transformation.centerOfGeometry(atomList);
+        Point3f negCog = new Point3f(-cog.getX(), -cog.getY(), -cog.getZ());
+        Transformation.move(atomList, negCog);
+        Transformation.rotate(atomList, rotationMatrix);
+        Transformation.move(atomList, cog);
     }
+    
 }
