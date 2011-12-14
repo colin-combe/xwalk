@@ -67,10 +67,6 @@ public class Slider {
      */
     private double maxTemperature = 1000;
     /**
-     * minimum temperature in simulated annealing.
-     */
-    private double minTemperature = 1;
-    /**
      * maximum MC iteration cycles.
      */
     private int maxIterationCycles = 10000;
@@ -228,11 +224,12 @@ public class Slider {
                 Math.random() * 4 * Math.PI - 2 * Math.PI);
         return rotationMatrix;
     }
-    
+
     //--------------------------------------------------------------------------
-    private static double getDistSum(final PolyPeptideList proteinRef,
-                              final PolyPeptideList proteinMobCopy,
-                              final CrossLinkList constraintsList) {
+    private static double getAvgerageDistance(
+                                          final PolyPeptideList proteinRef,
+                                          final PolyPeptideList proteinMobCopy,
+                                          final CrossLinkList constraintsList) {
         // calculate distance sum
         PolyPeptideList complexCopy = new PolyPeptideList();
         complexCopy.addAll(proteinRef);
@@ -250,18 +247,52 @@ public class Slider {
             System.exit(1);
         }
 
-        double distSum = 0;
-        int n = 0;
+        // redundant cross-links are those that are found between
+        // alternative locations, in which case the shortest cross-link
+        // should only be considered.
+        Hashtable<String, Double> redundant = new Hashtable<String, Double>();
         for (Atom atom1 : relevantAtomPairs.keySet()) {
+            String atom1Id = atom1.getResidueName()
+                           + atom1.getResidueNumber()
+                           + atom1.getChainId();
             for (Atom atom2 : relevantAtomPairs.get(atom1)) {
-                distSum += Mathematics.distance(atom1.getXYZ(),
-                                                atom2.getXYZ());
-                n++;
+                String atom2Id = atom2.getResidueName()
+                               + atom2.getResidueNumber()
+                               + atom2.getChainId();
+                double lowestDist = -1;
+                double currentDist = Mathematics.distance(atom1.getXYZ(),
+                                                          atom2.getXYZ());
+                if (redundant.get(atom1Id + atom2Id) != null) {
+                    double dist = redundant.get(atom1Id + atom2Id);
+                    if (currentDist < dist) {
+                        redundant.put(atom1Id + atom2Id, currentDist);
+                        lowestDist = currentDist;
+                    } else {
+                        lowestDist = dist;
+                    }
+                } else if (redundant.get(atom2Id + atom1Id) != null) {
+                    double dist = redundant.get(atom2Id + atom1Id);
+                    if (currentDist < dist) {
+                        redundant.put(atom2Id + atom1Id, currentDist);
+                        lowestDist = currentDist;
+                    } else {
+                        lowestDist = dist;
+                    }
+                }
+                if (lowestDist < -0.5) {
+                    redundant.put(atom1Id + atom2Id, currentDist);
+                }
             }
         }
-        distSum /= n;
+        double avgDist = 0;
+        int n = 0;
+        for (String id : redundant.keySet()) {
+            avgDist += redundant.get(id);
+            n++;
+        }
+        avgDist /= n;
 
-    return distSum;
+    return avgDist;
     }
 
     //--------------------------------------------------------------------------
@@ -343,7 +374,7 @@ public class Slider {
                                 translationVector);
 
 
-            double distSum = Slider.getDistSum(proteinRef,
+            double distSum = Slider.getAvgerageDistance(proteinRef,
                                                proteinMobCopy,
                                                constraintsList);
 
@@ -380,7 +411,7 @@ public class Slider {
             Transformation.rotateAtOrigin(proteinMobCopy.getAllAtoms(),
                                           rotationMatrix);
 
-            distSum = Slider.getDistSum(proteinRef,
+            distSum = Slider.getAvgerageDistance(proteinRef,
                                         proteinMobCopy,
                                         constraintsList);
 
@@ -425,7 +456,7 @@ public class Slider {
             readersMob = PDBreader.createPDBreaders(slider.mobFilePath).get(0);
             constraintsList = DistanceReader.getCrossLinks(slider.distFilePath,
                                                            false,
-                                                           false,
+                                                           true,
                                                            true);
         } catch (Exception e) {
             System.err.println("ERROR while reading in input files: " + e);
@@ -449,9 +480,11 @@ public class Slider {
                                          temperatureDiff)));
 
         while (temperature >= 0) {
-            System.out.println("TEMPERATURE: " + temperature);
-            System.out.println("CYCLES: " + (Math.round((float) numberOfCycles)));
-
+            if (slider.verbose) {
+                System.out.println("TEMPERATURE: " + temperature);
+                System.out.println("CYCLES: "
+                                 + (Math.round((float) numberOfCycles)));
+            }
             slider.doMC(proteinRef, proteinMob, constraintsList,
                         numberOfCycles, temperature);
             temperature -= temperatureDiff;
@@ -462,6 +495,9 @@ public class Slider {
                     + Constants.CARTESIAN_DEC_FORMAT.format(
                                                      slider.lowestDistanceSum));
         }
+        System.out.println("REMARK: Distance sum is "
+                         + Constants.CARTESIAN_DEC_FORMAT.format(
+                                                     slider.lowestDistanceSum));
         System.out.print(slider.proteinMobLowest);
     }
 }
