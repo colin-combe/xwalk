@@ -402,10 +402,8 @@ public final class CrossLinkUtilities {
                                                                     );
         } else {
             relevantAtomPairs = CrossLinkUtilities.extractRelevantPairs(
-                                                     complex,
-                                                     distanceFileCrossLinks,
-                                                     parameter
-                                                                        );
+                                                        complex,
+                                                        distanceFileCrossLinks);
         }
 
 
@@ -842,17 +840,12 @@ public final class CrossLinkUtilities {
      *        Protein complex object.
      * @param crossLinks
      *        - List of CrossLink objects extracted from the distance file.
-     * @param parameter -
-     *        CrossLinkParameter object holding all user set parameters for
-     *        calculating cross-links.
      * @return Hashtable of atom pairs that conform to the user set identifiers.
      * @throws IOException if input file could not be read.
      */
-    private static Hashtable < Atom, AtomList > extractRelevantPairs(
+    public static Hashtable < Atom, AtomList > extractRelevantPairs(
                                              final PolyPeptideList complex,
-                                             final CrossLinkList crossLinks,
-                                             final CrossLinkParameter parameter
-                                                                    )
+                                             final CrossLinkList crossLinks)
                                                             throws IOException {
 
         // The idea is: 1.) get a non-redundant list of XL atoms form the
@@ -908,7 +901,6 @@ public final class CrossLinkUtilities {
              if (!foundPreAtom || !foundPostAtom) {
                  // Output a WARNING message that atoms in distance files could
                  // not be found in the input file
-                 xl.setFileName(parameter.getParameter(Parameter.INFILE_PATH));
                  System.err.print("WARNING: ");
                  if (!foundPreAtom && foundPostAtom) {
                      System.err.print("1st atom ");

@@ -635,10 +635,10 @@ public class Mathematics {
      *         columns is not the number of elements in {@code vector}.
      * @see    #multVectorByFactor(Number[], double)
      */
-    public static Number[] multiplyMatrixWithVector(final Number[][] matrix,
-                                                    final Number[] vector)
+    public static double[] multiplyMatrixWithVector(final double[][] matrix,
+                                                    final double[] vector)
                                          throws ArrayIndexOutOfBoundsException {
-        Number[] result = new Number[vector.length];
+        double[] result = new double[vector.length];
         for (int row = 0; row < matrix.length; row++) {
             if (matrix[row].length != vector.length) {
                 throw new ArrayIndexOutOfBoundsException("Matrix column "
@@ -650,9 +650,9 @@ public class Mathematics {
             }
             double s = 0;
             for (int column = 0; column < matrix[row].length; column++) {
-                s += matrix[row][column].doubleValue()
+                s += matrix[row][column]
                      *
-                     vector[column].doubleValue();
+                     vector[column];
             }
             result[row] = s;
         }
