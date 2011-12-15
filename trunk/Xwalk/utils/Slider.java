@@ -216,12 +216,27 @@ public class Slider {
         return translationVector;
     }
     //--------------------------------------------------------------------------
-    private static double[][] getRandomRatationMatrix(){
+    private static double[][] getRandomRatationMatrix(final boolean verbose){
         // rotate around each axis by +/- 5 degree.
-        double[][] rotationMatrix = Mathematics.getEulerRotationMatrix(
-                             (Math.PI / 18) - ((Math.PI / 9) * Math.random()),
-                             (Math.PI / 18) - ((Math.PI / 9) * Math.random()),
-                             (Math.PI / 18) - ((Math.PI / 9) * Math.random()));
+        double phi = (Math.PI / 18) - ((Math.PI / 9) * Math.random());
+        double theta = (Math.PI / 18) - ((Math.PI / 9) * Math.random());
+        double teta = (Math.PI / 18) - ((Math.PI / 9) * Math.random());
+        if (verbose) {
+            System.err.println("ROTATION: "
+            + "PHI="
+            + Constants.CARTESIAN_DEC_FORMAT.format(phi)
+            + ", "
+            + "THETA="
+            + Constants.CARTESIAN_DEC_FORMAT.format(theta)
+            + ", "
+            + "TETA="
+            + Constants.CARTESIAN_DEC_FORMAT.format(teta)
+                              );
+         }
+
+        double[][] rotationMatrix = Mathematics.getEulerRotationMatrix(phi,
+                                                                       theta,
+                                                                       teta);
         return rotationMatrix;
     }
 
@@ -355,6 +370,19 @@ public class Slider {
             // values.
             Point3f translationVector = Slider.getRandomTranslationVector();
 
+            if (this.verbose) {
+               System.err.println("TRANSLATION: "
+               + "X="
+               + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getX())
+               + ", "
+               + "Y="
+               + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getY())
+               + ", "
+               + "Z="
+               + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getZ())
+                                 );
+            }
+
             // create copy of mobile protein to test move
             PolyPeptideList proteinMobCopy = new PolyPeptideList();
             for (PolyPeptide protein : proteinMob) {
@@ -391,7 +419,9 @@ public class Slider {
             // do the random move
             // do rotation with Euler angles for which we first need to
             // translate the protein to the coordinate center.
-            double[][] rotationMatrix = Slider.getRandomRatationMatrix();
+            double[][] rotationMatrix = Slider.getRandomRatationMatrix(
+                                                                    this.verbose
+                                                                      );
 
             // create copy of mobile protein to test move
             proteinMobCopy = null;
