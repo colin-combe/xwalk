@@ -210,18 +210,18 @@ public class Slider {
     //--------------------------------------------------------------------------
     private static Point3f getRandomTranslationVector() {
         Point3f translationVector = new Point3f(
-                (float) (Math.random() * 4 - 2),
-                (float) (Math.random() * 4 - 2),
-                (float) (Math.random() * 4 - 2)
-                   );
+                                             (float) (2 - (Math.random() * 4)),
+                                             (float) (2 - (Math.random() * 4)),
+                                             (float) (2 - (Math.random() * 4)));
         return translationVector;
     }
     //--------------------------------------------------------------------------
     private static double[][] getRandomRatationMatrix(){
+        // rotate around each axis by +/- 5 degree.
         double[][] rotationMatrix = Mathematics.getEulerRotationMatrix(
-                Math.random() * 4 * Math.PI - 2 * Math.PI,
-                Math.random() * 4 * Math.PI - 2 * Math.PI,
-                Math.random() * 4 * Math.PI - 2 * Math.PI);
+                             (Math.PI / 18) - ((Math.PI / 9) * Math.random()),
+                             (Math.PI / 18) - ((Math.PI / 9) * Math.random()),
+                             (Math.PI / 18) - ((Math.PI / 9) * Math.random()));
         return rotationMatrix;
     }
 
@@ -259,27 +259,19 @@ public class Slider {
                 String atom2Id = atom2.getResidueName()
                                + atom2.getResidueNumber()
                                + atom2.getChainId();
-                double lowestDist = -1;
                 double currentDist = Mathematics.distance(atom1.getXYZ(),
                                                           atom2.getXYZ());
                 if (redundant.get(atom1Id + atom2Id) != null) {
-                    double dist = redundant.get(atom1Id + atom2Id);
-                    if (currentDist < dist) {
+                    double prevDist = redundant.get(atom1Id + atom2Id);
+                    if (currentDist < prevDist) {
                         redundant.put(atom1Id + atom2Id, currentDist);
-                        lowestDist = currentDist;
-                    } else {
-                        lowestDist = dist;
                     }
                 } else if (redundant.get(atom2Id + atom1Id) != null) {
-                    double dist = redundant.get(atom2Id + atom1Id);
-                    if (currentDist < dist) {
+                    double prevDist = redundant.get(atom2Id + atom1Id);
+                    if (currentDist < prevDist) {
                         redundant.put(atom2Id + atom1Id, currentDist);
-                        lowestDist = currentDist;
-                    } else {
-                        lowestDist = dist;
                     }
-                }
-                if (lowestDist < -0.5) {
+                } else {
                     redundant.put(atom1Id + atom2Id, currentDist);
                 }
             }
