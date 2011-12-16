@@ -122,8 +122,7 @@ public class Transformation {
         return new Point3f(min.getX() + (
                                          (max.getX() - min.getX())
                                                      /
-                                                     2
-                                         ),
+                                                     2),
                            min.getY() + (
                                          (max.getY() - min.getY())
                                                      /
@@ -131,8 +130,7 @@ public class Transformation {
                            min.getZ() + (
                                          (max.getZ() - min.getZ())
                                                      /
-                                                     2
-                                         )
+                                                     2)
                                         );
     }
     //--------------------------------------------------------------------------
@@ -218,7 +216,7 @@ public class Transformation {
     //--------------------------------------------------------------------------
     /**
      * Rotates all atoms in an AtomList object by a rotation matrix only
-     * after translating the AtomList to the coordinate origin such that 
+     * after translating the AtomList to the coordinate origin such that
      * the coordinate origin aligns with the AtomList's center of geometry.
      * @param atomList
      *           - AtomList object
@@ -229,12 +227,13 @@ public class Transformation {
      */
     public static void rotateAtOrigin(final AtomList atomList,
                                       final double[][] rotationMatrix) {
-        
+
         Point3f cog = Transformation.centerOfGeometry(atomList);
         Point3f negCog = new Point3f(-cog.getX(), -cog.getY(), -cog.getZ());
         Transformation.move(atomList, negCog);
         Transformation.rotate(atomList, rotationMatrix);
+        Point3f cogDiff = Transformation.centerOfGeometry(atomList);
+        cog = cog.add(-cogDiff.getX(), -cogDiff.getY(), -cogDiff.getZ());
         Transformation.move(atomList, cog);
     }
-    
 }
