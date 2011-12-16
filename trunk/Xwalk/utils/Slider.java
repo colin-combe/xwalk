@@ -65,7 +65,7 @@ public class Slider {
     /**
      * maximum temperature in simulated annealing.
      */
-    private double maxTemperature = 1000;
+    private double maxTemperature = 10;
     /**
      * maximum MC iteration cycles.
      */
@@ -210,9 +210,9 @@ public class Slider {
     //--------------------------------------------------------------------------
     private static Point3f getRandomTranslationVector() {
         Point3f translationVector = new Point3f(
-                                             (float) (2 - (Math.random() * 4)),
-                                             (float) (2 - (Math.random() * 4)),
-                                             (float) (2 - (Math.random() * 4)));
+                                             (float) (0.1 - (Math.random() * 0.2)),
+                                             (float) (0.1 - (Math.random() * 0.2)),
+                                             (float) (0.1 - (Math.random() * 0.2)));
         return translationVector;
     }
     //--------------------------------------------------------------------------
@@ -294,10 +294,13 @@ public class Slider {
         double avgDist = 0;
         int n = 0;
         for (String id : redundant.keySet()) {
-            avgDist += redundant.get(id);
-            n++;
+            double dist = redundant.get(id); 
+            if (dist > 34) {
+                avgDist += dist;
+                n++;
+            }
         }
-        avgDist /= n;
+//        avgDist *= n;
 
     return avgDist;
     }
@@ -402,7 +405,7 @@ public class Slider {
             boolean doMove = Slider.doTransformation(
                                                    this.lastAcceptedDistanceSum,
                                                    distSum,
-                                                   temperature,
+                                                   temperature / 100,
                                                    this.verbose);
 
             if (doMove) {
@@ -491,15 +494,8 @@ public class Slider {
                                     readersMob.getEntireProteinComplex().get(0);
 
         double temperature = slider.maxTemperature;
-        double temperatureDiff = slider.maxIterationCycles
-                                 /
-                                 slider.maxTemperature;
-        int numberOfCycles = Math.round((float)
-                                        (slider.maxIterationCycles
-                                        /
-                                        (slider.maxTemperature
-                                         /
-                                         temperatureDiff)));
+        double temperatureDiff = 0.1;
+        int numberOfCycles = 10;
 
         while (temperature >= 0) {
             if (slider.verbose) {
@@ -508,7 +504,15 @@ public class Slider {
                                  + (Math.round((float) numberOfCycles)));
             }
             slider.doMC(proteinRef, proteinMob, constraintsList,
-                        numberOfCycles, temperature);
+                        1, temperature);
+
+            if (slider.verbose) {
+                System.out.println("TEMPERATURE: " + temperature);
+                System.out.println("CYCLES: "
+                                 + (Math.round((float) numberOfCycles)));
+            }
+            slider.doMC(proteinRef, proteinMob, constraintsList,
+                        numberOfCycles, temperatureDiff);
             temperature -= temperatureDiff;
         }
 
