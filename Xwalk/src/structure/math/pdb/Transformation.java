@@ -217,6 +217,30 @@ public class Transformation {
     /**
      * Rotates all atoms in an AtomList object by a rotation matrix only
      * after translating the AtomList to the coordinate origin such that
+     * the coordinate origin aligns with the AtomList's center of mass.
+     * @param atomList
+     *           - AtomList object
+     * @param rotationMatrix
+     *           - double[][] rotation matrix
+     * @see Mathematics.getEulerRotationMatrix(double, double, double).
+     * @see Transformation.rotate(AtomList, double[][])
+     */
+    public static void rotateCenterOfMassAtOrigin(
+                                              final AtomList atomList,
+                                              final double[][] rotationMatrix) {
+
+        Point3f com = Transformation.centerOfMass(atomList);
+        Point3f negCom = new Point3f(-com.getX(), -com.getY(), -com.getZ());
+        Transformation.move(atomList, negCom);
+        Transformation.rotate(atomList, rotationMatrix);
+        Point3f comDiff = Transformation.centerOfMass(atomList);
+        com = com.add(-comDiff.getX(), -comDiff.getY(), -comDiff.getZ());
+        Transformation.move(atomList, com);
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Rotates all atoms in an AtomList object by a rotation matrix only
+     * after translating the AtomList to the coordinate origin such that
      * the coordinate origin aligns with the AtomList's center of geometry.
      * @param atomList
      *           - AtomList object
@@ -225,8 +249,9 @@ public class Transformation {
      * @see Mathematics.getEulerRotationMatrix(double, double, double).
      * @see Transformation.rotate(AtomList, double[][])
      */
-    public static void rotateAtOrigin(final AtomList atomList,
-                                      final double[][] rotationMatrix) {
+    public static void rotateCenterOfGeometryAtOrigin(
+                                              final AtomList atomList,
+                                              final double[][] rotationMatrix) {
 
         Point3f cog = Transformation.centerOfGeometry(atomList);
         Point3f negCog = new Point3f(-cog.getX(), -cog.getY(), -cog.getZ());
