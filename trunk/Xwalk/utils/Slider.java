@@ -69,7 +69,7 @@ public class Slider {
     /**
      * maximum MC iteration cycles.
      */
-    private int maxIterationCycles = 10000;
+    private int maxIterationCycles = 1000;
     /**
      * last accepted distance sum.
      */
@@ -94,13 +94,15 @@ public class Slider {
 
         //-----------user information-------------------------------------------
         if (args.length == 0) {
-            System.out.print("\njava " + Slider.class.getName() + " -help");
+            System.out.println(nL + nL
+                            + "java " + Slider.class.getName() + " -help"
+                            + nL);
             System.exit(0);
         }
 
         //----------------------------------------------------------------------
         if (Commandline.get(args, "-help", false).equals("EXISTS")) {
-            System.err.print(nL
+            System.err.println(nL
                            + "\"Slider\" slides two proteins towards "
                            + "each other while minimizing a list of "
                            + "distance constraints."
@@ -210,9 +212,9 @@ public class Slider {
     //--------------------------------------------------------------------------
     private static Point3f getRandomTranslationVector() {
         Point3f translationVector = new Point3f(
-                                             (float) (0.1 - (Math.random() * 0.2)),
-                                             (float) (0.1 - (Math.random() * 0.2)),
-                                             (float) (0.1 - (Math.random() * 0.2)));
+                                             (float) (1 - (Math.random() * 2)),
+                                             (float) (1 - (Math.random() * 2)),
+                                             (float) (1 - (Math.random() * 2)));
         return translationVector;
     }
     //--------------------------------------------------------------------------
@@ -380,6 +382,11 @@ public class Slider {
             // values.
             Point3f translationVector = Slider.getRandomTranslationVector();
 
+            // set y and z to 0.0 to allow translation only in x direction
+            translationVector = translationVector.add(0.0f,
+                                                     -translationVector.getY(),
+                                                     -translationVector.getZ());
+
             if (this.verbose) {
                System.err.println("TRANSLATION: "
                + "X="
@@ -405,8 +412,8 @@ public class Slider {
 
 
             double distSum = Slider.getAvgerageDistance(proteinRef,
-                                               proteinMobCopy,
-                                               constraintsList);
+                                                        proteinMobCopy,
+                                                        constraintsList);
 
 
             boolean doMove = Slider.doTransformation(
@@ -419,19 +426,21 @@ public class Slider {
                 Transformation.move(proteinMob.getAllAtoms(),
                                     translationVector);
                 this.lastAcceptedDistanceSum = distSum;
-            }
-            if (distSum < this.lowestDistanceSum) {
-                this.proteinMobLowest = proteinMobCopy;
-                this.lowestDistanceSum = distSum;
+
+                if (distSum < this.lowestDistanceSum) {
+                    this.proteinMobLowest = proteinMobCopy;
+                    this.lowestDistanceSum = distSum;
+                }
             }
 
             //----------------------RANDOM ROTATION-----------------------------
             // do the random move
             // do rotation with Euler angles for which we first need to
             // translate the protein to the coordinate center.
-            double[][] rotationMatrix = Slider.getRandomRatationMatrix(
-                                                                    this.verbose
-                                                                      );
+/*            double[][] rotationMatrix = Mathematics.getEulerRotationMatrix(0, Math.PI/180, 0);
+                    //Slider.getRandomRatationMatrix(
+                    //                                                this.verbose
+                    //                                                  );
 
             // create copy of mobile protein to test move
             proteinMobCopy = null;
@@ -462,8 +471,7 @@ public class Slider {
                 this.proteinMobLowest = proteinMobCopy;
                 this.lowestDistanceSum = distSum;
             }
-
-        }
+*/        }
     }
     //--------------------------------------------------------------------------
     /**
@@ -500,37 +508,44 @@ public class Slider {
         PolyPeptideList proteinMob =
                                     readersMob.getEntireProteinComplex().get(0);
 
-        double temperature = slider.maxTemperature;
-        double temperatureDiff = 0.1;
-        int numberOfCycles = 10;
-
-        while (temperature >= 0) {
-            if (slider.verbose) {
-                System.out.println("TEMPERATURE: " + temperature);
-                System.out.println("CYCLES: "
-                                 + (Math.round((float) numberOfCycles)));
+        for (double i = 0; i <= 2 * Math.PI; i += Math.PI / 180) {
+            // create copy of mobile protein to test move
+            PolyPeptideList proteinMobCopy = new PolyPeptideList();
+            for (PolyPeptide protein : proteinMob) {
+                proteinMobCopy.add(protein.copy());
             }
-            slider.doMC(proteinRef, proteinMob, constraintsList,
-                        1, temperature);
 
-            if (slider.verbose) {
-                System.out.println("TEMPERATURE: " + temperature);
-                System.out.println("CYCLES: "
-                                 + (Math.round((float) numberOfCycles)));
-            }
-            slider.doMC(proteinRef, proteinMob, constraintsList,
-                        numberOfCycles, temperatureDiff);
-            temperature -= temperatureDiff;
+            double phi = 0;
+            double theta = i;
+            double teta = 0;
+            System.err.println("ROTATION: "
+            + "PHI="
+            + Constants.CARTESIAN_DEC_FORMAT.format(phi)
+            + ", "
+            + "THETA="
+            + Constants.CARTESIAN_DEC_FORMAT.format(theta)
+            + ", "
+            + "TETA="
+            + Constants.CARTESIAN_DEC_FORMAT.format(teta));
+
+            double[][] rotationMatrix = Mathematics.getEulerRotationMatrix(phi,
+                                                                          theta,
+                                                                          teta);
+
+            Transformation.rotateCenterOfMassAtOrigin(proteinMobCopy.getAllAtoms(),
+                                          rotationMatrix);
+            slider.doMC(proteinRef, proteinMobCopy, constraintsList, 10, 0.1);
         }
+
+        System.out.println("REMARK: Distance sum is "
+                + Constants.CARTESIAN_DEC_FORMAT.format(
+                                            slider.lowestDistanceSum));
+        System.out.print(slider.proteinMobLowest);
 
         if (slider.verbose) {
             System.err.println("FINAL: "
                     + Constants.CARTESIAN_DEC_FORMAT.format(
                                                      slider.lowestDistanceSum));
         }
-        System.out.println("REMARK: Distance sum is "
-                         + Constants.CARTESIAN_DEC_FORMAT.format(
-                                                     slider.lowestDistanceSum));
-        System.out.print(slider.proteinMobLowest);
     }
 }
