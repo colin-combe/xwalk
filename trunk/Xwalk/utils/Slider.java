@@ -212,7 +212,7 @@ public class Slider {
     //--------------------------------------------------------------------------
     private static Point3f getRandomTranslationVector() {
         Point3f translationVector = new Point3f(
-                                             (float) (1 - (Math.random() * 2)),
+                                             (float) (1 - (Math.random() * 1)),
                                              (float) (1 - (Math.random() * 2)),
                                              (float) (1 - (Math.random() * 2)));
         return translationVector;
@@ -409,7 +409,6 @@ public class Slider {
             // do the random move
             Transformation.move(proteinMobCopy.getAllAtoms(),
                                 translationVector);
-
 
             double distSum = Slider.getAvgerageDistance(proteinRef,
                                                         proteinMobCopy,
