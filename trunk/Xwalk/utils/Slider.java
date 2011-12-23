@@ -18,6 +18,7 @@ import java.util.Hashtable;
 import structure.constants.Constants;
 import structure.io.Commandline;
 import structure.io.ReadFile;
+import structure.io.WriteFile;
 import structure.io.pdb.PDBreader;
 import structure.math.Mathematics;
 import structure.math.Point3f;
@@ -376,35 +377,34 @@ public class Slider {
                       final double temperature) {
         // continue move attempts for a maximum number of move attempts or
         // until move resulted in a sufficient conformation
+        Point3f translationVector = new Point3f(0.1f, 0.0f, 0.0f);
+        if (this.verbose) {
+            System.err.println("TRANSLATION: "
+            + "X="
+            + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getX())
+            + ", "
+            + "Y="
+            + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getY())
+            + ", "
+            + "Z="
+            + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getZ())
+                              );
+         }
+        // create copy of mobile protein to test move
+        PolyPeptideList proteinMobCopy = new PolyPeptideList();
+        for (PolyPeptide protein : proteinMob) {
+            proteinMobCopy.add(protein.copy());
+        }
         while (maxIterationCycles-- > 0) {
             //----------------------RANDOM TRANSLATION--------------------------
             // generate a random translation vector with -1 to 1 coordinate
             // values.
-            Point3f translationVector = Slider.getRandomTranslationVector();
-
+//            Point3f translationVector = Slider.getRandomTranslationVector();
             // set y and z to 0.0 to allow translation only in x direction
-            translationVector = translationVector.add(0.0f,
-                                                     -translationVector.getY(),
-                                                     -translationVector.getZ());
+//            translationVector = translationVector.add(0.0f,
+//                                                     -translationVector.getY(),
+//                                                    -translationVector.getZ());
 
-            if (this.verbose) {
-               System.err.println("TRANSLATION: "
-               + "X="
-               + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getX())
-               + ", "
-               + "Y="
-               + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getY())
-               + ", "
-               + "Z="
-               + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getZ())
-                                 );
-            }
-
-            // create copy of mobile protein to test move
-            PolyPeptideList proteinMobCopy = new PolyPeptideList();
-            for (PolyPeptide protein : proteinMob) {
-                proteinMobCopy.add(protein.copy());
-            }
 
             // do the random move
             Transformation.move(proteinMobCopy.getAllAtoms(),
@@ -425,6 +425,7 @@ public class Slider {
                 Transformation.move(proteinMob.getAllAtoms(),
                                     translationVector);
                 this.lastAcceptedDistanceSum = distSum;
+                this.proteinMobLowest = proteinMobCopy;
 
                 if (distSum < this.lowestDistanceSum) {
                     this.proteinMobLowest = proteinMobCopy;
@@ -507,6 +508,7 @@ public class Slider {
         PolyPeptideList proteinMob =
                                     readersMob.getEntireProteinComplex().get(0);
 
+        int j = 1;
         for (double i = 0; i <= 2 * Math.PI; i += Math.PI / 180) {
             // create copy of mobile protein to test move
             PolyPeptideList proteinMobCopy = new PolyPeptideList();
@@ -533,18 +535,25 @@ public class Slider {
 
             Transformation.rotateCenterOfMassAtOrigin(proteinMobCopy.getAllAtoms(),
                                           rotationMatrix);
-            slider.doMC(proteinRef, proteinMobCopy, constraintsList, 10, 0.1);
-        }
+            slider.doMC(proteinRef, proteinMobCopy, constraintsList, 100, 0.1);
 
-        System.out.println("REMARK: Distance sum is "
-                + Constants.CARTESIAN_DEC_FORMAT.format(
-                                            slider.lowestDistanceSum));
-        System.out.print(slider.proteinMobLowest);
-
-        if (slider.verbose) {
-            System.err.println("FINAL: "
+            WriteFile write = new WriteFile();
+            write.setFile(j++ +"th.pdb");
+            write.write("REMARK: Distance sum is "
                     + Constants.CARTESIAN_DEC_FORMAT.format(
-                                                     slider.lowestDistanceSum));
+                                                slider.lastAcceptedDistanceSum)
+                    + slider.proteinMobLowest);
         }
+
+//        System.out.println("REMARK: Distance sum is "
+//                + Constants.CARTESIAN_DEC_FORMAT.format(
+//                                            slider.lowestDistanceSum));
+//        System.out.print(slider.proteinMobLowest);
+
+//        if (slider.verbose) {
+//            System.err.println("FINAL: "
+//                    + Constants.CARTESIAN_DEC_FORMAT.format(
+//                                                     slider.lowestDistanceSum));
+//        }
     }
 }
