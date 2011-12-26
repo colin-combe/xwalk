@@ -536,12 +536,13 @@ public class Slider {
             Transformation.rotateCenterOfMassAtOrigin(proteinMobCopy.getAllAtoms(),
                                           rotationMatrix);
             slider.proteinMobLowest = proteinMobCopy;
-
+            slider.lastAcceptedDistanceSum = Double.MAX_VALUE;
+            
             slider.doMC(proteinRef, proteinMobCopy, constraintsList, 100, 0.1);
 
             WriteFile write = new WriteFile();
             write.setFile(j++ +"th.pdb");
-            write.write("REMARK: Distance sum is "
+            write.write("REMARK Distance sum is "
                     + Constants.CARTESIAN_DEC_FORMAT.format(
                                                 slider.lastAcceptedDistanceSum)
                     + slider.proteinMobLowest + "\n");
