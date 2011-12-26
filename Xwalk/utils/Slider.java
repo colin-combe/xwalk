@@ -545,6 +545,7 @@ public class Slider {
             write.write("REMARK Distance sum is "
                     + Constants.CARTESIAN_DEC_FORMAT.format(
                                                 slider.lastAcceptedDistanceSum)
+                    + Constants.LINE_SEPERATOR 
                     + slider.proteinMobLowest + "\n");
         }
 
