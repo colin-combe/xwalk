@@ -370,6 +370,70 @@ public class Slider {
     }
 
     //--------------------------------------------------------------------------
+    private PolyPeptideList doTranslation(final PolyPeptideList proteinRef,
+                                          final PolyPeptideList proteinMob,
+                                          final CrossLinkList constraintsList) {
+    
+        Point3f translationVector = new Point3f(0.1f, 0.0f, 0.0f);
+        if (this.verbose) {
+            System.err.println("TRANSLATION: "
+            + "X="
+            + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getX())
+            + ", "
+            + "Y="
+            + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getY())
+            + ", "
+            + "Z="
+            + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getZ())
+                              );
+         }
+        // create copy of mobile protein to test move
+        PolyPeptideList proteinMobCopy = new PolyPeptideList();
+        for (PolyPeptide protein : proteinMob) {
+            proteinMobCopy.add(protein.copy());
+        }
+
+        PolyPeptideList proteinMobMin = new PolyPeptideList();
+        double min = Double.MAX_VALUE;
+        int cycles = -1;
+        while (cycles++ < this.maxIterationCycles) {
+            Transformation.move(proteinMobCopy.getAllAtoms(),
+                                translationVector);
+
+            double distSum = Slider.getAvgerageDistance(proteinRef,
+                                                        proteinMobCopy,
+                                                        constraintsList);
+
+            if (distSum < min) {
+                if (verbose) {
+                    System.err.println("ACCEPT: Shorter distance at "
+                           + Constants.CARTESIAN_DEC_FORMAT.format(cycles * 0.1)
+                           + " A x-axis translation: "
+                           + Constants.CARTESIAN_DEC_FORMAT.format(distSum));
+                }
+
+                min = distSum;
+                // create copy of mobile protein to test move
+                proteinMobMin.clear();
+                for (PolyPeptide protein : proteinMobCopy) {
+                    proteinMobMin.add(protein.copy());
+                }
+            }
+            else {
+                if (verbose) {
+                    System.err.println("FAILED: Longer distance at "
+                           + Constants.CARTESIAN_DEC_FORMAT.format(cycles * 0.1)
+                           + " A x-axis translation: "
+                           + Constants.CARTESIAN_DEC_FORMAT.format(distSum)
+                           + " vs "
+                           + Constants.CARTESIAN_DEC_FORMAT.format(min));
+                }
+            }
+        }
+        this.lowestDistanceSum = min;
+        return proteinMobMin;
+    }
+    //--------------------------------------------------------------------------
     private void doMC(final PolyPeptideList proteinRef,
                       final PolyPeptideList proteinMob,
                       final CrossLinkList constraintsList,
@@ -533,31 +597,20 @@ public class Slider {
                                                                           theta,
                                                                           teta);
 
-            Transformation.rotateCenterOfMassAtOrigin(proteinMobCopy.getAllAtoms(),
-                                          rotationMatrix);
-            slider.proteinMobLowest = proteinMobCopy;
-            slider.lastAcceptedDistanceSum = Double.MAX_VALUE;
-            
-            slider.doMC(proteinRef, proteinMobCopy, constraintsList, 100, 0.1);
+            Transformation.rotateCenterOfMassAtOrigin(
+                                                   proteinMobCopy.getAllAtoms(),
+                                                   rotationMatrix);
+            proteinMobCopy = slider.doTranslation(proteinRef,
+                                                  proteinMobCopy,
+                                                  constraintsList);
 
             WriteFile write = new WriteFile();
-            write.setFile(j++ +"th.pdb");
+            write.setFile(j++ + "th.pdb");
             write.write("REMARK Distance sum is "
                     + Constants.CARTESIAN_DEC_FORMAT.format(
-                                                slider.lastAcceptedDistanceSum)
-                    + Constants.LINE_SEPERATOR 
-                    + slider.proteinMobLowest + "\n");
+                                                slider.lowestDistanceSum)
+                    + Constants.LINE_SEPERATOR
+                    + proteinMobCopy + "\n");
         }
-
-//        System.out.println("REMARK: Distance sum is "
-//                + Constants.CARTESIAN_DEC_FORMAT.format(
-//                                            slider.lowestDistanceSum));
-//        System.out.print(slider.proteinMobLowest);
-
-//        if (slider.verbose) {
-//            System.err.println("FINAL: "
-//                    + Constants.CARTESIAN_DEC_FORMAT.format(
-//                                                     slider.lowestDistanceSum));
-//        }
     }
 }
