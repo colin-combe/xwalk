@@ -374,7 +374,7 @@ public class Slider {
                                           final PolyPeptideList proteinMob,
                                           final CrossLinkList constraintsList) {
     
-        Point3f translationVector = new Point3f(0.1f, 0.0f, 0.0f);
+        Point3f translationVector = new Point3f(-0.1f, 0.0f, 0.0f);
         if (this.verbose) {
             System.err.println("TRANSLATION: "
             + "X="
