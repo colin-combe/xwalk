@@ -173,7 +173,7 @@ public class Grid {
     }
     //--------------------------------------------------------------------------
     /**
-     * Resets the value, visited and occupied status of ALL grid cells in the
+     * Resets the value and occupied status of ALL grid cells in the
      * grid.
      */
     public final void reset() {
@@ -188,7 +188,7 @@ public class Grid {
     }
     //--------------------------------------------------------------------------
     /**
-     * Resets only value and visited, leaving occupied status as it is.
+     * Resets only the value leaving occupied status as it is.
      */
     public final void resetSoft() {
         for (int i = 0; i < noOfxCells; i++) {
