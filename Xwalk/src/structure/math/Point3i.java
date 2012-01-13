@@ -27,17 +27,17 @@ import structure.constants.Constants;
  */
 public class Point3i {
     /**
-     * Cartesian X-coordinates.
+     * Index I.
      */
     private int iIndex;
     //--------------------------------------------------------------------------
     /**
-     * Cartesian Y-coordinates.
+     * Index J.
      */
     private int jIndex;
     //--------------------------------------------------------------------------
     /**
-     * Cartesian Z-coordinates.
+     * Index K.
      */
     private int kIndex;
     //--------------------------------------------------------------------------
@@ -49,11 +49,11 @@ public class Point3i {
     /**
      * Constructor.
      * @param i
-     *        - Cartesian X-coordinates.
+     *        - Index i.
      * @param j
-     *        - Cartesian Y-coordinates.
+     *        - Index j.
      * @param k
-     *        - Cartesian Z-coordinates.
+     *        - Index k.
      */
     public Point3i(final int i, final int j, final int k) {
         this(i, j, k, 0);
@@ -62,11 +62,11 @@ public class Point3i {
     /**
      * Constructor.
      * @param i
-     *        - Cartesian X-coordinates.
+     *        - Index i.
      * @param j
-     *        - Cartesian Y-coordinates.
+     *        - Index j.
      * @param k
-     *        - Cartesian Z-coordinates.
+     *        - Index k.
      * @param radius
      *        - Radius of this point.
      */
@@ -78,8 +78,8 @@ public class Point3i {
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns the Cartesian X-coordinate of this point.
-     * @return double number representing the Cartesian X-coordinate of this
+     * Returns index i of this point.
+     * @return integer number representing the index i of this
      *         point.
      */
     public final int getI() {
@@ -87,8 +87,8 @@ public class Point3i {
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns the Cartesian Y-coordinate of this point.
-     * @return double number representing the Cartesian Y-coordinate of this
+     * Returns index j of this point.
+     * @return integer number representing the index j of this
      *         point.
      */
     public final int getJ() {
@@ -96,8 +96,8 @@ public class Point3i {
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns the Cartesian Z-coordinate of this point.
-     * @return double number representing the Cartesian Z-coordinate of this
+     * Returns index k of this point.
+     * @return integer number representing the index k of this
      *         point.
      */
     public final int getK() {

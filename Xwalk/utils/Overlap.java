@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 
 import structure.constants.Constants;
+import structure.constants.Constants.ParameterSets;
 import structure.grid.AtomGrid;
 import structure.grid.GridCell;
 import structure.io.Commandline;
@@ -11,6 +12,8 @@ import structure.io.pdb.PDBreader;
 import structure.math.Point3i;
 import structure.matter.Atom;
 import structure.matter.AtomList;
+import structure.matter.protein.AminoAcid;
+import structure.matter.protein.PolyPeptide;
 import structure.matter.protein.PolyPeptideList;
 
 /*
@@ -60,6 +63,10 @@ public class Overlap {
      * Threshold for pdbFile to be considered as overlapping.
      */
     private int overlapThreshold = 2;
+    /**
+     * Include only these residues for the overlap calculation.
+     */
+    private String gridPDBzone = "";
     //--------------------------------------------------------------------------
     /**
      * Reads all parameter from the commandline.
@@ -101,6 +108,10 @@ public class Overlap {
                            + "overlap with -grid PDB files, before it it "
                            + "considered as overlapping. Default is 2 "
                            + "(optional)."
+                           + nL
+                           + "\t-zone [string]\tInclude only these "
+                           + "residues in the -grid PDB files for the overlap "
+                           + "calculation (optional)."
                            + nL + nL
                            );
             System.exit(0);
@@ -139,24 +150,35 @@ public class Overlap {
                 System.exit(1);
             }
         }
+        //----------------------------
+        if (!Commandline.get(args, "-cellSize", true).equals("ERROR")) {
+            this.gridCellLength = Float.parseFloat(
+                                        Commandline.get(args, "-cellSize", true)
+                                                  );
+        }
+        //----------------------------
+        if (!Commandline.get(args, "-max", true).equals("ERROR")) {
+            this.overlapThreshold = Integer.parseInt(
+                                             Commandline.get(args, "-max", true)
+                                                    );
+        }
+        //----------------------------
+        if (!Commandline.get(args, "-zone", true).equals("ERROR")) {
+            this.gridPDBzone =  Commandline.get(args, "-zone", true);
+        }
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns an AtomGrid object that holds in the I indices of its grid cell
-     * index objects the number of times a protein in the textFileWithPDBpaths
-     * file is occupying a grid cell in the I index of the grid cells.
-     * @param textFileWithPDBpaths
-     *        String object holding the path to the text file that holds a list
-     *        of PDB files, which will be used to generate the grid.
-     * @return AtomGrid holding the number of times a protein in the
-     *         textFileWithPDBpaths file is occupying a grid cell in the I index
-     *         of the grid cells.
+     * Reads in all proteins and if selected only a certain region within the
+     * proteins and returns them as a list of PolyPeptideList objects.
+     * @return A list of PolyPeptideList objects holding all atom coordinates
+     * for building the grid.
      */
-    private AtomGrid getGrid(final String textFileWithPDBpaths) {
+    private ArrayList<PolyPeptideList> getSelectedAtomCoordinates() {
         ArrayList<PolyPeptideList> allProteinComplexes =
-                                               new ArrayList<PolyPeptideList>();
+                new ArrayList<PolyPeptideList>();
         try {
-            ReadFile gridPDBfilePath = new ReadFile(textFileWithPDBpaths);
+            ReadFile gridPDBfilePath = new ReadFile(this.gridPDBfiles);
             //------------------------------------------------------------------
             // Read in PDB file
             //------------------------------------------------------------------
@@ -170,14 +192,54 @@ public class Overlap {
                     System.err.println("ERROR while reading in PDB file: " + e);
                 }
 
-                allProteinComplexes.add(
-                               readers.get(0).getEntireProteinComplex().get(0)
-                                       );
+                if (this.gridPDBzone.equals("")) {
+                    allProteinComplexes.add(
+                            readers.get(0).getEntireProteinComplex().get(0)
+                                           );
+                } else {
+                    String[] zone = this.gridPDBzone.split("-");
+                    PolyPeptideList proteinsAll =
+                            readers.get(0).getEntireProteinComplex().get(0);
+                    PolyPeptideList proteinsSelected = new PolyPeptideList();
+                    for (PolyPeptide proteinAll : proteinsAll) {
+                        ArrayList<AminoAcid> proteinSelected =
+                                                     new ArrayList<AminoAcid>();
+                        for (AminoAcid aa : proteinAll) {
+                            if (aa.getAtom(0).getResidueNumber()
+                                    >=
+                                Integer.parseInt(zone[0])
+                                &&
+                                aa.getAtom(0).getResidueNumber()
+                                    <=
+                                Integer.parseInt(zone[zone.length - 1])) {
+                                proteinSelected.add(aa);
+                            }
+                        }
+                        proteinsSelected.add(new PolyPeptide(proteinSelected));
+                    }
+                    allProteinComplexes.add(proteinsSelected);
+                }
 
             }
         } catch (IOException e) {
             System.err.println("ERROR while reading in text file: " + e);
         }
+        return allProteinComplexes;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns an AtomGrid object that holds in the I indices of its grid cell
+     * index objects the number of times a protein in the textFileWithPDBpaths
+     * file is occupying a grid cell in the I index of the grid cells.
+     * @return AtomGrid holding the number of times a protein in the
+     *         textFileWithPDBpaths file is occupying a grid cell in the I index
+     *         of the grid cells.
+     */
+    private AtomGrid calculateGrid() {
+
+        ArrayList<PolyPeptideList> allProteinComplexes =
+                                              this.getSelectedAtomCoordinates();
+
 
         AtomList allAtoms = new AtomList();
         for (PolyPeptideList proteins : allProteinComplexes) {
@@ -189,14 +251,38 @@ public class Overlap {
                                      this.gridCellLength,
                                      false);
 
+        // reset grid's distance values in order to use them for our own
+        // purposes.
+        for (int i = 0; i < grid.getNumberOfCells().getI(); i++) {
+            for (int j = 0; j < grid.getNumberOfCells().getJ(); j++) {
+                 for (int k = 0; k < grid.getNumberOfCells().getK(); k++) {
+                      GridCell cell = grid.get(i, j, k);
+                      cell.setDistance(0.0f);
+                 }
+            }
+        }
+
         for (PolyPeptideList proteins : allProteinComplexes) {
-            grid.reset();
+            try {
+                proteins.setAtomRadii(ParameterSets.CHARMM);
+            } catch (IOException e) {
+                System.err.println("ERROR while assigning CHARMM atom radii: "
+                                 + e);
+            }
+            // reset grid indices in order to use them for our own purposes.
+            for (int i = 0; i < grid.getNumberOfCells().getI(); i++) {
+                for (int j = 0; j < grid.getNumberOfCells().getJ(); j++) {
+                     for (int k = 0; k < grid.getNumberOfCells().getK(); k++) {
+                          GridCell cell = grid.get(i, j, k);
+                          cell.unsetOccupation();
+                     }
+                }
+            }
             for (Atom atom : proteins.getAllAtoms()) {
                 ArrayList<GridCell> cells = grid.getAllGridCells(atom);
                 for (GridCell cell : cells) {
                     if (!cell.isOccupied()) {
-                        cell.setIndices(
-                               new Point3i(cell.getIndices().getI() + 1, 0, 0));
+                        cell.setDistance(cell.getDistance() + 1);
                         cell.setOccupation();
                     }
                 }
@@ -230,13 +316,18 @@ public class Overlap {
                                 readers.get(0).getEntireProteinComplex().get(0);
 
 
-        AtomGrid grid = overlap.getGrid(overlap.gridPDBfiles);
+        AtomGrid grid = overlap.calculateGrid();
+
         for (Atom atom : proteinComplex.getAllAtoms()) {
             GridCell closestCell = grid.get(atom);
             if (closestCell != null) {
-               if (closestCell.getIndices().getI() > overlap.overlapThreshold) {
+               if (Math.round(closestCell.getDistance())
+                   >
+                   overlap.overlapThreshold) {
                     System.out.println("1: " + overlap.pdbFile
-                                     + " is overlapping with PDBs in "
+                                     + " is overlapping at least "
+                                     + Math.round(closestCell.getDistance()) 
+                                     + " times with PDBs in "
                                      + overlap.gridPDBfiles + ".");
                     System.exit(0);
                 }
