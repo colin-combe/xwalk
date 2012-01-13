@@ -9,7 +9,6 @@ import structure.grid.GridCell;
 import structure.io.Commandline;
 import structure.io.ReadFile;
 import structure.io.pdb.PDBreader;
-import structure.math.Point3i;
 import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.protein.AminoAcid;
@@ -67,6 +66,10 @@ public class Overlap {
      * Include only these residues for the overlap calculation.
      */
     private String gridPDBzone = "";
+    /**
+     * Output the maximum number of overlaps.
+     */
+    private boolean doOutputMaxOverlap = false;
     //--------------------------------------------------------------------------
     /**
      * Reads all parameter from the commandline.
@@ -112,6 +115,10 @@ public class Overlap {
                            + "\t-zone [string]\tInclude only these "
                            + "residues in the -grid PDB files for the overlap "
                            + "calculation (optional)."
+                           + nL
+                           + "\t-n [switch]\tOutputs the number of times "
+                           + "a PDB file overlaps with a set of other proteins "
+                           + "(optional)."
                            + nL + nL
                            );
             System.exit(0);
@@ -165,6 +172,10 @@ public class Overlap {
         //----------------------------
         if (!Commandline.get(args, "-zone", true).equals("ERROR")) {
             this.gridPDBzone =  Commandline.get(args, "-zone", true);
+        }
+        //----------------------------
+        if (Commandline.get(args, "-n", false).equals("EXISTS")) {
+            doOutputMaxOverlap = true;
         }
     }
     //--------------------------------------------------------------------------
@@ -318,23 +329,35 @@ public class Overlap {
 
         AtomGrid grid = overlap.calculateGrid();
 
+        int max = Integer.MIN_VALUE;
         for (Atom atom : proteinComplex.getAllAtoms()) {
             GridCell closestCell = grid.get(atom);
             if (closestCell != null) {
-               if (Math.round(closestCell.getDistance())
-                   >
-                   overlap.overlapThreshold) {
-                    System.out.println("1: " + overlap.pdbFile
+                if (overlap.doOutputMaxOverlap) {
+                    max = Math.max(max, Math.round(closestCell.getDistance()));
+                } else {
+                    if (Math.round(closestCell.getDistance())
+                        >
+                        overlap.overlapThreshold) {
+                        System.out.println("1: " + overlap.pdbFile
                                      + " is overlapping at least "
-                                     + Math.round(closestCell.getDistance()) 
+                                     + Math.round(closestCell.getDistance())
                                      + " times with PDBs in "
-                                     + overlap.gridPDBfiles + ".");
-                    System.exit(0);
+                                     + overlap.gridPDBfiles);
+                        System.exit(0);
+                    }
                 }
             }
         }
-        System.out.println("0: " + overlap.pdbFile
-                         + " is NOT overlapping with PDBs in "
-                         + overlap.gridPDBfiles + ".");
+
+        if (overlap.doOutputMaxOverlap) {
+            System.out.println(overlap.pdbFile + " is overlapping "
+                             + max + " times with PDBs in "
+                             + overlap.gridPDBfiles);
+        } else {
+            System.out.println("0: " + overlap.pdbFile
+                             + " is NOT overlapping with PDBs in "
+                             + overlap.gridPDBfiles);
+        }
     }
 }
