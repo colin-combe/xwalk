@@ -70,6 +70,10 @@ public class Overlap {
      * Output the maximum number of overlaps.
      */
     private boolean doOutputMaxOverlap = false;
+    /**
+     * Output the grid.
+     */
+    private boolean doOutputGrid = false;
     //--------------------------------------------------------------------------
     /**
      * Reads all parameter from the commandline.
@@ -119,6 +123,10 @@ public class Overlap {
                            + "\t-n [switch]\tOutputs the number of times "
                            + "a PDB file overlaps with a set of other proteins "
                            + "(optional)."
+                           + nL
+                           + "\t-out [switch]\tOutputs the grid with the "
+                           + "number of overlaps listed in the temperature "
+                           + "factor column (optional)."
                            + nL + nL
                            );
             System.exit(0);
@@ -176,6 +184,10 @@ public class Overlap {
         //----------------------------
         if (Commandline.get(args, "-n", false).equals("EXISTS")) {
             doOutputMaxOverlap = true;
+        }
+        //----------------------------
+        if (Commandline.get(args, "-out", false).equals("EXISTS")) {
+            doOutputGrid = true;
         }
     }
     //--------------------------------------------------------------------------
@@ -358,6 +370,9 @@ public class Overlap {
             System.out.println("0: " + overlap.pdbFile
                              + " is NOT overlapping with PDBs in "
                              + overlap.gridPDBfiles);
+        }
+        if (overlap.doOutputGrid) {
+            System.out.print(grid);
         }
     }
 }
