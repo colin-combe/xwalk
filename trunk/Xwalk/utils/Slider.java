@@ -572,45 +572,96 @@ public class Slider {
         PolyPeptideList proteinMob =
                                     readersMob.getEntireProteinComplex().get(0);
 
-        int j = 1;
-        for (double i = 0; i <= 2 * Math.PI; i += Math.PI / 180) {
+        Point3f translationVector = new Point3f(-1.0f, 0.0f, 0.0f);
+        if (slider.verbose) {
+            System.err.println("TRANSLATION: "
+            + "X="
+            + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getX())
+            + ", "
+            + "Y="
+            + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getY())
+            + ", "
+            + "Z="
+            + Constants.CARTESIAN_DEC_FORMAT.format(translationVector.getZ())
+                              );
+         }
+        double phi = 0;
+        double theta = 1;
+        double teta = 0;
+        double[][] rotationMatrix = Mathematics.getEulerRotationMatrix(
+                                                                  phi,
+                                                                  theta,
+                                                                  teta);
+
+        for (int i = 0; i<=100 ; i++) {
+
             // create copy of mobile protein to test move
             PolyPeptideList proteinMobCopy = new PolyPeptideList();
             for (PolyPeptide protein : proteinMob) {
                 proteinMobCopy.add(protein.copy());
             }
+            Transformation.move(proteinMobCopy.getAllAtoms(),
+                                translationVector.add((float)-i, 0.0f, 0.0f));
 
-            double phi = 0;
-            double theta = i;
-            double teta = 0;
-            System.err.println("ROTATION: "
-            + "PHI="
-            + Constants.CARTESIAN_DEC_FORMAT.format(phi)
-            + ", "
-            + "THETA="
-            + Constants.CARTESIAN_DEC_FORMAT.format(theta)
-            + ", "
-            + "TETA="
-            + Constants.CARTESIAN_DEC_FORMAT.format(teta));
-
-            double[][] rotationMatrix = Mathematics.getEulerRotationMatrix(phi,
-                                                                          theta,
-                                                                          teta);
-
-            Transformation.rotateCenterOfMassAtOrigin(
+            double min = Double.MAX_VALUE;
+            PolyPeptideList proteinMobMin = new PolyPeptideList();
+            for (double j = 0; j <= 2 * Math.PI; j += Math.PI / 180) {
+            
+                Transformation.rotateCenterOfMassAtOrigin(
                                                    proteinMobCopy.getAllAtoms(),
-                                                   rotationMatrix);
-            proteinMobCopy = slider.doTranslation(proteinRef,
-                                                  proteinMobCopy,
-                                                  constraintsList);
+                                                   rotationMatrix
+                                                     );
+                double distSum = Slider.getAvgerageDistance(proteinRef,
+                                                            proteinMobCopy,
+                                                            constraintsList);
 
+                if (distSum < min) {
+                    if (slider.verbose) {
+                        System.err.println("ACCEPT: Shorter distance at " + i
+                                         + " A x-axis translation; "
+                                         + "ROTATION: "
+                                         + "PHI="
+                                         + Constants.CARTESIAN_DEC_FORMAT.format(phi)
+                                         + ", "
+                                         + "THETA="
+                                         + Constants.CARTESIAN_DEC_FORMAT.format(theta)
+                                         + ", "
+                                         + "TETA="
+                                         + Constants.CARTESIAN_DEC_FORMAT.format(teta)
+                                         + "\t"
+                                         + Constants.CARTESIAN_DEC_FORMAT.format(distSum));
+                    }
+                    min = distSum;
+                    // create copy of mobile protein to test move
+                    proteinMobMin.clear();
+                    for (PolyPeptide protein : proteinMobCopy) {
+                        proteinMobMin.add(protein.copy());
+                    }
+                }
+                else {
+                    if (slider.verbose) {
+                        System.err.println("FAILED: Longer distance at " + i
+                                + " A x-axis translation; "
+                                + "ROTATION: "
+                                + "PHI="
+                                + Constants.CARTESIAN_DEC_FORMAT.format(phi)
+                                + ", "
+                                + "THETA="
+                                + Constants.CARTESIAN_DEC_FORMAT.format(theta)
+                                + ", "
+                                + "TETA="
+                                + Constants.CARTESIAN_DEC_FORMAT.format(teta)
+                                + "\t"
+                                + Constants.CARTESIAN_DEC_FORMAT.format(distSum));
+                    }
+                }
+            }
             WriteFile write = new WriteFile();
-            write.setFile(j++ + "th.pdb");
+            write.setFile(i + "th.pdb");
             write.write("REMARK Distance sum is "
-                    + Constants.CARTESIAN_DEC_FORMAT.format(
-                                                slider.lowestDistanceSum)
+                    + Constants.CARTESIAN_DEC_FORMAT.format(min)
                     + Constants.LINE_SEPERATOR
-                    + proteinMobCopy + "\n");
+                    + proteinMobMin + "\n");
         }
     }
 }
