@@ -296,21 +296,21 @@ public class Slider {
         }
         double avgDist = 0;
         int n = 0;
-        for (String id : redundant.keySet()) {
-            double dist = redundant.get(id);
-            if (dist > 30) {
-                avgDist += dist;
-                n++;
-            }
-        }
-        if (n==0) {
+//        for (String id : redundant.keySet()) {
+//            double dist = redundant.get(id);
+//            if (dist > 30) {
+//                avgDist += dist;
+//                n++;
+//            }
+//        }
+//        if (n==0) {
             for (String id : redundant.keySet()) {
                 double dist = redundant.get(id);
                 avgDist += dist;
                 n++;
             }
             avgDist /= n;
-        }
+  //      }
 
     return avgDist;
     }
