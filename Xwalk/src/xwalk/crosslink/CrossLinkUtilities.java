@@ -155,6 +155,18 @@ public final class CrossLinkUtilities {
             }
 
             //---------------------------------
+            // If requested remove side chain of cross-linked amino acids.
+            // Not necessary however, if backbone read was set too.
+            if (!Boolean.parseBoolean(parameter.getParameter(
+                                             Parameter.DO_BACKBONE_READ))) {
+                if (Boolean.parseBoolean(parameter.getParameter(
+                                             Parameter.DO_REMOVE_SIDECHAINS))) {
+                    CrossLinkUtilities.removeSideChainsFromCrossLinkedResidues(
+                                                                 complex,
+                                                                 crossLinkList);
+                }
+            }
+            //---------------------------------
             // If requested by the user check further for Solvent Path distance.
             if (Boolean.parseBoolean(parameter.getParameter(
                                               Parameter.DO_SOLVENT_PATH_DISTANCE
@@ -629,7 +641,6 @@ public final class CrossLinkUtilities {
                 }
             }
         }
-
         return proteinComplexes;
     }
 
@@ -1674,7 +1685,46 @@ public final class CrossLinkUtilities {
             crossLinkList.removeAll(toBremoved);
         }
     }
-   //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    /**
+     * Removes side chains from cross-linked amino acids.
+     * @param complex
+     *      - PolyPeptideList object holding all atoms of the protein.
+     * @param crossLinksByEuclideanDistance
+     *      - List of CrossLinks object that have all a Euclidean distance
+     *        smaller then a user set maxDist value between cross-linked atoms.
+     */
+    private static void removeSideChainsFromCrossLinkedResidues(
+                            final PolyPeptideList complex,
+                            final CrossLinkList crossLinksByEuclideanDistance) {
+        AtomList crossLinkedAtoms = new AtomList();
+        for (CrossLink xl : crossLinksByEuclideanDistance) {
+            if (!crossLinkedAtoms.contains(xl.getPreAtom())) {
+                crossLinkedAtoms.add(xl.getPreAtom());
+            }
+            if (!crossLinkedAtoms.contains(xl.getPostAtom())) {
+                crossLinkedAtoms.add(xl.getPostAtom());
+            }
+        }
+        for (Atom crossLinkedAtom : crossLinkedAtoms) {
+            boolean found = false;
+            for (PolyPeptide protein : complex) {
+                for (AminoAcid aa : protein) {
+                    if (aa.getAllAtoms().contains(crossLinkedAtom)) {
+                        aa.removeSideChain();
+                        break;
+                    }
+                }
+                if (found) {
+                    break;
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+    }
+    //--------------------------------------------------------------------------
 
     /**
      * Creates CrossLink objects between potential cross-linkable atom pairs
@@ -1768,7 +1818,17 @@ public final class CrossLinkUtilities {
 
                 // Conforming distance found!
                 if (dist <= maxDist + errorRange) {
-                    crossLink.setSolventPathDistance(dist);
+                    // for very short distances, the SASD can be shorter than
+                    // the Euclidean distance due to the grid-ification of
+                    // distance space. In such cases, set the SASD to the
+                    // Euclidean distance.
+                    if (dist < crossLink.getEuclideanDistance()) {
+                        crossLink.setSolventPathDistance(
+                                                crossLink.getEuclideanDistance()
+                                                        );
+                    } else {
+                        crossLink.setSolventPathDistance(dist);
+                    }
                     crossLink.setPath(paths.get(i));
 
                     if (Boolean.parseBoolean(parameter.getParameter(

@@ -593,7 +593,7 @@ public class Slider {
                                                                   theta,
                                                                   teta);
 
-        for (int i = 0; i<=100 ; i++) {
+        for (int i = 0; i<=50 ; i++) {
 
             // create copy of mobile protein to test move
             PolyPeptideList proteinMobCopy = new PolyPeptideList();
@@ -601,7 +601,7 @@ public class Slider {
                 proteinMobCopy.add(protein.copy());
             }
             Transformation.move(proteinMobCopy.getAllAtoms(),
-                                translationVector.add((float)-i, 0.0f, 0.0f));
+                                translationVector.add((float)i, 0.0f, 0.0f));
 
             double min = Double.MAX_VALUE;
             PolyPeptideList proteinMobMin = new PolyPeptideList();

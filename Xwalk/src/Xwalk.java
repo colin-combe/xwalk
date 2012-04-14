@@ -86,16 +86,18 @@ public class Xwalk {
         try {
             arguments = new CommandlineArguments(args);
         } catch (FileNotFoundException e) {
-            System.err.println(nl + "FileNotFoundException: " + e.toString());
+            System.err.println(nl + "FileNotFoundException: " + e.getMessage());
             System.exit(-1);
 
         } catch (CommandlineArgumentNotFoundException e) {
             System.err.println(nl + "CommandlineArgumentNotFoundException: "
-                             + e.toString());
+                             + nl
+                             + e.getMessage());
             System.exit(-2);
         } catch (CommandlineArgumentFormatException e) {
             System.err.println(nl + "CommandlineArgumentFormatException: "
-                             + e.toString());
+                             + nl
+                             + e.getMessage());
             System.exit(-3);
         }
     return arguments;
@@ -127,22 +129,25 @@ public class Xwalk {
                                                            parameter);
         } catch (FileNotFoundException e) {
             System.err.println(nl
-                               + "ERROR: Infile could not be found" + nl + e
+                               + "ERROR: Infile could not be found" + nl
+                               + e.getMessage()
                                + nl);
             System.exit(-4);
         } catch (IOException e) {
             System.err.println(nl
-                               + "ERROR: Could not read infile" + nl + e
+                               + "ERROR: Could not read infile" + nl
+                               + e.getMessage()
                                + nl);
             System.exit(-5);
         } catch (FileFormatException e) {
             System.err.println(nl
                                + "ERROR: Format exception in input file" + nl
-                               + e + nl);
+                               + e.getMessage() + nl);
             System.exit(-6);
         } catch (DataFormatException e) {
             System.err.println(nl
-                               + "ERROR: GnuZip format exception in" + nl + e
+                               + "ERROR: GnuZip format exception in" + nl
+                               + e.getMessage()
                                + nl);
             System.exit(-7);
     }
@@ -177,22 +182,25 @@ public class Xwalk {
 
         } catch (FileNotFoundException e) {
             System.err.println(nl
-                               + "ERROR: Infile could not be found" + nl + e
+                               + "ERROR: Infile could not be found" + nl
+                               + e.getMessage()
                                + nl);
             System.exit(-4);
         } catch (IOException e) {
             System.err.println(nl
-                               + "ERROR: Could not read infile" + nl + e
+                               + "ERROR: Could not read infile" + nl
+                               + e.getMessage()
                                + nl);
             System.exit(-5);
         } catch (FileFormatException e) {
             System.err.println(nl
                                + "ERROR: Format exception in input file" + nl
-                               + e + nl);
+                               + e.getMessage() + nl);
             System.exit(-6);
         } catch (DataFormatException e) {
             System.err.println(nl
-                               + "ERROR: GnuZip format exception in" + nl + e
+                               + "ERROR: GnuZip format exception in" + nl
+                               + e.getMessage()
                                + nl);
             System.exit(-7);
     }

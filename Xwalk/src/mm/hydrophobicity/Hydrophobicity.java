@@ -58,8 +58,9 @@ public class Hydrophobicity {
         try {
             reader = new ParameterReader(Constants.ParameterSets.XLOGP);
         } catch (IOException e) {
-            System.err.print("ERROR: While reading the XlogP parameter file"
-                             + Constants.LINE_SEPERATOR);
+            System.err.print(e.getMessage() + Constants.LINE_SEPERATOR
+                          + "ERROR: While reading the XlogP parameter file"
+                          + Constants.LINE_SEPERATOR);
         }
         this.polyPeptideComplex = complex;
         this.setAtomicXlogP(reader);

@@ -25,7 +25,7 @@ import structure.constants.Constants;
 import xwalk.io.CommandlineArguments;
 
 /**
- * Class that stores and handles param for calculating cross-links with
+ * Class that stores and handles parameters for calculating cross-links with
  * Xwalk.
  * @author Abdullah Kahraman
  * @version 0.1
@@ -60,6 +60,7 @@ public class CrossLinkParameter {
                             DO_TRYPSIN_DIGEST,
                             DO_EXPASY_RULE,
                             DO_BACKBONE_READ,
+                            DO_REMOVE_SIDECHAINS,
                             DO_INTRAMOLECULAR_DISTANCE,
                             DO_INTERMOLECULAR_DISTANCE,
                             DO_MONO_CROSSLINK,
@@ -116,6 +117,8 @@ public class CrossLinkParameter {
         this.setParameter(Parameter.INFILE_PATH, arg.getInfileArgument());
         this.setParameter(Parameter.DO_BACKBONE_READ, Boolean.toString(
                                               arg.isBackboneOnlyArgumentSet()));
+        this.setParameter(Parameter.DO_REMOVE_SIDECHAINS, Boolean.toString(
+                                           arg.isRemoveSideChainArgumentSet()));
         this.setParameter(Parameter.DISTANCE_FILE_PATH,
                                                arg.getDistanceInfileArgument());
         this.setParameter(Parameter.DO_KEEP_FILENAME, Boolean.toString(

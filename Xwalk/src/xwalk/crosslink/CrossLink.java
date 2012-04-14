@@ -530,7 +530,8 @@ public class CrossLink extends Bond {
 
         } catch (IOException e) {
             System.err.println("ERROR: Couldn't read probabilities from "
-                           + "parameter files" + Constants.LINE_SEPERATOR + e);
+                           + "parameter files" + Constants.LINE_SEPERATOR
+                           + e.getMessage());
         }
     }
     //--------------------------------------------------------------------------

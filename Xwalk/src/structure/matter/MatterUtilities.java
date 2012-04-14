@@ -24,7 +24,9 @@ import structure.constants.Constants.BondTypes;
 import structure.constants.Constants.ElementTypes;
 import structure.math.Mathematics;
 import structure.math.Point3f;
+import structure.matter.parameter.AtomType;
 import structure.matter.parameter.Element;
+import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
 import structure.matter.protein.PolyPeptideList;
 
@@ -265,5 +267,6 @@ public abstract class MatterUtilities {
                 return 0;
             } });
     }
+    //--------------------------------------------------------------------------
 }
 
