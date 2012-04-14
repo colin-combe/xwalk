@@ -33,10 +33,6 @@ import structure.io.ReadFile;
  */
 public class CommandlineArguments {
     /**
-     * Operating system independent new line character.
-     */
-    private static final String NL = Constants.LINE_SEPERATOR;
-    /**
      * String array holing all commandline arguments.
      */
     private String[] arguments;
@@ -59,6 +55,10 @@ public class CommandlineArguments {
      * To read in only atoms in the backbone of the atom plus beta-carbon.
      */
     private boolean doBackboneReadOnly = false;
+    /**
+     * To remove side chains of cross-linked amino acids.
+     */
+    private boolean doRemoveSideChains = false;
     /**
      * Path to the output file.
      * Default {@code outfile = ""}.
@@ -241,6 +241,7 @@ public class CommandlineArguments {
         this.readHomomericArgument();
         this.readInfileArgument();
         this.readBackBoneOnlyArgument();
+        this.readRemoveSideChainArgument();
         this.readDistanceInfileArgument();
         this.readKeepNameArgument();
         this.readInterMolecularDistanceArgument();
@@ -273,162 +274,169 @@ public class CommandlineArguments {
        * @return String object holding the comprehensive list of information
      */
     private static String getVerboseHelpText() {
-        return NL
-              + "EXAMPLARY command for program execution:" + NL
+        String nl = Constants.LINE_SEPERATOR;
+        return nl
+              + "EXAMPLARY command for program execution:" + nl
               + "Xwalk -in 1brs.pdb -aa1 ARG -aa2 lys -a1 CB -a2 CB -bb -max 21"
-              + NL
-              + NL
+              + nl
+              + nl
               + "ABOUT"
-              + NL
+              + nl
               + "Version 0.3"
-              + NL
+              + nl
               + "Xwalk calculates and outputs distances in Angstroem "
               + "for potential cross-links "
-              + NL
+              + nl
               + "between -aa1 type amino acids and -aa2 type amino "
               + "acids in the PDB file -in."
-              + NL
-              + NL
+              + nl
+              + nl
               + "IMPORTANT"
-              + NL
+              + nl
               + "If large protein complexes are processed, the Java "
               + "heap size might need to be"
-              + NL
+              + nl
               + "increased from the default 64MB to 256MB, with the "
               + "Java parameter -Xmx256m "
-              + NL
-              + NL
+              + nl
+              + nl
               + "OUTPUT FORMAT:"
-              + NL
+              + nl
               + "IndexNo\tInfileName\tAtom1info\tAtom2info\t"
               + "DistanceInPDBsequence\tEuclideanDistance\t"
               + "SolventAccessibleSurfaceDistance\tEucProbability\t"
               + "SASDprobability\tPeptidePairSequences"
-              + NL
-              + NL
+              + nl
+              + nl
               + "where the Solvent Accessible Surface Distance (SASD) presents "
               + "a number code, when a Distance file (-dist) is provided:"
-              + NL
+              + nl
               + "\t>= 0: SASD (when -euc is NOT set)"
-              + NL
+              + nl
               + "\t-1: Distance exceeds the maximum distance (-max)"
-              + NL
+              + nl
               + "\t-2: First atom is solvent-inaccessible"
-              + NL
+              + nl
               + "\t-3: Second atom is solvent-inaccessible"
-              + NL
+              + nl
               + "\t-4: Both atoms are solvent-inaccessible"
-              + NL
+              + nl
               + "\t-5: First atom is in a cavity which prohibited proper "
               +       "shortest path calculations\n"
-              + NL
-              + NL
+              + nl
+              + nl
               + "Virtual cross-links are sorted first by "
               + "decreasing probability, then by increasing SASD and "
               + "finally by increasing Euclidean distance."
-              + NL
-              + NL
+              + nl
+              + nl
               + "Commandline PARAMETER:"
-              + NL
+              + nl
               + "INPUT/OUTPUT:"
-              + NL
+              + nl
               + "\t-infile\t<path>\tAny PDB file; .tar, .gz and .tar.gz files "
               + "with PDB file content are also accepted [required]."
-              + NL
+              + nl
               + "\t-bb\t[switch]\tReads in only backbone and beta carbon "
               + "atom coordinates from the input file and sets -radius to 2.0. "
               + "This might be of value when virtual cross-links are to be "
               + "created between backbone or beta-carbon atoms [optional]."
-              + NL
+              + nl
+              + "\t-xSC\t[switch]\tRemoves side chain atoms of cross-linked "
+              + "amino acids except for CB atoms and sets -radius to 2.0, "
+              + "prior to calculating SASD. This might be of value when "
+              + "side chain conformation of cross-linked residues should not "
+              + "be included in the SASD calculations [optional]."
+              + nl
               + "\t-dist\t<path>\tDistance file holding at least the first 4 "
               + "columns of the Xwalk output format. The file will be used to "
               + "extract the indices and the residue pairs for the distance "
               + "calculation [optional]."
-              + NL
+              + nl
               + "\t-keepName\t[switch]\tUses the same name (2nd column) in the "
               + "output as in the distance file. [optional]."
-              + NL
+              + nl
               + "\t-out\t<path>\tWrites output to this file, otherwise "
               + "output is directed to the STDOUT channel. If -pymol is "
               + "set than filename must have .pml filename ending "
               + "[optional]."
-              + NL
+              + nl
               + "\t-f\t[switch]\tForces output to be written into a "
               + "file even if file already exists [optional]."
-              + NL
+              + nl
               + "\t-pymol\t[switch]\tOutputs a PyMOL (http://www.pymol."
               + "org/) script highlighting the calculated distances of "
               + "the potential cross-links [optional]."
-              + NL
+              + nl
               + "\t-v\t[switch]\tOutputs various information other "
               + "than distances [optional]."
-              + NL
+              + nl
               + "\t-grid\t[switch]\tOutputs on STDOUT channel the grid, which "
               + "is used to calculate the Solvent Accessible Surface Distance. "
               + "The grid is in PDB format with distances in the B-factor "
               + "column [optional]."
-              + NL
-              + NL
+              + nl
+              + nl
               + "RESIDUE/ATOM SELECTION:"
-              + NL
+              + nl
               + "\t-aa1\t[String]\tThree letter code of 1st amino "
               + "acid. To specify more than one amino acid use '#' as "
               + "a delimeter [required, if -r1 is not set]."
-              + NL
+              + nl
               + "\t-aa2\t[String]\tThree letter code of 2nd amino "
               + "acid. To specify more than one amino acid use '#' as "
               + "a delimeter [required, if -r2 is not set]."
-              + NL
+              + nl
               + "\t-r1\t[String]\tAmino acid residue number. To "
               + "specify more than one residue number use '#' as a "
               + "delimeter. [required, if -aa1 is not set]."
-              + NL
+              + nl
               + "\t-r2\t[String]\tAmino acid residue number. To "
               + "specify more than one residue number use '#' as a "
               + "delimeter. [required, if -aa2 is not set]."
-              + NL
+              + nl
               + "\t-c1\t[String]\tChain ids for -aa1 or -r1. For blank "
               + "chain Id use '_'. To specify more than one chain Id, "
               + "append chain ids to a single string, e.g. ABC "
               + "[optional](default: all chain Ids)."
-              + NL
+              + nl
               + "\t-c2\t[String]\tChain ids for -aa2 or -r2. For blank "
               + "chain Id use '_'. To specify more than one chain Id, "
               + "append chain ids to a single string, e.g. ABC "
               + "[optional](default: all chain Ids)."
-              + NL
+              + nl
               + "\t-a1\t[String]\tAtom type for -aa1 or -r1. To "
               + "specify more than one atom type use '#' as a "
               + "delimeter. [optional]."
-              + NL
+              + nl
               + "\t-a2\t[String]\tAtom type for -aa2 or -r2. To "
               + "specify more than one atom type use '#' as a "
               + "delimeter. [optional]."
-              + NL
+              + nl
               + "\t-l1\t[String]\tAlternative location id for -aa1 or "
               + "-r1. To specify more than one alternative location, "
               + "append alternative location ids to a single string, "
               + "e.g. AB [optional]."
-              + NL
+              + nl
               + "\t-l2\t[String]\tAlternative location id for -aa2 or "
               + "-r1. To specify more than one alternative location, "
               + "append alternative location ids to a single string, "
               + "e.g. AB [optional]."
-              + NL
+              + nl
               + "\t-intra\t[switch]\tOutputs only \"intra-molecular\" "
               + "distances [optional]."
-              + NL
+              + nl
               + "\t-inter\t[switch]\tOutputs only \"inter-molecular\" "
               + "distances [optional]."
-              + NL
+              + nl
               + "\t-homo\t[double]\tOutputs only shortest distance of "
               + "potential cross-links between equally numbered "
               + "residues. Reduces redundancy if PDB file is a "
               + "homomeric protein complex. [optional]."
-              + NL
-              + NL
+              + nl
+              + nl
               + "DIGESTION RELATED:"
-              + NL
+              + nl
               + "\t-trypsin\t[switch]\tDigests in silico the protein with "
               + "trypsin and excludes peptides that are shorter "
               + "than "
@@ -436,37 +444,37 @@ public class CommandlineArguments {
               + " AA or larger than "
               + xwalk.constants.Constants.MAX_PEPTIDE_LENGTH
               + " AA [optional]."
-              + NL
-              + NL
+              + nl
+              + nl
               + "DISTANCE RELATED:"
-              + NL
+              + nl
               + "\t-max\t[double]\tCalculates distances in Angstroem "
               + "only up-to this value, where the value must be smaller than "
               + xwalk.constants.Constants.MAX_SASD_DISTANCE
               + " for SASD calculations. (default: "
               + xwalk.constants.Constants.DEFAULT_CROSS_LINKER_LENGTH + ")."
-              + NL
+              + nl
               + "\t-euc\t[switch]\tSkips Solvent-Path-Distance "
               + "calculation and outputs only Euclidean distances "
               + "[optional]. "
-              + NL
+              + nl
               + "\t-prob\t[switch]\tOutputs probability information for each "
               + "vXL as determined by experimental data on DSS and BS3 cross-"
               + "linking experiments [optional]. "
-              + NL
-              + NL
+              + nl
+              + nl
               + "SOLVENT-PATH-DISTANCE GRID RELATED:"
-              + NL
+              + nl
               + "\t-radius\t[double]\tSolvent radius for calculating the "
               + "solvent accessible surface area [optional](default "
               + Constants.SOLVENT_RADIUS
               + ")."
-              + NL
+              + nl
               + "\t-space\t[double]\tSpacing in Angstroem between grid "
               + "cells. [optional](default "
               + Constants.DEFAULT_GRID_CELL_SIZE + ")."
-              + NL
-              + NL;
+              + nl
+              + nl;
     }
     //--------------------------------------------------------------------------
 
@@ -477,9 +485,9 @@ public class CommandlineArguments {
      * @see #outputBasicHelpText()
      */
     private static String getBasicHelpText() {
-        return NL
+        return Constants.LINE_SEPERATOR
                + "Please type -h or -help for a list of commandline arguments"
-               + NL;
+               + Constants.LINE_SEPERATOR;
     }
     //--------------------------------------------------------------------------
 
@@ -576,24 +584,25 @@ public class CommandlineArguments {
     private void readInfileArgument() throws
                                           FileNotFoundException,
                                           CommandlineArgumentNotFoundException {
+        String nl = Constants.LINE_SEPERATOR;
         if (Commandline.get(this.arguments, "-infile", true).equals("ERROR")) {
-            throw new CommandlineArgumentNotFoundException(NL
+            throw new CommandlineArgumentNotFoundException(nl
                                                           + "ERROR: Could NOT "
                                                           + "find value for "
                                                           + "parameter \""
                                                           + "-infile\"."
-                                                          );
+                                                          + nl);
         } else {
             this.infile = Commandline.get(this.arguments,
                                           "-infile",
                                           true
                                          ).trim();
             if (!ReadFile.exists(this.infile)) {
-                throw new FileNotFoundException(NL
+                throw new FileNotFoundException(nl
                                                 + "ERROR: File \"" + infile
                                                 + "\" NOT found!!!"
-                                                + NL
-                                                + NL
+                                                + nl
+                                                + nl
                                                );
             }
         }
@@ -616,16 +625,17 @@ public class CommandlineArguments {
      */
     private void readDistanceInfileArgument() throws
                                           FileNotFoundException {
+        String nl = Constants.LINE_SEPERATOR;
         if (!Commandline.get(this.arguments, "-dist", true).equals("ERROR")) {
             this.distanceInfile = Commandline.get(this.arguments, "-dist", true
                                                                        ).trim();
             if (!ReadFile.exists(this.distanceInfile)) {
-                throw new FileNotFoundException(NL
+                throw new FileNotFoundException(nl
                                                 + "ERROR: File \""
                                                 + distanceInfile
                                                 + "\" NOT found!!!"
-                                                + NL
-                                                + NL
+                                                + nl
+                                                + nl
                                                );
             }
         }
@@ -650,6 +660,7 @@ public class CommandlineArguments {
      * @see #isPymolOutputSet()
      */
     private void readPymolArgument() throws CommandlineArgumentFormatException {
+        String nl = Constants.LINE_SEPERATOR;
         if (Commandline.get(this.arguments, "-pymol", false).equals("EXISTS")) {
             this.pymolOutput = true;
             if (!Commandline.get(this.arguments,
@@ -660,21 +671,20 @@ public class CommandlineArguments {
                                      "-out",
                                      true).endsWith(".pml")) {
                     throw new CommandlineArgumentFormatException(
-                                   NL
+                                   nl
                                  + "ERROR: Please use the file ending \".pml\" "
                                  + "for the output file \""
                                  + Commandline.get(this.arguments, "-out", true)
                                  + "\""
-                                 + NL
-                                 + NL);
+                                 + nl
+                                 + nl);
                 }
             } else {
-                System.err.print(NL
+                System.err.println(nl
                                + "WARNING: Please make sure that your "
                                + "filename ending is \".pml\", if STDOUT is "
                                + "redirected into a file. "
-                               + NL
-                               + NL
+                               + nl
                                 );
             }
         }
@@ -701,6 +711,7 @@ public class CommandlineArguments {
      * @see #isOutputFileToBeCreated()
      */
     private boolean readOutfileArgument() {
+        String nl = Constants.LINE_SEPERATOR;
         if (!Commandline.get(this.arguments, "-out", true).equals("ERROR")) {
             this.outfile = Commandline.get(this.arguments, "-out", true).trim();
             if (!Commandline.get(this.arguments, "-f", false).equals(
@@ -708,11 +719,11 @@ public class CommandlineArguments {
                                                                     )
                ) {
                 if (ReadFile.exists(this.outfile)) {
-                    System.err.print(NL
+                    System.err.print(nl
                                   + "File \"" + outfile + "\" already exists. "
                                   + "Overwrite? [y/n]: ");
                     String respond = Commandline.get();
-                    System.err.print(NL);
+                    System.err.print(nl);
 
                     if (!respond.equalsIgnoreCase("y")
                         &&
@@ -753,25 +764,26 @@ public class CommandlineArguments {
     /**
      * Determines whether the argument -aa1 has been set on the commandline.
      * # characters are placed at both ends of the parameter string.
-     * @throws CommandlineArgumentNotFoundException if neither -aa1 nor -r1 has
-     * been set on the commandline.
+     * @throws CommandlineArgumentNotFoundException if neither -aa1, -r1 or
+     * -dist has been set on the commandline.
      * @see #getAminoAcidName1Argument()
      * @see #readAminoAcidName2Argument()
      * @see #readAminoAcidNumber1Argument()
      */
     private void readAminoAcidName1Argument() throws
                                           CommandlineArgumentNotFoundException {
+        String nl = Constants.LINE_SEPERATOR;
         if (Commandline.get(this.arguments, "-aa1", true).equals("ERROR")) {
           if (Commandline.get(this.arguments, "-r1", true).equals("ERROR")) {
            if (Commandline.get(this.arguments, "-dist", true).equals("ERROR")) {
-                throw new CommandlineArgumentNotFoundException(NL
+                throw new CommandlineArgumentNotFoundException(nl
                                                              + "ERROR: Could "
                                                              + "NOT find value "
                                                              + "neither for "
                                                              + "parameter \""
                                                              + "-aa1\" nor for "
                                                              + "\"-r1\"."
-                                                             + NL
+                                                             + nl
                                                               );
             }
           }
@@ -798,25 +810,26 @@ public class CommandlineArguments {
     /**
      * Determines whether the argument -aa2 has been set on the commandline.
      * # characters are placed at both ends of the parameter string.
-     * @throws CommandlineArgumentNotFoundException if neither -aa2 nor -r2 has
-     *         been set on the commandline.
+     * @throws CommandlineArgumentNotFoundException if neither -aa2, -r2 or
+     *         -dist has been set on the commandline.
      * @see #getAminoAcidName2Argument()
      * @see #readAminoAcidName1Argument()
      * @see #readAminoAcidNumber2Argument()
      */
     private void readAminoAcidName2Argument() throws
                                           CommandlineArgumentNotFoundException {
+        String nl = Constants.LINE_SEPERATOR;
         if (Commandline.get(this.arguments, "-aa2", true).equals("ERROR")) {
           if (Commandline.get(this.arguments, "-r2", true).equals("ERROR")) {
            if (Commandline.get(this.arguments, "-dist", true).equals("ERROR")) {
-                throw new CommandlineArgumentNotFoundException(NL
+                throw new CommandlineArgumentNotFoundException(nl
                                                              + "ERROR: Could "
                                                              + "NOT find value "
                                                              + "neither for "
                                                              + "parameter \""
                                                              + "-aa2\" nor for "
                                                              + "\"-r2\"."
-                                                             + NL
+                                                             + nl
                                                               );
             }
           }
@@ -853,17 +866,18 @@ public class CommandlineArguments {
      */
     private void readAminoAcidNumber1Argument() throws
                                           CommandlineArgumentNotFoundException {
+        String nl = Constants.LINE_SEPERATOR;
         if (Commandline.get(this.arguments, "-r1", true).equals("ERROR")) {
           if (Commandline.get(this.arguments, "-aa1", true).equals("ERROR")) {
            if (Commandline.get(this.arguments, "-dist", true).equals("ERROR")) {
-                 throw new CommandlineArgumentNotFoundException(NL
+                 throw new CommandlineArgumentNotFoundException(nl
                                                               + "ERROR: Could "
                                                               + "NOT find "
                                                               + "value neither "
                                                               + "for parameter "
                                                               + "\"-r1\" nor "
                                                               + "for \"-aa1\"."
-                                                              + NL
+                                                              + nl
                                                                );
             }
           }
@@ -875,12 +889,11 @@ public class CommandlineArguments {
                           + "#";
             if (!this.residueType1.equals("")) {
                 this.residueType1 = "";
-                System.err.print(NL
+                System.err.println(nl
                                + "WARNING: -aa1 and -r1 are both set. "
                                + "Disregarding -aa1 and considering only \""
                                + "-r1 " + aa1resNo.replaceAll("#", "") + "\""
-                               + NL
-                               + NL
+                               + nl
                                 );
             }
         }
@@ -910,17 +923,18 @@ public class CommandlineArguments {
      */
     private void readAminoAcidNumber2Argument() throws
                                           CommandlineArgumentNotFoundException {
+        String nl = Constants.LINE_SEPERATOR;
         if (Commandline.get(this.arguments, "-r2", true).equals("ERROR")) {
           if (Commandline.get(this.arguments, "-aa2", true).equals("ERROR")) {
            if (Commandline.get(this.arguments, "-dist", true).equals("ERROR")) {
-                throw new CommandlineArgumentNotFoundException(NL
+                throw new CommandlineArgumentNotFoundException(nl
                                                              + "ERROR: Could "
                                                              + "NOT find value "
                                                              + "neither for "
                                                              + "parameter \""
                                                              + "-r2\" nor for "
                                                              + "\"-aa2\"."
-                                                             + NL
+                                                             + nl
                                                               );
             }
           }
@@ -932,12 +946,11 @@ public class CommandlineArguments {
                           + "#";
             if (!this.residueType2.equals("")) {
                 this.residueType2 = "";
-                System.err.print(NL
+                System.err.println(nl
                                + "WARNING: -aa2 and -r2 are both set. "
                                + "Disregarding -aa1 and considering only \""
                                + "-r2 " + aa2resNo.replaceAll("#", "") + "\""
-                               + NL
-                               + NL
+                               + nl
                                 );
             }
         }
@@ -1106,6 +1119,7 @@ public class CommandlineArguments {
      * @see #getMaximumDistanceArgument()
      */
     private void readMaximumDistanceArgument() {
+        String nl = Constants.LINE_SEPERATOR;
         double max = xwalk.constants.Constants.MAX_SASD_DISTANCE;
         if (!Commandline.get(this.arguments, "-max", true).equals("ERROR")) {
             this.maximumDistance = Double.parseDouble(
@@ -1117,8 +1131,8 @@ public class CommandlineArguments {
             if (this.maximumDistance > max
                 &&
              !Commandline.get(this.arguments, "-euc", false).equals("EXISTS")) {
-               System.err.print(NL + "WARNING: value for -max exceeds " + max
-                             + ". Setting -max to " + max + NL);
+               System.err.println(nl + "WARNING: value for -max exceeds " + max
+                             + ". Setting -max to " + max);
                this.maximumDistance = max;
             }
         }
@@ -1152,28 +1166,6 @@ public class CommandlineArguments {
      */
     public final boolean isSolventPathDistanceCalculationSet() {
         return this.solventPathDistance;
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Determines whether the argument -radius has been set on the commandline.
-     * @see #getSolventRadiusArgument()
-     */
-    private void readSolventRadiusArgument() {
-        if (!Commandline.get(this.arguments, "-radius", true).equals("ERROR")) {
-            String arg = Commandline.get(this.arguments, "-radius", true);
-            this.solventRadius = Double.parseDouble(arg);
-        }
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Returns the radius of the solvent, which should be larger than that of
-     * water with 1.4 A, because both reactive ends of a cross-linker are much
-     * larger than a tri-atomic water molecule.
-     * @return double number representing the radius.
-     * @see #readSolventRadiusArgument()
-     */
-    public final double getSolventRadiusArgument() {
-        return this.solventRadius;
     }
     //--------------------------------------------------------------------------
     /**
@@ -1406,18 +1398,47 @@ public class CommandlineArguments {
      * Determines whether the argument -bb has been set on the commandline.
      * If it has been set, than solvent radius is automatically set to
      * xwalk.constants.Constants.SOLVENT_RADIUS_BACKBONE too.
+     * @throws CommandlineArgumentNotFoundException if neither -aa1/2, -r1/2 or
+     * -dist has been set on the commandline.
+     * @throws CommandlineArgumentFormatException if -a1/2 has been set to other
+     * than the backbone atoms CA and CB.
      * @see #isBackboneOnlyArgumentSet()
      */
-    private void readBackBoneOnlyArgument() {
+    private void readBackBoneOnlyArgument() throws
+                                          CommandlineArgumentNotFoundException,
+                                          CommandlineArgumentFormatException {
         if (Commandline.get(this.arguments, "-bb", false).equals("EXISTS")) {
             this.doBackboneReadOnly = true;
             this.solventRadius =
                               xwalk.constants.Constants.SOLVENT_RADIUS_BACKBONE;
+
+            this.readAtomType1Argument();
+            if (this.atomType1.trim().toUpperCase().indexOf("#CA#") == -1
+                &&
+                this.atomType1.trim().toUpperCase().indexOf("#CB#") == -1) {
+                 throw new CommandlineArgumentFormatException(
+                                            "ERROR: With -bb set, you can only "
+                                          + "select CA or CB as cross-linked "
+                                          + "atom types. Please check your "
+                                          + "-a1 parameter."
+                                          + Constants.LINE_SEPERATOR);
+            }
+            this.readAtomType2Argument();
+            if (this.atomType2.trim().toUpperCase().indexOf("#CA#") == -1
+                &&
+                this.atomType2.trim().toUpperCase().indexOf("#CB#") == -1) {
+                 throw new CommandlineArgumentFormatException(
+                                            "ERROR: With -bb set, you can only "
+                                          + "select CA or CB as cross-linked "
+                                          + "atom types. Please check your "
+                                          + "-a2 parameter."
+                                          + Constants.LINE_SEPERATOR);
+            }
         }
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns the a boolean expression whether only backbone and beta-carbon
+     * Returns a boolean expression whether only backbone and beta-carbon
      * coordinates should be read in from the input file. This might be
      * interesting if virtual cross-links are to be created between backbone
      * or beta carbon atoms.
@@ -1427,6 +1448,59 @@ public class CommandlineArguments {
      */
     public final boolean isBackboneOnlyArgumentSet() {
         return this.doBackboneReadOnly;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Determines whether the argument -xSC has been set on the commandline.
+     * If it has been set, than the side chains of cross-linked amino acids
+     * will be removed prior to SASD calculations.
+     * @see #isRemoveSideChainArgumentSet()
+     */
+    private void readRemoveSideChainArgument() {
+        if (Commandline.get(this.arguments, "-xSC", false).equals("EXISTS")) {
+            if (this.doBackboneReadOnly) {
+                System.err.println(Constants.LINE_SEPERATOR
+                          + "WARNING: Ignoring -xSC parameter as -bb parameter "
+                          + "was set too." + Constants.LINE_SEPERATOR);
+            } else {
+                this.doRemoveSideChains = true;
+                this.solventRadius =
+                        xwalk.constants.Constants.SOLVENT_RADIUS_BACKBONE;
+            }
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns a boolean expression whether side chains of cross-linked amino
+     * acids should be prior to SASD calculations.
+     * @return {@code TRUE} if only side chains should be removed,
+     * {@code FALSE} otherwise.
+     * @see #readRemoveSideChainArgument()
+     */
+    public final boolean isRemoveSideChainArgumentSet() {
+        return this.doRemoveSideChains;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Determines whether the argument -radius has been set on the commandline.
+     * @see #getSolventRadiusArgument()
+     */
+    private void readSolventRadiusArgument() {
+        if (!Commandline.get(this.arguments, "-radius", true).equals("ERROR")) {
+            String arg = Commandline.get(this.arguments, "-radius", true);
+            this.solventRadius = Double.parseDouble(arg);
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the radius of the solvent, which should be larger than that of
+     * water with 1.4 A, because both reactive ends of a cross-linker are much
+     * larger than a tri-atomic water molecule.
+     * @return double number representing the radius.
+     * @see #readSolventRadiusArgument()
+     */
+    public final double getSolventRadiusArgument() {
+        return this.solventRadius;
     }
     //--------------------------------------------------------------------------
     /**

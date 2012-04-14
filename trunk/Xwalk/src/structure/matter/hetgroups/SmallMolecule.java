@@ -60,7 +60,7 @@ public class SmallMolecule extends Molecule {
             }
         } catch (Exception e) {
             System.err.print("ERROR: in reading in SmallMolecule information. "
-                           + e + Constants.LINE_SEPERATOR);
+                           + e.getMessage() + Constants.LINE_SEPERATOR);
         }
     }
     //--------------------------------------------------------------------------

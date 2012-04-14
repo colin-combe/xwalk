@@ -185,7 +185,8 @@ public class DistanceReader {
                 } catch (Exception e) {
                     System.err.println("WARNING: Distance file \"" + fileName
                                      + "\" does not conform to distance file "
-                                     + "format" + Constants.LINE_SEPERATOR + e);
+                                     + "format" + Constants.LINE_SEPERATOR
+                                     + e.getMessage());
                 }
 
                 CrossLink crossLink = new CrossLink(atom1, atom2, seqDist,
@@ -273,7 +274,8 @@ public class DistanceReader {
                 } catch (Exception e) {
                     System.err.println("WARNING: Distance file \"" + fileName
                                      + "\" does not conform to distance file "
-                                     + "format" + Constants.LINE_SEPERATOR + e);
+                                     + "format" + Constants.LINE_SEPERATOR
+                                     + e.getMessage());
                 }
 
                 if (set.get(monoLink) == null) {

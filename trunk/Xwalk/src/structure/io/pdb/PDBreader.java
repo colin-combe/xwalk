@@ -250,7 +250,8 @@ public class PDBreader {
             }
         } catch (Exception e) {
             throw new FileFormatException("ERROR: " + line + "; does not seem "
-                                        + "to have PDB format: " + e
+                                        + "to have PDB format: "
+                                        + e.getMessage()
                                         + Constants.LINE_SEPERATOR);
         }
     return atom;
@@ -401,7 +402,7 @@ public class PDBreader {
             // check if atom is part of common amino acids
             if (!MatterUtilities.equalsResidue(atom, preAtom)) {
                 AminoAcid aa = new AminoAcid(residueAtoms);
-                aa.setElement();
+                aa.setElements();
                 if (aaTypes.indexOf("#" + atom.getResidueName() + "#") != -1) {
                     aminoAcids.add(aa);
                 }
@@ -413,7 +414,7 @@ public class PDBreader {
             }
         }
         AminoAcid aa = new AminoAcid(residueAtoms);
-        aa.setElement();
+        aa.setElements();
         if (aa.getAllAtoms().size() > 0) {
             if (aaTypes.indexOf("#" + aa.getAtom(0).getResidueName() + "#")
                 !=
@@ -443,7 +444,7 @@ public class PDBreader {
         for (Atom atom : atomList) {
              if (!MatterUtilities.equalsResidue(atom, preAtom)) {
                  SmallMolecule sm = new SmallMolecule(mol);
-                 sm.setElement();
+                 sm.setElements();
                  molecules.add(sm);
                  preAtom = atom;
                  mol = new AtomList();
@@ -453,7 +454,7 @@ public class PDBreader {
              }
         }
         SmallMolecule sm = new SmallMolecule(mol);
-        sm.setElement();
+        sm.setElements();
         molecules.add(sm);
     return molecules;
     }

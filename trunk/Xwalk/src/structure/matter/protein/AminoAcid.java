@@ -18,8 +18,10 @@ package structure.matter.protein;
 import structure.constants.Constants;
 import structure.matter.Atom;
 import structure.matter.AtomList;
+import structure.matter.MatterUtilities;
 import structure.matter.Molecule;
 import structure.matter.parameter.AminoAcidType;
+import structure.matter.parameter.AtomType;
 
 /**
  * Class representing amino acid molecules.
@@ -74,7 +76,8 @@ public class AminoAcid extends Molecule {
                 }
             }
         } catch (Exception e) {
-            System.err.print("Error in reading in Residue information. " + e
+            System.err.print("Error in reading in Residue information. "
+                           + e.getMessage()
                            + Constants.LINE_SEPERATOR);
         }
 
@@ -211,5 +214,26 @@ public class AminoAcid extends Molecule {
         return true;
         }
     return false;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Removes with the exception of CB atoms all side chain atoms.
+     */
+    public final void removeSideChain() {
+        AtomList toBremoved = new AtomList();
+        for (Atom atom : this.getAllAtoms()) {
+            if (atom.getType() != AtomType.CARBON_ALPHA
+                &&
+                atom.getType() != AtomType.CARBON_BETA
+                &&
+                atom.getType() != AtomType.NITROGEN
+                &&
+                atom.getType() != AtomType.OXYGEN) {
+                toBremoved.add(atom);
+            }
+        }
+        for (Atom atom : toBremoved) {
+            this.remove(atom);
+        }
     }
 }

@@ -211,7 +211,7 @@ public class AvgInterface {
             readers = PDBreader.createPDBreaders(args[0]);
 
         } catch (Exception e) {
-            System.err.print(e + nL);
+            System.err.print(e.getMessage() + nL);
         }
 
         //----------------------------------------------------------------------
@@ -232,7 +232,7 @@ public class AvgInterface {
             naccess = new Naccess(args[2]);
         } catch (IOException e) {
             System.err.println("ERROR: Problems encounted while executing "
-                             + "NACCESS " + e);
+                             + "NACCESS " + e.getMessage());
             System.exit(-1);
         }
 
@@ -252,7 +252,7 @@ public class AvgInterface {
         try {
             map = new PDBreader(args[1]);
         } catch (Exception e) {
-            System.err.print(e + nL);
+            System.err.print(e.getMessage() + nL);
         }
         //----------------------------------------------------------------------
         // initialize occupancy and temperature factor values to 0.0.

@@ -78,7 +78,8 @@ public class WriteFile {
             fileWriter = new BufferedWriter(new FileWriter(fileName, append));
         } catch (IOException e) {
             System.err.print("ERROR: Could not create file with file name \""
-                           + fileName + "\"" + this.nL + e + this.nL);
+                           + fileName + "\"" + this.nL + e.getMessage()
+                           + this.nL);
             return false;
         }
     return true;
@@ -99,7 +100,8 @@ public class WriteFile {
             fileWriter = null;
         } catch (IOException e) {
             System.err.print("ERROR: Could not write into file \""
-                           + filePath + "\"" + this.nL + e + this.nL);
+                           + filePath + "\"" + this.nL + e.getMessage()
+                           + this.nL);
             return false;
         }
     return true;

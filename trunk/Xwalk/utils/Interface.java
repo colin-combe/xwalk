@@ -209,7 +209,7 @@ public class Interface {
                 } catch (IOException e) {
                     throw new IOException("ERROR: Could not download ConSurf "
                                         + " grade file for PDB id " + fileName
-                                        + ". " + e);
+                                        + ". " + e.getMessage());
                 }
             }
         } else if (this.consurfFile != null) {
@@ -507,7 +507,7 @@ public class Interface {
             readers = PDBreader.createPDBreaders(interfase.pdbFile);
 
         } catch (Exception e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
         }
 
         PolyPeptideList proteinComplex =
@@ -521,7 +521,7 @@ public class Interface {
                 interfase.setConservation(proteinComplex);
             } catch (IOException e) {
                 System.err.println("ERROR: Problems while assigning "
-                                 + "conservation grades: " + e);
+                                 + "conservation grades: " + e.getMessage());
             }
         }
 
@@ -532,7 +532,8 @@ public class Interface {
         try {
             naccess = new Naccess(interfase.naccessPath);
         } catch (IOException e) {
-            System.err.println("ERROR while executing NACCESS: " + e);
+            System.err.println("ERROR while executing NACCESS: "
+                             + e.getMessage());
             System.exit(-1);
         }
         ArrayList<BindingInterface> complexInterfaces =
@@ -559,7 +560,8 @@ public class Interface {
                 surfaceAminoAcids =
                                  interfase.getSurfaceAminoAcids(proteinComplex);
             } catch (IOException e) {
-                System.err.println("ERROR: while executing NACCESS: " + e);
+                System.err.println("ERROR: while executing NACCESS: "
+                                 + e.getMessage());
             }
 
             for (AminoAcid surfaceAA : surfaceAminoAcids) {

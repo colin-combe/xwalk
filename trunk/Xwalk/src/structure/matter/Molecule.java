@@ -52,7 +52,6 @@ public abstract class Molecule {
      */
     private float relativeSolventAccessibility;
     //--------------------------------------------------------------------------
-
     /**
      * Connects all atoms in this molecule with Bond objects that are non-metal
      * ions and have a distance smaller than the van der Waals radii of both
@@ -86,7 +85,7 @@ public abstract class Molecule {
      * of this molecule object. Element types that are dependent on aromaticity
      * need first an aromaticity assignment.
      */
-    public final void setElement() {
+    public final void setElements() {
         for (Atom atom : this.atoms) {
             String atomName = atom.getName().trim();
             if (atom.getFlag().equals("HETATM")) {
@@ -215,7 +214,8 @@ public abstract class Molecule {
     //--------------------------------------------------------------------------
     /**
      * Returns the total solvent accessibility of this amino acid.
-     * @return float value value representing this amino acid's total SAS.
+     * @return float value representing this amino acid's total SAS or
+     * {@code NULL} if not set previously via {@link #setTotalSas(float)}.
      * @see #setTotalSas(float)
      */
     public final float getTotalSas() {
@@ -233,7 +233,8 @@ public abstract class Molecule {
     //--------------------------------------------------------------------------
     /**
      * Returns the relative solvent accessibility of this amino acid.
-     * @return float value value representing this amino acid's relative SAS.
+     * @return float value representing this amino acid's relative SAS or
+     * {@code NULL} if not set previously via {@link #setRelativeSas(float)}.
      * @see #setRelativeSas(float)
      */
     public final float getRelativeSas() {
@@ -281,4 +282,33 @@ public abstract class Molecule {
         buffer.append("END" + Constants.LINE_SEPERATOR);
     return buffer.toString();
     }
+    //--------------------------------------------------------------------------
+    /**
+     * Removes atom from this molecule object. The atom will be searched by
+     * object equality and removed from the list of atoms. At the same time
+     * bonds which where formed between atom and other atoms of this molecule
+     * object will be removed.
+     * @param atom
+     *        - Atom to be removed.
+     */
+    public final void remove(final Atom atom) {
+        AtomList toBremoved1 = new AtomList();
+        for (Atom a : this.atoms) {
+            if (a.equals(atom)) {
+                toBremoved1.add(a);
+                break;
+            }
+        }
+        this.atoms.removeAll(toBremoved1);
+
+        ArrayList<Bond> toBremoved2 = new ArrayList<Bond>();
+        for (Bond bond : this.bonds) {
+            if (bond.isInBond(atom)) {
+                toBremoved2.add(bond);
+            }
+        }
+        this.bonds.removeAll(toBremoved2);
+    }
+    //--------------------------------------------------------------------------
+
 }
