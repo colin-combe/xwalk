@@ -119,9 +119,9 @@ public class DistanceReader {
                     if (array.length < 2) {
                         if (verbose) {
                             System.err.println("WARNING: First atom of "
-                            		         + "cross-link number " + index
-                            		         + " must list a "
-                            		         + "residue name and residue "
+                                             + "cross-link number " + index
+                                             + " must list a "
+                                             + "residue name and residue "
                                              + "number.");
                         }
                     } else {
@@ -148,10 +148,10 @@ public class DistanceReader {
                     if (array.length < 2) {
                         if (verbose) {
                             System.err.println("WARNING: Second atom of"
-                            		         + "cross-link "
-                            		         + "number " + index + " must list "
-                            		         + "a residue name and residue "
-                            		         + "number.");
+                                             + "cross-link "
+                                             + "number " + index + " must list "
+                                             + "a residue name and residue "
+                                             + "number.");
                         }
                     } else {
                         atom2.setResidueName(array[0].trim().toUpperCase());
@@ -160,7 +160,7 @@ public class DistanceReader {
                                               );
                     }
                     if (array.length >= 3) {
-                        if(array[2].trim().length() != 0) {
+                        if (array[2].trim().length() != 0) {
                             atom2.setChainId(array[2].trim().charAt(0) == '_'
                                                     ? ' ' : array[2].charAt(0));
                             if (onlyInterLinks) {

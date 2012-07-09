@@ -14,13 +14,13 @@
  */
 
 package structure.math.algorithms;
-
+/*
 import java.util.ArrayList;
 
-import structure.grid.Grid;
 import structure.grid.GridCell;
 import structure.grid.GridUtilities;
-
+*/
+import structure.grid.Grid;
 
 /**
  * Class which searches for GridCell objects within a Grid object that are
@@ -48,6 +48,7 @@ public class BoundarySearch {
      */
     public static final void findBoundary(final Grid grid) {
 
+        /*
         // initialize grid by setting all cells to visited = FALSE.
         for (int i = 0; i < grid.getNumberOfCells().getI(); i++) {
             for (int j = 0; j < grid.getNumberOfCells().getJ(); j++) {
@@ -74,5 +75,6 @@ public class BoundarySearch {
                 }
             }
         }
+        */
     }
 }

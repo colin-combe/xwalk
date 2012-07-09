@@ -240,9 +240,9 @@ public class CommandlineArguments {
         this.readGridOutputArgument();
         this.readHomomericArgument();
         this.readInfileArgument();
+        this.readDistanceInfileArgument();
         this.readBackBoneOnlyArgument();
         this.readRemoveSideChainArgument();
-        this.readDistanceInfileArgument();
         this.readKeepNameArgument();
         this.readInterMolecularDistanceArgument();
         this.readIntraMolecularDistanceArgument();
@@ -337,16 +337,17 @@ public class CommandlineArguments {
               + "\t-infile\t<path>\tAny PDB file; .tar, .gz and .tar.gz files "
               + "with PDB file content are also accepted [required]."
               + nl
-              + "\t-bb\t[switch]\tReads in only backbone and beta carbon "
-              + "atom coordinates from the input file and sets -radius to 2.0. "
-              + "This might be of value when virtual cross-links are to be "
-              + "created between backbone or beta-carbon atoms [optional]."
+              + "\t-xSC\t[switch]\tRemoves only side chain atoms of cross-"
+              + "linked amino acids except for CB atoms and keeps -radius "
+              + "at 1.4 prior to calculating SASD. This might be of value when "
+              + "side chain conformations of cross-linked residues are unknown "
+              + "[optional]."
               + nl
-              + "\t-xSC\t[switch]\tRemoves side chain atoms of cross-linked "
-              + "amino acids except for CB atoms and sets -radius to 2.0, "
-              + "prior to calculating SASD. This might be of value when "
-              + "side chain conformation of cross-linked residues should not "
-              + "be included in the SASD calculations [optional]."
+              + "\t-bb\t[switch]\tReads in only backbone and beta carbon "
+              + "atom coordinates from the input file and increases -radius to "
+              + "2.0. Be cautious using the option, as it might cause shortest "
+              + "path calculalations through \"molecular tunnels\" in your "
+              + "protein [optional][see also -xSC]."
               + nl
               + "\t-dist\t<path>\tDistance file holding at least the first 4 "
               + "columns of the Xwalk output format. The file will be used to "
@@ -1398,14 +1399,12 @@ public class CommandlineArguments {
      * Determines whether the argument -bb has been set on the commandline.
      * If it has been set, than solvent radius is automatically set to
      * xwalk.constants.Constants.SOLVENT_RADIUS_BACKBONE too.
-     * @throws CommandlineArgumentNotFoundException if neither -aa1/2, -r1/2 or
-     * -dist has been set on the commandline.
      * @throws CommandlineArgumentFormatException if -a1/2 has been set to other
-     * than the backbone atoms CA and CB.
+     * than the backbone atoms CA and CB while not providing a distance file.
      * @see #isBackboneOnlyArgumentSet()
+     * @see #readRemoveSideChainArgument()
      */
     private void readBackBoneOnlyArgument() throws
-                                          CommandlineArgumentNotFoundException,
                                           CommandlineArgumentFormatException {
         if (Commandline.get(this.arguments, "-bb", false).equals("EXISTS")) {
             this.doBackboneReadOnly = true;
@@ -1415,7 +1414,9 @@ public class CommandlineArguments {
             this.readAtomType1Argument();
             if (this.atomType1.trim().toUpperCase().indexOf("#CA#") == -1
                 &&
-                this.atomType1.trim().toUpperCase().indexOf("#CB#") == -1) {
+                this.atomType1.trim().toUpperCase().indexOf("#CB#") == -1
+                &&
+                this.distanceInfile.equals("")) {
                  throw new CommandlineArgumentFormatException(
                                             "ERROR: With -bb set, you can only "
                                           + "select CA or CB as cross-linked "
@@ -1426,7 +1427,9 @@ public class CommandlineArguments {
             this.readAtomType2Argument();
             if (this.atomType2.trim().toUpperCase().indexOf("#CA#") == -1
                 &&
-                this.atomType2.trim().toUpperCase().indexOf("#CB#") == -1) {
+                this.atomType2.trim().toUpperCase().indexOf("#CB#") == -1
+                &&
+                this.distanceInfile.equals("")) {
                  throw new CommandlineArgumentFormatException(
                                             "ERROR: With -bb set, you can only "
                                           + "select CA or CB as cross-linked "
@@ -1453,19 +1456,52 @@ public class CommandlineArguments {
     /**
      * Determines whether the argument -xSC has been set on the commandline.
      * If it has been set, than the side chains of cross-linked amino acids
-     * will be removed prior to SASD calculations.
+     * will be removed prior to SASD calculations, while the solvent radius 
+     * will be set to the default solvent radius given in
+     * {@link Constants#SOLVENT_RADIUS}.
+     * @throws CommandlineArgumentFormatException if -a1/2 has been set to other
+     * than the backbone atoms CA and CB while not providing a distance file.
      * @see #isRemoveSideChainArgumentSet()
+     * @see #readBackBoneOnlyArgument()
      */
-    private void readRemoveSideChainArgument() {
+    private void readRemoveSideChainArgument() throws
+                                            CommandlineArgumentFormatException {
         if (Commandline.get(this.arguments, "-xSC", false).equals("EXISTS")) {
             if (this.doBackboneReadOnly) {
                 System.err.println(Constants.LINE_SEPERATOR
                           + "WARNING: Ignoring -xSC parameter as -bb parameter "
-                          + "was set too." + Constants.LINE_SEPERATOR);
+                          + "has been set too." + Constants.LINE_SEPERATOR);
             } else {
                 this.doRemoveSideChains = true;
-                this.solventRadius =
-                        xwalk.constants.Constants.SOLVENT_RADIUS_BACKBONE;
+                this.solventRadius = Constants.SOLVENT_RADIUS;
+
+                this.readAtomType1Argument();
+                if (this.atomType1.trim().toUpperCase().indexOf("#CA#") == -1
+                    &&
+                    this.atomType1.trim().toUpperCase().indexOf("#CB#") == -1
+                    &&
+                    this.distanceInfile.equals("")) {
+                     throw new CommandlineArgumentFormatException(
+                                           "ERROR: With -xSC set, you can only "
+                                         + "select CA or CB as cross-linked "
+                                         + "atom types. Please check your "
+                                         + "-a1 parameter."
+                                         + Constants.LINE_SEPERATOR);
+                }
+                this.readAtomType2Argument();
+                if (this.atomType2.trim().toUpperCase().indexOf("#CA#") == -1
+                    &&
+                    this.atomType2.trim().toUpperCase().indexOf("#CB#") == -1
+                    &&
+                    this.distanceInfile.equals("")) {
+                     throw new CommandlineArgumentFormatException(
+                                           "ERROR: With -xSC set, you can only "
+                                         + "select CA or CB as cross-linked "
+                                         + "atom types. Please check your "
+                                         + "-a2 parameter."
+                                         + Constants.LINE_SEPERATOR);
+                }
+
             }
         }
     }

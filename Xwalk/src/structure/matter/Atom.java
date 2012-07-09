@@ -15,7 +15,7 @@
 
 package structure.matter;
 
-import java.io.IOException;
+
 import java.util.Hashtable;
 
 import structure.constants.Constants;
@@ -311,7 +311,6 @@ public class Atom {
      * XlogP hydrophobicity value of atom.
      */
     private float xlogP;
-
     //--------------------------------------------------------------------------
     /**
      * Constructor sets all the fields to defaults (mainly 0 and "").
@@ -746,9 +745,9 @@ public class Atom {
      */
     public final float getAverageDislocation() {
         if (this.temperaturFactor > 0) {
-            return (float)Math.sqrt(this.temperaturFactor
-                             /
-                             79);
+            return (float) Math.sqrt(this.temperaturFactor
+                           /
+                           79);
         } else {
             return 0f;
         }
@@ -801,6 +800,17 @@ public class Atom {
     }
     //--------------------------------------------------------------------------
     /**
+     * Sets the van der Waals radius of this atom according to the previously
+     * set ParameterSet.
+     * @see ParameterReader#setParameterReader(ParameterSets).
+     */
+    public final void setVanDerWaalsRadius() {
+        Hashtable < Element, Float > radii =
+                                     ParameterReader.getVdwRadiusParameterSet();
+        this.vanDerWaalsRadius  = radii.get(this.getElement());
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Sets the van der Waals radius of the atom.
      * @param vanDerWaalsRadius
      *        - float value representing a vdW radius of the atom.
@@ -809,24 +819,6 @@ public class Atom {
      */
     public final void setVanDerWaalsRadius(final float vanDerWaalsRadius) {
         this.vanDerWaalsRadius = vanDerWaalsRadius;
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Sets the van der Waals radius of the atom according to a parameterSet.
-     * This method should not be used to assign radii to atoms in a loop.
-     * In such cases use the method {@code AtomList.setVanDerWaalsRadii}.
-     * @param parameterSet
-     *        - One of the existing ParameterSets of atom radii.
-     * @throws IOException if an error occurs while reading the parameter file.
-     * @see #setVanDerWaalsRadius(float)
-     * @see #getVanDerWaalsRadius()
-     */
-    public final void setVanDerWaalsRadius(
-                                   final Constants.ParameterSets parameterSet)
-                                                            throws IOException {
-        ParameterReader params = new ParameterReader(parameterSet);
-        Hashtable < Element, Float > radii = params.getVdwRadiusParameterSet();
-        this.setVanDerWaalsRadius(radii.get(this.getElement()));
     }
     //--------------------------------------------------------------------------
     /**
@@ -923,7 +915,7 @@ public class Atom {
      *        float value representing the atom's XlogP hydrophobicity.
      * @see #getXlogP
      */
-    public final void setXlogP(float xlogP) {
+    public final void setXlogP(final float xlogP) {
         this.xlogP = xlogP;
     }
     //--------------------------------------------------------------------------

@@ -16,7 +16,6 @@
 package structure.math.algorithms;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import structure.constants.Constants;
 import structure.grid.Grid;
@@ -24,6 +23,8 @@ import structure.grid.GridCell;
 import structure.grid.GridUtilities;
 import structure.grid.Path;
 import structure.math.Mathematics;
+import xwalk.crosslink.CrossLinkParameter;
+import xwalk.crosslink.CrossLinkParameter.Parameter;
 
 /**
  * Set the distances in the surroundings of a source cell with a grid.
@@ -46,15 +47,7 @@ public class BreadthFirstSearch {
      * Boolean indicating whether distance assignment had to end prematurely,
      * due to solvent inaccessibility of cross-link.
      */
-    private boolean hasFinished = false;
-
-    /**
-     * Global variable to keep track on targets that have already been assigned
-     * a distance.
-     */
-    private HashSet < GridCell > targetsFoundInSearch =
-                                                     new HashSet < GridCell >();
-
+    private boolean hasSucceeded = false;
 
     /**
      * List of target grid cells, which represent the end point in the
@@ -81,7 +74,7 @@ public class BreadthFirstSearch {
     /**
      * Trash for removing grid cells from the search for the shortest path.
      */
-    static private ArrayList <GridCell> TRASH = new ArrayList<GridCell>();
+    private static ArrayList <GridCell> trash = new ArrayList<GridCell>();
 
     //--------------------------------------------------------------------------
     /**
@@ -136,12 +129,18 @@ public class BreadthFirstSearch {
             // Last element will be the source cell.
             this.path.add(BreadthFirstSearch.CELL_NO_OF_TARGET_CELL_IN_PATH,
                           target.copy());
-            if (target.getDistance() == Constants.DEFAULT_GRID_DISTANCE) {
+            // if distance calculation succeeded and user wants a PyMOL output
+            // backtrack shortest path.
+            if (target.getDistance() != Constants.DEFAULT_GRID_DISTANCE
+               &&
+               Boolean.parseBoolean(CrossLinkParameter.getParameter(
+                                                      Parameter.DO_PYMOL_OUTPUT)
+                                                                    )) {
+                this.backtrackPath(target);
                 paths.add(this.path);
                 this.path = new Path();
-                continue;
             } else {
-                this.backtrackPath(target);
+                // otherwise leave path only with targetCell.
                 paths.add(this.path);
                 this.path = new Path();
             }
@@ -158,7 +157,7 @@ public class BreadthFirstSearch {
      *          determined and distances calculated.
      */
     private void setDistanceRecursively(final ArrayList < GridCell > actives) {
-        // neighbouring grid cells become new actives for the next round of
+        // neighboring grid cells become new actives for the next round of
         // breadth-first-search.
         ArrayList < GridCell > newActives = new ArrayList < GridCell >();
         for (GridCell active : actives) {
@@ -174,13 +173,13 @@ public class BreadthFirstSearch {
 
                   if (!neighbour.isOccupied()) {
                       currentDist = neighbour.getDistance();
-                      // The distance of the neighbouring grid cell is the
+                      // The distance of the neighboring grid cell is the
                       // distance of the current active cell + the distance
-                      // between the active and the neighbouring cell.
+                      // between the active and the neighboring cell.
                       newDist = active.getDistance()
                               + (float) Mathematics.distance(active.getXYZ(),
                                                              neighbour.getXYZ()
-                                                           );
+                                                            );
                       // distance from other active cell might be shorter.
                       if (newDist < currentDist) {
                           neighbour.setDistance(newDist);
@@ -189,6 +188,12 @@ public class BreadthFirstSearch {
                           }
                       }
                   }
+                  /*
+                   * -------------------------------------------------------
+                   * Following section has to be removed as it produces
+                   * inconsistent results when running distance calculations
+                   * for multiple cross-links.
+                   * -------------------------------------------------------
                   // check whether we have reached the target cell already.
                   // If so, remove target from list of targets.
                   GridCell equal = GridUtilities.equals(neighbour,
@@ -209,20 +214,18 @@ public class BreadthFirstSearch {
                           return;
                       }
                   }
+                  */
              }
         }
-        // set the visit flag in all new active cells to true to avoid
-        // recalculation of distances for these cells.
-        // Check furthermore whether it is necessary to continue distance
-        // calculation, as all newActives might have already distances larger
-        // than maxDist.
+        // Check whether it is necessary to continue distance calculation,
+        // as all newActives might have already distances larger than maxDist.
         int maxDistCount = 0;
         for (GridCell neighbour : newActives) {
              double neighbourDistance = neighbour.getDistance();
              if (neighbourDistance > this.maxDist) {
                  maxDistCount++;
-                 BreadthFirstSearch.TRASH.add(neighbour);
-                 this.hasFinished = true;
+                 BreadthFirstSearch.trash.add(neighbour);
+                 this.hasSucceeded = true;
              }
         }
         // break up recursive loop.
@@ -230,8 +233,8 @@ public class BreadthFirstSearch {
             return;
         }
 
-        newActives.removeAll(BreadthFirstSearch.TRASH);
-        BreadthFirstSearch.TRASH.clear();
+        newActives.removeAll(BreadthFirstSearch.trash);
+        BreadthFirstSearch.trash.clear();
 
         this.setDistanceRecursively(newActives);
     }
@@ -250,7 +253,7 @@ public class BreadthFirstSearch {
         float minDist = target.getDistance();
         GridCell minGridCell = target;
         for (GridCell neighbour : neighbours) {
-             float dist = neighbour.getDistance();
+            float dist = neighbour.getDistance();
             if (dist < minDist) {
                 minDist = dist;
                 minGridCell = neighbour;
@@ -265,12 +268,11 @@ public class BreadthFirstSearch {
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns whether the search for a target was successful, hence could
-     * be finished.
+     * Returns whether the search for a target was successful.
      * @return {@code TRUE} if search found target cell, {@code FALSE}
      * otherwise.
      */
-    public final boolean hasFinished() {
-        return this.hasFinished;
+    public final boolean hasSucceeded() {
+        return this.hasSucceeded;
     }
 }

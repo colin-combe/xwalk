@@ -15,12 +15,15 @@
 
 package xwalk.crosslink;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 
 import structure.constants.Constants;
+import structure.constants.Constants.ParameterSets;
+import structure.matter.parameter.ParameterReader;
 
 import xwalk.io.CommandlineArguments;
 
@@ -36,7 +39,7 @@ public class CrossLinkParameter {
     /**
      * Hashtable that stores all parameters necessary to calculate cross-links.
      */
-    private Hashtable < Parameter, String > param =
+    private static Hashtable < Parameter, String > param =
                                           new Hashtable < Parameter, String >();
     //--------------------------------------------------------------------------
     /**
@@ -140,6 +143,15 @@ public class CrossLinkParameter {
                                                 arg.isTrypsinateArgumentSet()));
         this.setParameter(Parameter.DO_EXPASY_RULE, Boolean.toString(
                                                     arg.isExpasyArgumentSet()));
+        try {
+            ParameterReader.setParameterReader(ParameterSets.SURFNET);
+            ParameterReader.setParameterReader(ParameterSets.XLOGP);
+            ParameterReader.setParameterReader(ParameterSets.SASD_PROB);
+            ParameterReader.setParameterReader(ParameterSets.EUC_PROB);
+        } catch (IOException e) {
+            System.err.println("ERROR while reading parameter files.");
+        }
+
         if (arg.isVerboseOutputSet()) {
             this.output();
         }
@@ -155,7 +167,7 @@ public class CrossLinkParameter {
      */
     public final void setParameter(final Parameter xlParameter,
                                    final String xlValue) {
-        this.param.put(xlParameter, xlValue);
+        param.put(xlParameter, xlValue);
     }
     //--------------------------------------------------------------------------
     /**
@@ -165,8 +177,8 @@ public class CrossLinkParameter {
      *        parameters.
      * @return String object that holds the value of the cross-link param
      */
-    public final String getParameter(final Parameter parameter) {
-        return this.param.get(parameter);
+    public static final String getParameter(final Parameter parameter) {
+        return param.get(parameter);
     }
     //--------------------------------------------------------------------------
     /**
@@ -174,7 +186,7 @@ public class CrossLinkParameter {
      */
     public final void output() {
         ArrayList < Parameter > pars = new ArrayList < Parameter >();
-        for (Parameter par : this.param.keySet()) {
+        for (Parameter par : param.keySet()) {
             pars.add(par);
         }
         Collections.sort(pars, new Comparator<Parameter>() {
@@ -186,7 +198,7 @@ public class CrossLinkParameter {
         System.err.println("List of all argument values:");
         for (Parameter par : pars) {
             System.err.println(par.toString() + ": "
-                             + this.param.get(par));
+                             + param.get(par));
         }
         System.err.print(Constants.LINE_SEPERATOR);
     }

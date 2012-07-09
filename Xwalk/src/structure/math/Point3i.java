@@ -42,11 +42,6 @@ public class Point3i {
     private int kIndex;
     //--------------------------------------------------------------------------
     /**
-     * Size of point.
-     */
-    private double pointRadius;
-    //--------------------------------------------------------------------------
-    /**
      * Constructor.
      * @param i
      *        - Index i.
@@ -74,7 +69,6 @@ public class Point3i {
         this.iIndex = i;
         this.jIndex = j;
         this.kIndex = k;
-        this.pointRadius = radius;
     }
     //--------------------------------------------------------------------------
     /**
@@ -102,14 +96,6 @@ public class Point3i {
      */
     public final int getK() {
         return kIndex;
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Returns the radius of this point.
-     * @return double number representing the radius of this point.
-     */
-    public final double getRadius() {
-        return this.pointRadius;
     }
     //--------------------------------------------------------------------------
     /**
@@ -148,8 +134,7 @@ public class Point3i {
     public final Point3i copy() {
         return new Point3i(this.getI(),
                            this.getJ(),
-                           this.getK(),
-                           this.getRadius());
+                           this.getK());
     }
 
     //--------------------------------------------------------------------------
@@ -159,7 +144,7 @@ public class Point3i {
      */
     public final String toString() {
         return this.getI() + ", " + this.getJ() + ", " + this.getK() + ", "
-             + this.getRadius() + Constants.LINE_SEPERATOR;
+             + Constants.LINE_SEPERATOR;
     }
 
 }

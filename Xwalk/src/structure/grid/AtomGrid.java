@@ -18,7 +18,6 @@ import java.util.ArrayList;
 
 import structure.constants.Constants;
 import structure.math.Mathematics;
-import structure.math.algorithms.BoundarySearch;
 import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
@@ -47,14 +46,10 @@ public class AtomGrid extends Grid {
      * @param offSet
      *        - float value by which grid should be in addition increased in
      *          size
-     * @param doBoundaryCalculation
-     *        - {@code TRUE} if boundary between occupied and unoccupied
-     *          GridCell objects should be determined, {@code FALSE} otherwise.
      */
     public AtomGrid(final AtomList atomList,
                     final float gridCellSize,
-                    final float offSet,
-                    final boolean doBoundaryCalculation) {
+                    final float offSet) {
         super(MatterUtilities.getMinimumCooridnate(atomList).add(-offSet,
                                                                  -offSet,
                                                                  -offSet),
@@ -64,9 +59,6 @@ public class AtomGrid extends Grid {
               gridCellSize);
         this.atoms = atomList;
         this.setOccupancy();
-        if (doBoundaryCalculation) {
-            BoundarySearch.findBoundary(this);
-        }
     }
     //-------------------------------------------------------------------------
     /**
@@ -90,7 +82,6 @@ public class AtomGrid extends Grid {
 
         this.atoms = atomList;
         this.setOccupancy();
-//        BoundarySearch.findBoundary(this);
     }
     //-------------------------------------------------------------------------
     /**
@@ -119,15 +110,15 @@ public class AtomGrid extends Grid {
 
         int i = (int) ((atom.getXYZ().getX() - this.getMin().getX())
                        /
-                       this.get(0, 0, 0).getSize());
+                       GridCell.getSize());
 
         int j = (int) ((atom.getXYZ().getY() - this.getMin().getY())
                        /
-                       this.get(0, 0, 0).getSize());
+                       GridCell.getSize());
 
         int k = (int) ((atom.getXYZ().getZ() - this.getMin().getZ())
                        /
-                       this.get(0, 0, 0).getSize());
+                       GridCell.getSize());
 
         if (i > 0 && i < this.getNumberOfCells().getI()
             && j > 0 && j < this.getNumberOfCells().getJ()
@@ -175,8 +166,8 @@ public class AtomGrid extends Grid {
         // of GridCell objects.
         if (centre != null) {
           int expand2 = GridUtilities.getNumberOfGridCellsFittingIntoHemisphere(
-                                                                radius,
-                                                                centre.getSize()
+                                                              radius,
+                                                              GridCell.getSize()
                                                                               )
                        + expand;
 
@@ -194,7 +185,7 @@ public class AtomGrid extends Grid {
                                                   atom.getXYZ(),
                                                   neighbour.getXYZ()
                                                   );
-               if (dist - radius - (centre.getSize() * expand) < 0) {
+               if (dist - radius - (GridCell.getSize() * expand) < 0) {
                    neighbours.add(neighbour);
                }
            }

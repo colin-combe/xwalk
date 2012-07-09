@@ -28,11 +28,6 @@ import structure.matter.parameter.Element;
  */
 public abstract class Molecule {
     /**
-     * default serialVersionUID.
-     */
-    private static final long serialVersionUID = 1L;
-    //--------------------------------------------------------------------------
-    /**
      * List of all bonds within the molecule.
      */
     private ArrayList < Bond > bonds = new ArrayList < Bond >();

@@ -33,13 +33,13 @@ public class GridCell {
      * Length of the grid cell edge.
      * Default {@code size = 0.5}.
      */
-    private float size = Constants.DEFAULT_GRID_CELL_SIZE;
+    private static double size = Constants.DEFAULT_GRID_CELL_SIZE;
 
     /**
      * Diagonal of the grid cell.
      * Default {@code diagonal = Math.sqrt(0.5)}
      */
-    private float diagonal = (float)Math.sqrt(2 * Math.pow(size, 2));
+    private static double diagonal = Math.sqrt(2 * Math.pow(size, 2));
 
     /**
      * Cartesian coordinates of the grid cell center.
@@ -56,15 +56,8 @@ public class GridCell {
      */
     private boolean isOccupied = false;
     /**
-     * Stores boolean information about whether grid cell lies on the
-     * boundary between occupied and unoccupied grid cells.
-     * Default is {@code FALSE}.
-     */
-    private boolean isBoundary = false;
-
-    /**
      * Stores the distance to some reference GridCell object in a grid.
-     * Default is {@code Integer.MAX_VALUE}
+     * Default is {@link Constants#DEFAULT_GRID_DISTANCE}
      */
     private float distance = Constants.DEFAULT_GRID_DISTANCE;
 
@@ -76,11 +69,9 @@ public class GridCell {
      * @param edgeLength
      *        - float value representing the edge length of the gridCell cube.
      */
-    public GridCell(final Point3f xyz, final float edgeLength) {
+    public GridCell(final Point3f xyz, final double edgeLength) {
         this.setXYZ(xyz);
-        this.setSize(edgeLength);
-
-        this.setDistance(Constants.DEFAULT_GRID_DISTANCE);
+        GridCell.setSize(edgeLength);
     }
     //-------------------------------------------------------------------------
    /**
@@ -122,25 +113,25 @@ public class GridCell {
      * @param edgeLength
      *        - float value representing the size of the grid cell.
      */
-    private void setSize(final float edgeLength) {
-        this.size = edgeLength;
-        this.diagonal = (float)Math.sqrt(2 * Math.pow(this.size, 2));
+    private static void setSize(final double edgeLength) {
+        GridCell.size = edgeLength;
+        GridCell.diagonal = Math.sqrt(2 * Math.pow(GridCell.size, 2));
     }
     //-------------------------------------------------------------------------
     /**
      * Returns the size, i.e. edge length of this grid cell.
      * @return float value representing the size of the grid cell.
      */
-    public final float getSize() {
-        return this.size;
+    public static final double getSize() {
+        return GridCell.size;
     }
     //-------------------------------------------------------------------------
     /**
      * Returns the diagonal of this grid cell.
      * @return float value representing the diagonal of the grid cell.
      */
-    public final float getDiagonalLength() {
-        return this.diagonal;
+    public static final double getDiagonalLength() {
+        return GridCell.diagonal;
     }
     //-------------------------------------------------------------------------
     /**
@@ -166,31 +157,6 @@ public class GridCell {
      */
     public final boolean isOccupied() {
         return this.isOccupied;
-    }
-    //-------------------------------------------------------------------------
-    /**
-     * Sets the boundary status of this grid cell to {@code TRUE}.
-     */
-    public final void setBoundaryStatus() {
-        this.isBoundary = true;
-    }
-    //-------------------------------------------------------------------------
-    /**
-     * Sets the boundary status of this grid cell to {@code FALSE}.
-     */
-    public final void unsetBoundaryStatus() {
-        this.isBoundary = false;
-    }
-    //-------------------------------------------------------------------------
-
-    /**
-     * Returns the boundary status of this grid cell.
-     * @return {@code TRUE} if cell has been labeled as lying at the boundary
-     *          between occupied and unoccupied cells,
-     *         {@code FALSE} otherwise.
-     */
-    public final boolean isBoundary() {
-        return this.isBoundary;
     }
     //-------------------------------------------------------------------------
     /**
@@ -241,7 +207,7 @@ public class GridCell {
      * @return A new copy of this GridCell object.
      */
     public final GridCell copy() {
-        GridCell copy = new GridCell(this.getXYZ().copy(), this.getSize());
+        GridCell copy = new GridCell(this.getXYZ().copy(), GridCell.getSize());
         if (this.getIndices() != null) {
             copy.setIndices(this.getIndices().copy());
         }
@@ -249,9 +215,6 @@ public class GridCell {
 
         if (this.isOccupied()) {
             copy.setOccupation();
-        }
-        if (this.isBoundary()) {
-            copy.setBoundaryStatus();
         }
         return copy;
     }
@@ -268,9 +231,7 @@ public class GridCell {
     public final boolean equals(final GridCell cell) {
         return  this.getXYZ().equals(cell.getXYZ())
                 &&
-                this.getIndices().equals(cell.getIndices())
-                &&
-                this.getSize() == cell.getSize() ? true : false;
+                this.getIndices().equals(cell.getIndices()) ? true : false;
     }
     //-------------------------------------------------------------------------
     /*
@@ -312,9 +273,6 @@ public class GridCell {
             atom.setChainId('Y');
         } else {
             atom.setChainId('N');
-        }
-        if (this.isBoundary()) {
-            atom.setChainId('B');
         }
         return atom;
     }

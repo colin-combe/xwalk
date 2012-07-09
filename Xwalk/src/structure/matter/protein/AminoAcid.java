@@ -18,7 +18,6 @@ package structure.matter.protein;
 import structure.constants.Constants;
 import structure.matter.Atom;
 import structure.matter.AtomList;
-import structure.matter.MatterUtilities;
 import structure.matter.Molecule;
 import structure.matter.parameter.AminoAcidType;
 import structure.matter.parameter.AtomType;
@@ -31,11 +30,6 @@ import structure.matter.parameter.AtomType;
  *
  */
 public class AminoAcid extends Molecule {
-    /**
-     * Default serialVersionUID.
-     */
-    private static final long serialVersionUID = 1L;
-    //--------------------------------------------------------------------------
     /**
      * Type of this amino acid.
      */
@@ -217,14 +211,14 @@ public class AminoAcid extends Molecule {
     }
     //--------------------------------------------------------------------------
     /**
-     * Removes with the exception of CB atoms all side chain atoms.
+     * Removes all side chain atoms of an amino acid.
      */
     public final void removeSideChain() {
         AtomList toBremoved = new AtomList();
         for (Atom atom : this.getAllAtoms()) {
             if (atom.getType() != AtomType.CARBON_ALPHA
                 &&
-                atom.getType() != AtomType.CARBON_BETA
+                atom.getType() != AtomType.CARBON
                 &&
                 atom.getType() != AtomType.NITROGEN
                 &&
