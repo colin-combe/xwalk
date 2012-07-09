@@ -1918,7 +1918,7 @@ public final class CrossLinkUtilities {
                     &&
                     !atoms2areAccessible[i]
                     &&
-                    paths.size() == 0) {
+                    !successful) {
                 Path path = new Path();
                 GridCell dummy = new GridCell(atom1.getXYZ(),
                                               GridCell.getSize());
