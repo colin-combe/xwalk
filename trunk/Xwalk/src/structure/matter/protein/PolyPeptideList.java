@@ -17,11 +17,13 @@ package structure.matter.protein;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 import structure.constants.Constants;
-import structure.constants.Constants.ParameterSets;
 import structure.matter.Atom;
 import structure.matter.AtomList;
+import structure.matter.parameter.Element;
+import structure.matter.parameter.ParameterReader;
 
 
 /**
@@ -73,18 +75,17 @@ public class PolyPeptideList extends ArrayList < PolyPeptide > {
     }
     //--------------------------------------------------------------------------
     /**
-     * Sets the atom radii according to a ParameterSet objectReturns protein
-     * atoms found in this complex.
-     * @param parameter
-     *        - ParameterSet object holding atom radii.
+     * Sets the atom radii according to a earlier set ParameterSet object.
      * @throws IOException if an error occurs while reading the parameter file.
+     * @see ParameterReader#setParameterReader(ParameterSets).
      */
-    public final void setAtomRadii(final ParameterSets parameter)
-                                                            throws IOException {
+    public final void setAtomRadii() throws IOException {
+        Hashtable < Element, Float > radii =
+                                     ParameterReader.getVdwRadiusParameterSet();
         for (PolyPeptide protein : this) {
              for (AminoAcid aminoacid : protein) {
                  for (Atom atom : aminoacid.getAllAtoms()) {
-                      atom.setVanDerWaalsRadius(parameter);
+                      atom.setVanDerWaalsRadius(radii.get(atom.getElement()));
                  }
              }
         }

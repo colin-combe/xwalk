@@ -17,6 +17,7 @@ package xwalk.math;
 
 import java.util.ArrayList;
 
+import structure.constants.Constants;
 import structure.grid.AtomGrid;
 import structure.grid.Grid;
 import structure.grid.GridCell;
@@ -82,34 +83,45 @@ public class SolventPathDistance {
                                final AtomList atoms2,
                                final AtomGrid atomGrid) {
 
-        ArrayList < GridCell > atomCells = atomGrid.getAllGridCells(atom1);
-        for (GridCell cell : atomCells) {
-            // set all cells that are occupied by this atom to unoccupied and
-            // unvisited.
-             cell.reset();
+        Atom atom1small = atom1.copy();
+        atom1small.setVanDerWaalsRadius();
+        atom1small.setVanDerWaalsRadius(atom1small.getVanDerWaalsRadius()
+                                        +
+                                        Constants.SOLVENT_RADIUS);
+        ArrayList < GridCell > atom1Cells = atomGrid.getAllGridCells(
+                                                                    atom1small
+                                                                    );
+        for (GridCell cell1 : atom1Cells) {
+            // set all cells that are occupied by this atom to unoccupied
+             cell1.reset();
         }
         ArrayList < GridCell > atom2cells = new ArrayList < GridCell >();
         for (Atom atom2 : atoms2) {
+            Atom atom2small = atom2.copy();
+            atom2small.setVanDerWaalsRadius();
+            atom2small.setVanDerWaalsRadius(atom2small.getVanDerWaalsRadius()
+                                            +
+                                            Constants.SOLVENT_RADIUS);
             // if atom2 is not solvent accessible than leave atom2cells list
             // empty.
-            GridCell atom2cell = atomGrid.get(atom2);
+            GridCell atom2cell = atomGrid.get(atom2small);
             // given a distance file, a residue pair might have a larger
             // distance then the size of the grid, in which case a NULLPOINTER
             // error would occur. Create a dummy grid cell in those cases.
             if (atom2cell == null) {
                 atom2cell = new GridCell(atom2.getXYZ(),
-                                         atomGrid.get(0, 0, 0).getSize());
+                                         GridCell.getSize());
                 atom2cell.setIndices(new Point3i(Integer.MAX_VALUE,
                                                  Integer.MAX_VALUE,
                                                  Integer.MAX_VALUE));
             }
             atom2cell.reset();
             atom2cells.add(atom2cell);
-            atomCells = atomGrid.getAllGridCells(atom2);
-            for (GridCell cell : atomCells) {
-                // set all cells that are occupied by this atom to
-                // unoccupied and unvisited.
-                cell.reset();
+            ArrayList <GridCell> atom2Cells =
+                                           atomGrid.getAllGridCells(atom2small);
+            for (GridCell cell2 : atom2Cells) {
+                // set all cells that are occupied by this atom to unoccupied.
+                cell2.reset();
             }
         }
         this.grid = atomGrid;
@@ -124,13 +136,12 @@ public class SolventPathDistance {
      *        - float value representing the maximum allowed distance between
      *          source and target.
      * @return List of Path objects, one for each solvent path distance
-     *         calculation. An empty path list is returned, if the path
-     *         calculation did not succeed due to the solvent inaccessibility of
-     *         the source cell neighbourhood.
+     *         calculation. Paths with single cells are once with failed
+     *         distance calculations. An empty path array is returned, if the
+     *         sourceCell is located within a closed cavity.
      */
     public final ArrayList < Path > getShortestPath(final float maxDist) {
         // initialize distance calculation
-        this.grid.resetSoft();
         BreadthFirstSearch shortestPathAlgo = new BreadthFirstSearch(
                                                                this.grid,
                                                                this.sourceCell,
@@ -138,7 +149,7 @@ public class SolventPathDistance {
                                                                maxDist
                                                                     );
         ArrayList < Path > paths = shortestPathAlgo.findShortestPath();
-        if (!shortestPathAlgo.hasFinished()) {
+        if (!shortestPathAlgo.hasSucceeded()) {
             return new ArrayList < Path >();
         }
         return paths;

@@ -15,16 +15,13 @@
 
 package xwalk.crosslink;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Hashtable;
 import java.util.TreeSet;
 
 import structure.constants.Constants;
 import structure.constants.Constants.BondTypes;
-import structure.constants.Constants.ParameterSets;
 import structure.grid.Path;
 import structure.math.Mathematics;
 import structure.matter.Atom;
@@ -32,6 +29,7 @@ import structure.matter.Bond;
 import structure.matter.parameter.ParameterReader;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
+import xwalk.crosslink.CrossLinkParameter.Parameter;
 
 
 /**
@@ -114,17 +112,9 @@ public class CrossLink extends Bond {
      */
     private PolyPeptide postAtomPeptide;
     /**
-     * Hashtable holding all probabilities for certain SAS distance bins.
-     */
-    private static Hashtable<Float, Float> sasdProb;
-    /**
-     * Hashtable holding all probabilities for certain Euclidean distance bins.
-     */
-    private static Hashtable<Float, Float> eucProb;
-    /**
      * Hash value.
      */
-    private int hashValue;
+    //private int hashValue;
     //--------------------------------------------------------------------------
     /**
      * Constructor.
@@ -161,27 +151,30 @@ public class CrossLink extends Bond {
                      final float euclideanDistance
                     ) {
         super(atom1, atom2, BondTypes.CROSS_LINK);
-        CrossLink.readProbabilities();
 
         ArrayList < Atom > list = new ArrayList < Atom >();
         list.add(atom1);
         list.add(atom2);
         // sorting atom pair by chain id.
-        Collections.sort(list, new Comparator < Atom >() {
-                                  public int compare(final Atom atom1,
-                                                     final Atom atom2) {
-                                     String chainId1 = atom1.getChainId() + "";
-                                     String chainId2 = atom2.getChainId() + "";
-                                     return chainId1.compareTo(chainId2);
+        if (CrossLinkParameter.getParameter(
+                                        Parameter.DISTANCE_FILE_PATH).equals("")
+                                            ) {
+            Collections.sort(list, new Comparator < Atom >() {
+                                      public int compare(final Atom atom1,
+                                                         final Atom atom2) {
+                                      String chainId1 = atom1.getChainId() + "";
+                                      String chainId2 = atom2.getChainId() + "";
+                                      return chainId1.compareTo(chainId2);
+                                      }
                                   }
-                              }
-                        );
+                            );
+        }
         this.preAtom = list.get(0);
         this.postAtom = list.get(1);
 
         this.seqDist = sequenceDistance;
         this.eucDist = euclideanDistance;
-
+        /*
         this.hashValue = this.getPreAtom().getResidueName().hashCode()
                        + this.getPreAtom().getResidueNumber()
                        + this.getPreAtom().getChainId()
@@ -192,7 +185,7 @@ public class CrossLink extends Bond {
                        + this.getPostAtom().getChainId()
                        + this.getPostAtom().getName().hashCode()
                        + this.getPostAtom().getAlternativeLocation();
-
+        */
     }
     //--------------------------------------------------------------------------
 
@@ -517,35 +510,17 @@ public class CrossLink extends Bond {
     }
     //--------------------------------------------------------------------------
     /**
-     * Reads in probability for finding a cross-link with a certain distance in
-     * a cross-linking experiment. The probabilities are based on observed
-     * cross-link distances in the literature and in the Aebersold lab.
-     */
-    private static void readProbabilities() {
-        try {
-            sasdProb =
-       new ParameterReader(ParameterSets.SASD_PROB).getDistanceProbabilitySet();
-            eucProb =
-       new ParameterReader(ParameterSets.EUC_PROB).getDistanceProbabilitySet();
-
-        } catch (IOException e) {
-            System.err.println("ERROR: Couldn't read probabilities from "
-                           + "parameter files" + Constants.LINE_SEPERATOR
-                           + e.getMessage());
-        }
-    }
-    //--------------------------------------------------------------------------
-    /**
      * Sets the probability of observing this cross-link with its Euclidean
      * distance.
      */
-    public void setEucProbability() {
+    public final void setEucProbability() {
         float preProb = -1;
         TreeSet<Float> sortedBins = new TreeSet<Float>(
-                                                      CrossLink.eucProb.keySet()
+                   ParameterReader.getEuclideanDistanceProbabilitySet().keySet()
                                                         );
         for (float bin : sortedBins) {
-            float prob = CrossLink.eucProb.get(bin);
+            float prob =
+                  ParameterReader.getEuclideanDistanceProbabilitySet().get(bin);
             if (bin > this.eucDist) {
                 this.eucDistProbability = preProb;
                 break;
@@ -561,13 +536,14 @@ public class CrossLink extends Bond {
     /**
      * Sets the probability of observing this cross-link with its SAS distance.
      */
-    public void setSASDprobability() {
+    public final void setSASDprobability() {
         float preProb = -1;
         TreeSet<Float> sortedBins = new TreeSet<Float>(
-                                                     CrossLink.sasdProb.keySet()
+                         ParameterReader.getSASdistanceProbabilitySet().keySet()
                                                         );
         for (float bin : sortedBins) {
-            float prob = CrossLink.sasdProb.get(bin);
+            float prob =
+                        ParameterReader.getSASdistanceProbabilitySet().get(bin);
             if (bin > this.solventPathDistance) {
                 this.sasdDistProbability = preProb;
                 break;

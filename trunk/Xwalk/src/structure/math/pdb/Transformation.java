@@ -15,7 +15,6 @@
 
 package structure.math.pdb;
 
-import structure.math.Mathematics;
 import structure.math.Point3f;
 import structure.matter.Atom;
 import structure.matter.AtomList;

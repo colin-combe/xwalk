@@ -54,29 +54,30 @@ public class Hydrophobicity {
      *        XlogP values will be calculated.
      */
     public Hydrophobicity(final PolyPeptideList complex) {
-        ParameterReader reader = null;
-        try {
-            reader = new ParameterReader(Constants.ParameterSets.XLOGP);
-        } catch (IOException e) {
-            System.err.print(e.getMessage() + Constants.LINE_SEPERATOR
-                          + "ERROR: While reading the XlogP parameter file"
-                          + Constants.LINE_SEPERATOR);
+        if (ParameterReader.getXlogPparameterSet() == null) {
+            try {
+                ParameterReader.setParameterReader(
+                                                   Constants.ParameterSets.XLOGP
+                                                  );
+            } catch (IOException e) {
+                System.err.print(e.getMessage() + Constants.LINE_SEPERATOR
+                              + "ERROR: While reading the XlogP parameter file"
+                              + Constants.LINE_SEPERATOR);
+            }
+            this.polyPeptideComplex = complex;
+            this.setAtomicXlogP();
         }
-        this.polyPeptideComplex = complex;
-        this.setAtomicXlogP(reader);
     }
     //--------------------------------------------------------------------------
     /**
      * Sets to all amino acids atoms in a protein their associated XlogP values.
-     * @param reader
-     *        ParameterReader object holding all atomic XlogP parameter values.
      * @return float value representing the sum of XlogP values for the
      *         protein complex.
      */
-    private float setAtomicXlogP(final ParameterReader reader) {
+    private float setAtomicXlogP() {
 
         Hashtable <AminoAcidType, Hashtable <AtomType, Float>> xlogPs =
-                                             reader.getXlogPparameterSet();
+                                         ParameterReader.getXlogPparameterSet();
         float sum = 0;
         for (PolyPeptide polyPeptide : this.polyPeptideComplex) {
             for (AminoAcid aa : polyPeptide) {

@@ -35,18 +35,24 @@ public class ParameterReader {
     /**
      * Holds van der Waals radii from the various supported force fields.
      */
-    private Hashtable < Element, Float > vdWradii =
+    private static Hashtable < Element, Float > vdWradii =
                                            new Hashtable < Element, Float >();
     /**
      * Holds atomic XlogP values for all standard PDB amino acid atom types.
      */
-    private Hashtable <AminoAcidType, Hashtable <AtomType, Float >> xlogP =
-                 new Hashtable <AminoAcidType, Hashtable <AtomType, Float >>();
+    private static Hashtable <AminoAcidType, Hashtable <AtomType, Float >> xlogP
+               = new Hashtable <AminoAcidType, Hashtable <AtomType, Float >>();
 
     /**
-     * Holds the probabilities for the cross-link distances.
+     * Holds the probabilities for Euclidean cross-link distances.
      */
-    private Hashtable < Float, Float > probablities =
+    private static Hashtable < Float, Float > euc_probablities =
+                                           new Hashtable < Float, Float >();
+
+    /**
+     * Holds the probabilities for SAS cross-link distances.
+     */
+    private static Hashtable < Float, Float > sasd_probablities =
                                            new Hashtable < Float, Float >();
 
     /**
@@ -130,50 +136,47 @@ public class ParameterReader {
      */
     private static int probabilityColumn = 1;
 
-    /**
-     * default serialVersionUID.
-     */
-    private static final long serialVersionUID = 1L;
-
     //--------------------------------------------------------------------------
     /**
-     * Constructor.
+     * Sets the parameter.
      * @param parameter
      *        - One of the supported ParameterSet object in Xwalk.
      * @throws IOException if an error occurs while reading the parameter file.
      */
-    public ParameterReader(final Constants.ParameterSets parameter)
-                                                            throws IOException {
+    public static void setParameterReader(
+                                         final Constants.ParameterSets parameter
+                                         )
+                                         throws IOException {
         if (parameter == Constants.ParameterSets.RASMOL) {
-            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
+            ParameterReader.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.RASMOL_FILENAME);
         }
         if (parameter == Constants.ParameterSets.SURFNET) {
-            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
+            ParameterReader.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.SURFNET_FILENAME);
         }
         if (parameter == Constants.ParameterSets.MMFF94) {
-            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
+            ParameterReader.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.MMFF94_FILENAME);
         }
         if (parameter == Constants.ParameterSets.PARSE) {
-            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
+            ParameterReader.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.PARSE_FILENAME);
         }
         if (parameter == Constants.ParameterSets.CHARMM) {
-            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
+            ParameterReader.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.CHARMM_FILENAME);
         }
         if (parameter == Constants.ParameterSets.XLOGP) {
-            this.readParameterSet(ParameterReader.PARAMETER_MM_DIR
+            ParameterReader.readParameterSet(ParameterReader.PARAMETER_MM_DIR
                                 + ParameterReader.XLOGP_FILENAME);
         }
         if (parameter == Constants.ParameterSets.SASD_PROB) {
-            this.readParameterSet(ParameterReader.PARAMETER_DP_DIR
+            ParameterReader.readParameterSet(ParameterReader.PARAMETER_DP_DIR
                                 + ParameterReader.SASD_PROB_FILENAME);
         }
         if (parameter == Constants.ParameterSets.EUC_PROB) {
-            this.readParameterSet(ParameterReader.PARAMETER_DP_DIR
+            ParameterReader.readParameterSet(ParameterReader.PARAMETER_DP_DIR
                                 + ParameterReader.EUC_PROB_FILENAME);
         }
     }
@@ -185,23 +188,33 @@ public class ParameterReader {
      *        - String object holding the path to the desired parameter file.
      * @throws IOException if an error occurs while reading the parameter file.
      */
-    private void readParameterSet(final String parameterFileName)
+    private static void readParameterSet(final String parameterFileName)
                                                             throws IOException {
         ReadFile read = new ReadFile(parameterFileName);
         for (String line : read) {
             if (!line.startsWith("#")) {
                 String[] column = line.split("\t");
                 if (column.length == 2) {
-                    if (parameterFileName.indexOf(this.EUC_PROB_FILENAME) != -1
-                       ||
-                     parameterFileName.indexOf(this.SASD_PROB_FILENAME) != -1) {
+                    if (parameterFileName.indexOf(
+                                               ParameterReader.EUC_PROB_FILENAME
+                                                 ) != -1) {
                         float distBin = Float.parseFloat(
                                        column[ParameterReader.distanceBinColumn]
                                                            );
                         float prob = Float.parseFloat(
                                        column[ParameterReader.probabilityColumn]
                                                         );
-                        this.probablities.put(distBin, prob);
+                        ParameterReader.euc_probablities.put(distBin, prob);
+                    } else if (parameterFileName.indexOf(
+                                              ParameterReader.SASD_PROB_FILENAME
+                                                        ) != -1) {
+                        float distBin = Float.parseFloat(
+                                       column[ParameterReader.distanceBinColumn]
+                                                        );
+                        float prob = Float.parseFloat(
+                                       column[ParameterReader.probabilityColumn]
+                                                     );
+                        ParameterReader.sasd_probablities.put(distBin, prob);
                     } else {
                         String elementName =
                                       column[ParameterReader.elementNameColumn];
@@ -210,7 +223,7 @@ public class ParameterReader {
                                                       );
                         for (Element e : Element.values()) {
                             if (e.toString().equals(elementName)) {
-                                this.vdWradii.put(e, radius);
+                                ParameterReader.vdWradii.put(e, radius);
                             }
                         }
                     }
@@ -226,13 +239,19 @@ public class ParameterReader {
                         if (aat.getThreeLetterCode().equals(aminoAcidName)) {
                             for (AtomType at : AtomType.values()) {
                                 if (at.getAbbreviation().equals(atomName)) {
-                                    if (this.xlogP.get(aat) == null) {
+                                    if (ParameterReader.xlogP.get(aat)
+                                        ==
+                                        null) {
                                         Hashtable<AtomType, Float> atomXlogP =
                                               new Hashtable<AtomType, Float>();
                                         atomXlogP.put(at, xlogPvalue);
-                                        this.xlogP.put(aat, atomXlogP);
+                                        ParameterReader.xlogP.put(aat,
+                                                                  atomXlogP);
                                     } else {
-                                        this.xlogP.get(aat).put(at, xlogPvalue);
+                                        ParameterReader.xlogP.get(aat).put(
+                                                                      at,
+                                                                      xlogPvalue
+                                                                          );
                                     }
                                 }
                             }
@@ -248,25 +267,37 @@ public class ParameterReader {
      * Returns the set of atom van der Waals radius parameter.
      * @return Hashtable with Element keys and float elements as radii.
      */
-    public final Hashtable < Element, Float > getVdwRadiusParameterSet() {
-        return this.vdWradii;
+    public static final Hashtable < Element, Float >
+                                                    getVdwRadiusParameterSet() {
+        return ParameterReader.vdWradii;
     }
+    //--------------------------------------------------------------------------
     /**
      * Returns the set of atomic XlogP values for all protein amino acid atoms.
      * @return Hashtable with XlogP values for all protein amino acid atoms.
      */
-    public final Hashtable <AminoAcidType, Hashtable <AtomType, Float >>
+    public static final Hashtable <AminoAcidType, Hashtable <AtomType, Float >>
                                                         getXlogPparameterSet() {
-        return this.xlogP;
+        return ParameterReader.xlogP;
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns the set of probabilities for a certain distance bin.
+     * Returns the set of probabilities for a certrain Euclidean distance bin.
      * @return Hashtable with distance keys and float elements as
      * probabilities.
      */
-    public final Hashtable < Float, Float > getDistanceProbabilitySet() {
-        return this.probablities;
+    public static final Hashtable < Float, Float >
+                                          getEuclideanDistanceProbabilitySet() {
+        return ParameterReader.euc_probablities;
     }
-
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the set of probabilities for a certrain SAS distance bin.
+     * @return Hashtable with distance keys and float elements as
+     * probabilities.
+     */
+    public static final Hashtable < Float, Float >
+                                          getSASdistanceProbabilitySet() {
+        return ParameterReader.sasd_probablities;
+    }
 }

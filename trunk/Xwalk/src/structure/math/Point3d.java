@@ -46,11 +46,6 @@ public class Point3d {
     private double zCoordinate;
     //--------------------------------------------------------------------------
     /**
-     * Size of point.
-     */
-    private double pointRadius;
-    //--------------------------------------------------------------------------
-    /**
      * Constructor.
      * @param x
      *        - Cartesian X-coordinates.
@@ -79,7 +74,6 @@ public class Point3d {
         this.xCoordinate = x;
         this.yCoordinate = y;
         this.zCoordinate = z;
-        this.pointRadius = radius;
     }
     //--------------------------------------------------------------------------
     /**
@@ -110,14 +104,6 @@ public class Point3d {
     }
     //--------------------------------------------------------------------------
     /**
-     * Returns the radius of this point.
-     * @return double number representing the radius of this point.
-     */
-    public final double getRadius() {
-        return this.pointRadius;
-    }
-    //--------------------------------------------------------------------------
-    /**
      * Performs addition to the Cartesian coordinates of this point.
      * @param x
      *        - double to add to X-coordinate
@@ -130,9 +116,7 @@ public class Point3d {
     public final Point3d add(final double x, final double y, final double z) {
         return new Point3d(this.getX() + x,
                            this.getY() + y,
-                           this.getZ() + z,
-                           this.getRadius()
-                          );
+                           this.getZ() + z);
     }
     //--------------------------------------------------------------------------
     /**
@@ -174,9 +158,7 @@ public class Point3d {
     public final Point3d copy() {
         return new Point3d(this.getX(),
                            this.getY(),
-                           this.getZ(),
-                           this.getRadius()
-                          );
+                           this.getZ());
     }
     //--------------------------------------------------------------------------
     /**

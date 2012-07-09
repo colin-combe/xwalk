@@ -72,7 +72,7 @@ public class Constants {
     public static float getCoordinateUncertainty(final AtomList atoms) {
         float maxUncertainty = Integer.MIN_VALUE;
         for (Atom atom : atoms) {
-            maxUncertainty = (float)Math.max(atom.getAverageDislocation()
+            maxUncertainty = (float) Math.max(atom.getAverageDislocation()
                                     + Constants.COORDINATE_UNCERTAINTY,
                                       maxUncertainty);
         }
@@ -80,17 +80,18 @@ public class Constants {
     }
     //--------------------------------------------------------------------------
     /**
-     * Bond length between a hydrogen and a non-hydrogen.
+     * Default bond length of 1.2 Angstroem between a hydrogen and a
+     * non-hydrogen.
      */
     public static final float BOND_LENGTH_TO_HYDROGEN = 1.2f;
     //--------------------------------------------------------------------------
     /**
-     * Default van der Waals radius for any atom type.
+     * Default van der Waals radius of 1.5 Angstroem for any atom type.
      */
     public static final float DEFAULT_ATOM_RADIUS = 1.5f;
     //--------------------------------------------------------------------------
     /**
-     * Default grid size.
+     * Default grid size of 1.0 Angstroem.
      */
     public static final float DEFAULT_GRID_CELL_SIZE = 1.0f;
     //--------------------------------------------------------------------------
@@ -100,46 +101,48 @@ public class Constants {
     public static final float DEFAULT_GRID_DISTANCE = Integer.MAX_VALUE;
     //--------------------------------------------------------------------------
     /**
-     * Default grid size.
+     * Default solvent radius of 1.4 Angstroem.
      */
     public static final float SOLVENT_RADIUS = 1.4f;
     //--------------------------------------------------------------------------
     /**
-     * Minimum difference in the solvent accessible surface area of an atom
-     * upon protein complexation in order to be counted at a binding interface.
+     * Minimum difference of 0.1 Angstroem in the solvent accessible surface
+     * area of an atom upon protein complexation in order to be counted at a
+     * binding interface.
      */
     public static final float MINUMUM_SASA_DIFFERECE_FOR_INTERFACE = 0.1f;
     //--------------------------------------------------------------------------
     /**
-     * Minimum relative solvent accessibility of an amino acid in order to be
-     * considered to be on the surface of a protein molecule.
+     * Minimum relative solvent accessibility (5 Angstroem square) of an amino
+     * acid in order to be considered to be on the surface of a protein
+     * molecule.
      */
     public static final float MINIMUM_REL_SASA_ON_SURFACE = 5;
     //--------------------------------------------------------------------------
     /**
-     * Maximum value that fits into the occupancy and temperature factor
-     * column.
+     * Minimum value that fits into the occupancy and temperature factor
+     * column (-99.99).
      */
     public static final float MIN_OCCUPANCY_TEMPERATURE_VALUE = -99.99f;
     //--------------------------------------------------------------------------
     /**
      * Maximum value that fits into the occupancy and temperature factor
-     * column.
+     * column (999.999).
      */
     public static final float MAX_OCCUPANCY_TEMPERATURE_VALUE = 999.99f;
     //--------------------------------------------------------------------------
     /**
-     * Minimum XYZ coordinate values in PDB files.
+     * Minimum XYZ coordinate values in PDB files (-999.999).
      */
     public static final float MIN_XYZ = -999.999f;
     //--------------------------------------------------------------------------
     /**
-     * Maximum XYZ coordinate values in PDB files.
+     * Maximum XYZ coordinate values in PDB files (9999.999).
      */
     public static final float MAX_XYZ = 9999.999f;
     //--------------------------------------------------------------------------
     /**
-     * Maximum serial number in PDB files.
+     * Maximum serial number in PDB files (99999).
      */
     public static final int MAX_SERIAL = 99999;
     //--------------------------------------------------------------------------

@@ -20,6 +20,8 @@ import structure.constants.Constants;
 import structure.math.Point3d;
 import structure.math.Point3i;
 import structure.matter.Atom;
+import xwalk.crosslink.CrossLinkParameter;
+import xwalk.crosslink.CrossLinkParameter.Parameter;
 
 
 /**
@@ -54,9 +56,9 @@ public class GridUtilities {
         if (radius == 0.0) {
             numberOfCellsInAtom = minRadius;
         } else {
-            numberOfCellsInAtom = radius
-                                  /
-                                  gridCellSize;
+            numberOfCellsInAtom = 0.5 + radius
+                                        /
+                                        gridCellSize;
         }
         return Math.round((float) numberOfCellsInAtom);
     }
@@ -161,8 +163,7 @@ public class GridUtilities {
                        }
                        neighbours.add(grid.get(ijk.getI() + m,
                                                ijk.getJ() + n,
-                                               ijk.getK() + o)
-                                              );
+                                               ijk.getK() + o));
                 }
             }
         }
@@ -178,15 +179,16 @@ public class GridUtilities {
      *          and all neighboring grid cells. Prior to the execution of this
      *          method, the Grid object must have been searched for the boundary
      *          cells with the BoundarySearch class.
-     * @param verbose
-     *        - if {@code TRUE} than information on the size of solvent
-     *          accessibility will be printed out on STDERR.
      * @return {@code TRUE} if cell is accessible, {@code FALSE} otherwise.
      * @see structure.math.algorithms.BoundarySearch
      */
     public static boolean isAccessible(final Atom atom,
-                                       final AtomGrid grid,
-                                       final boolean verbose) {
+                                       final AtomGrid grid) {
+
+        boolean verbose = Boolean.parseBoolean(CrossLinkParameter.getParameter(
+                                                     Parameter.DO_VERBOSE_OUTPUT
+                                                                             ));
+
         ArrayList<GridCell> neighboursBorder = grid.getAllGridCells(atom, 1);
         ArrayList<GridCell> neighbours = grid.getAllGridCells(atom, 0);
         ArrayList<GridCell> border = new ArrayList<GridCell>();

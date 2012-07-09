@@ -56,12 +56,10 @@ public class Xwalk {
     /**
      * Outputs on the STDERR channel that no cross-linker could be found in the
      * structure.
-     * @param parameter
-     *        - CrossLinkParameter object, holding all parameter that are
-     *          necessary for the virtual cross-link calculation.
      */
-    private static void outputNoXLfound(final CrossLinkParameter parameter) {
-        String infile = parameter.getParameter(Parameter.INFILE_PATH).trim();
+    private static void outputNoXLfound() {
+        String infile = CrossLinkParameter.getParameter(
+                                                  Parameter.INFILE_PATH).trim();
         String fileName = new File(infile).getName().trim();
         System.err.println("WARNING: " + fileName + "\tNo virtual cross-links "
                            + "found.");
@@ -106,14 +104,9 @@ public class Xwalk {
     /**
      * Creates virtual cross-links on the protein complexes given by the infile
      * commandline parameter.
-     * @param parameter
-     *        - CommandlineArguments object holding all user set commandline
-     *          parameter.
      * @return List of CrossLink objects found on the infile protein complexes.
      */
-    public static CrossLinkList createVirtualCrossLinks(
-                                              final CrossLinkParameter parameter
-                                                       ) {
+    public static CrossLinkList createVirtualCrossLinks() {
         String nl = Constants.LINE_SEPERATOR;
 
         CrossLinkList list = null;
@@ -121,12 +114,9 @@ public class Xwalk {
             // get all protein complex atom coordinates of the user given
             // inputFile.
             ArrayList < PolyPeptideList > complexes =
-                                  CrossLinkUtilities.getComplexesCoordinates(
-                                                                       parameter
-                                                                            );
+                                  CrossLinkUtilities.getComplexesCoordinates();
 
-            list = CrossLinkUtilities.getVirtualCrossLinks(complexes,
-                                                           parameter);
+            list = CrossLinkUtilities.getVirtualCrossLinks(complexes);
         } catch (FileNotFoundException e) {
             System.err.println(nl
                                + "ERROR: Infile could not be found" + nl
@@ -157,14 +147,9 @@ public class Xwalk {
     /**
      * Returns a list of monoLinks for the protein complexes given by the infile
      * commandline parameter.
-     * @param parameter
-     *        - CommandlineArguments object holding all user set commandline
-     *          parameter.
      * @return List of MonoLink objects found on the infile protein complexes.
      */
-    public static MonoLinkList getMonoLinks(
-                                              final CrossLinkParameter parameter
-                                                       ) {
+    public static MonoLinkList getMonoLinks() {
         String nl = Constants.LINE_SEPERATOR;
 
         MonoLinkList list = null;
@@ -173,12 +158,9 @@ public class Xwalk {
             // inputFile.
 
             ArrayList < PolyPeptideList > complexes =
-                                  CrossLinkUtilities.getComplexesCoordinates(
-                                                                       parameter
-                                                                            );
+                                  CrossLinkUtilities.getComplexesCoordinates();
 
-            list = CrossLinkUtilities.getVirtualMonoLinks(complexes,
-                                                          parameter);
+            list = CrossLinkUtilities.getVirtualMonoLinks(complexes);
 
         } catch (FileNotFoundException e) {
             System.err.println(nl
@@ -210,16 +192,12 @@ public class Xwalk {
     /**
      * Outputs all determined cross-links either on the terminal or into a file
      * depending on user's choice.
-     * @param parameter
-     *        - CommandlineArguments object holding all user set commandline
-     *          parameter.
      * @param crossLinks
      *        - List of CrossLink objects found on the infile protein complexes.
      * @param monoLinks
      *        - List of MonoLink objects found on the infile protein complexes.
      */
     public static void outputVirtualCrossLinks(
-                                           final CrossLinkParameter parameter,
                                            final CrossLinkList crossLinks,
                                            final MonoLinkList monoLinks
                                               ) {
@@ -230,30 +208,28 @@ public class Xwalk {
             }
         }
         if (nonFound) {
-            Xwalk.outputNoXLfound(parameter);
+            Xwalk.outputNoXLfound();
         }
 
-        if (parameter.getParameter(Parameter.OUTFILE_PATH).equals("")) {
+        if (CrossLinkParameter.getParameter(
+                                           Parameter.OUTFILE_PATH).equals("")) {
             System.out.print(DistanceWriter.toString(crossLinks,
-                                                     monoLinks,
-                                                     parameter));
+                                                     monoLinks));
         } else {
             DistanceWriter write = new DistanceWriter();
-            write.setFile(parameter.getParameter(Parameter.OUTFILE_PATH));
-            if (Boolean.parseBoolean(parameter.getParameter(
+            write.setFile(CrossLinkParameter.getParameter(
+                                                       Parameter.OUTFILE_PATH));
+            if (Boolean.parseBoolean(CrossLinkParameter.getParameter(
                                                       Parameter.DO_PYMOL_OUTPUT)
                                                            )) {
                 System.out.print(DistanceWriter.toString(crossLinks,
-                                                         monoLinks,
-                                                         parameter)
+                                                         monoLinks)
                                                         );
                 write.writePymolScript(crossLinks,
-                                       monoLinks,
-                                       parameter);
+                                       monoLinks);
             } else {
                 write.writeFile(crossLinks,
-                                monoLinks,
-                                parameter);
+                                monoLinks);
             }
         }
     }
@@ -273,20 +249,20 @@ public class Xwalk {
         }
 
         CommandlineArguments arguments = Xwalk.readCommandline(args);
-        CrossLinkParameter parameter = new CrossLinkParameter(arguments);
+        new CrossLinkParameter(arguments);
         // stop calculation if output is declined.
-        if (!parameter.getParameter(Parameter.OUTFILE_PATH).equals("")
+        if (!CrossLinkParameter.getParameter(Parameter.OUTFILE_PATH).equals("")
             &&
             !arguments.isOutputFileToBeCreated()) {
             System.exit(0);
         }
-        CrossLinkList xlList = Xwalk.createVirtualCrossLinks(parameter);
+        CrossLinkList xlList = Xwalk.createVirtualCrossLinks();
 
         MonoLinkList monoList = new MonoLinkList();
-        if (Boolean.parseBoolean(parameter.getParameter(
+        if (Boolean.parseBoolean(CrossLinkParameter.getParameter(
                                                      Parameter.DO_MONO_CROSSLINK
                                                        ))) {
-            monoList = Xwalk.getMonoLinks(parameter);
+            monoList = Xwalk.getMonoLinks();
 
             // in order to set index of monoList, first find out max index of
             // cross-links.
@@ -294,13 +270,13 @@ public class Xwalk {
             for (CrossLink xl : xlList) {
                 maxIndex = Math.max(maxIndex, xl.getIndex());
             }
-            if (parameter.getParameter(
+            if (CrossLinkParameter.getParameter(
                                      Parameter.DISTANCE_FILE_PATH).equals("")) {
                 for (MonoLink ml : monoList) {
                     ml.setIndex(++maxIndex);
                 }
             }
         }
-        Xwalk.outputVirtualCrossLinks(parameter, xlList, monoList);
+        Xwalk.outputVirtualCrossLinks(xlList, monoList);
     }
 }

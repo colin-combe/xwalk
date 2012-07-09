@@ -71,17 +71,13 @@ public class DistanceWriter extends WriteFile {
      * @param monoLinkList
      *        - MonoLinkList object holding all mono-links found for a protein
      *          complex.
-     * @param parameter
-     *        - CrossLinkParameter object holding all user set parameters for
-     *          calculating cross-links
      * @return {@code TRUE} if creating/writing file is successful,
      *         {@code FALSE} if IOException is thrown and caught.
      */
     public final boolean writeFile(final CrossLinkList crossLinkList,
-                                   final MonoLinkList monoLinkList,
-                                   final CrossLinkParameter parameter) {
+                                   final MonoLinkList monoLinkList) {
         return super.write(DistanceWriter.toString(crossLinkList,
-                                                   monoLinkList, parameter));
+                                                   monoLinkList));
     }
     //--------------------------------------------------------------------------
     /**
@@ -92,18 +88,14 @@ public class DistanceWriter extends WriteFile {
      * @param monoLinkList
      *        - MonoLinkList object holding all mono-links found for a protein
      *          complex.
-     * @param parameter
-     *        - CrossLinkParameter object holding all user set parameters for
-     *          calculating cross-links
      * @return String object holding all cross-links in distance file format.
      */
     public static String toString(final CrossLinkList crossLinkList,
-                                  final MonoLinkList monoLinkList,
-                                  final CrossLinkParameter parameter) {
+                                  final MonoLinkList monoLinkList) {
         StringBuffer output = new StringBuffer();
 
         // get necessary values from CrossLinkParameter object.
-        if (Boolean.parseBoolean(parameter.getParameter(
+        if (Boolean.parseBoolean(CrossLinkParameter.getParameter(
                                                      Parameter.DO_VERBOSE_OUTPUT
                                                        )
                                 )
@@ -168,21 +160,17 @@ public class DistanceWriter extends WriteFile {
      * @param monoLinkList
      *        - MonoLinkList object holding all mono-links found for a protein
      *          complex.
-     * @param parameter
-     *        - CrossLinkParameter object holding all user set parameters for
-     *          calculating cross-links
      * @return {@code TRUE} if creating/writing file is successful,
      *         {@code FALSE} if IOException is thrown and caught.
      */
     public final boolean writePymolScript(
                                           final CrossLinkList crossLinkList,
-                                          final MonoLinkList monoLinkList,
-                                          final CrossLinkParameter parameter
+                                          final MonoLinkList monoLinkList
                                          ) {
         StringBuffer output = new StringBuffer();
 
         // get necessary values from CrossLinkParameter object.
-        String infile = parameter.getParameter(Parameter.INFILE_PATH);
+        String infile = CrossLinkParameter.getParameter(Parameter.INFILE_PATH);
         String nl = Constants.LINE_SEPERATOR;
 
         String infileWithoutExtension = new File(infile).getName().replaceAll(
@@ -202,17 +190,16 @@ public class DistanceWriter extends WriteFile {
         output.append("color grey, het" + nl);
         output.append("disable het" + nl);
 
-        output.append(this.getEuclideanDistancePyMolCommands(crossLinkList,
-                                                             parameter));
+        output.append(this.getEuclideanDistancePyMolCommands(crossLinkList));
 
         // Write solvent path distances into a file to be loaded
-        if (Boolean.parseBoolean(parameter.getParameter(
+        if (Boolean.parseBoolean(CrossLinkParameter.getParameter(
                                               Parameter.DO_SOLVENT_PATH_DISTANCE
                                                       )
                                )
           ) {
 
-            String outputDir = new File(parameter.getParameter(
+            String outputDir = new File(CrossLinkParameter.getParameter(
                                                 Parameter.OUTFILE_PATH
                                                               )).getParent();
             if (outputDir == null) {
@@ -236,7 +223,7 @@ public class DistanceWriter extends WriteFile {
 //            output.append("color red, *solvent*" + nl);
 
         }
-        output.append(this.getMonoLinkPyMolCommands(monoLinkList, parameter));
+        output.append(this.getMonoLinkPyMolCommands(monoLinkList));
 
         output.append("show ribbon, chain*" + nl);
         output.append("show surface, chain*" + nl);
@@ -270,17 +257,13 @@ public class DistanceWriter extends WriteFile {
      * @param crossLinkList
      *        - CrossLinkList object holding all cross-links found for a protein
      *          complex.
-     * @param parameter
-     *        - CrossLinkParameter object holding all user set parameters for
-     *          calculating cross-links
      * @return String object with PyMol commands.
      */
     private String getEuclideanDistancePyMolCommands(
-                                              final CrossLinkList crossLinkList,
-                                              final CrossLinkParameter parameter
+                                              final CrossLinkList crossLinkList
                                                     ) {
         StringBuffer output = new StringBuffer();
-        String infile = parameter.getParameter(Parameter.INFILE_PATH);
+        String infile = CrossLinkParameter.getParameter(Parameter.INFILE_PATH);
         String nl = Constants.LINE_SEPERATOR;
 
         String infileWithoutExtension = new File(infile).getName().replaceAll(
@@ -319,7 +302,7 @@ public class DistanceWriter extends WriteFile {
             }
 
             String distName = crossLink.getIndex() + "_";
-            if (Boolean.parseBoolean(parameter.getParameter(
+            if (Boolean.parseBoolean(CrossLinkParameter.getParameter(
                                               Parameter.DO_SOLVENT_PATH_DISTANCE
                                                            )
                                     )
@@ -368,17 +351,11 @@ public class DistanceWriter extends WriteFile {
      * @param monoLinkList
      *        - MonoLinkList object holding all mono-links found for a protein
      *          complex.
-     * @param parameter
-     *        - CrossLinkParameter object holding all user set parameters for
-     *          calculating cross-links
      * @return String object with PyMol commands.
      */
-    private String getMonoLinkPyMolCommands(
-                                            final MonoLinkList monoLinkList,
-                                            final CrossLinkParameter parameter
-                                           ) {
+    private String getMonoLinkPyMolCommands(final MonoLinkList monoLinkList) {
         StringBuffer output = new StringBuffer();
-        String infile = parameter.getParameter(Parameter.INFILE_PATH);
+        String infile = CrossLinkParameter.getParameter(Parameter.INFILE_PATH);
         String nl = Constants.LINE_SEPERATOR;
         String infileWithoutExtension = new File(infile).getName().replaceAll(
                 "\\..*", ""
