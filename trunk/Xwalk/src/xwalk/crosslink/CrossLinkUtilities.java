@@ -1882,10 +1882,11 @@ public final class CrossLinkUtilities {
                                                       Parameter.MAXIMUM_DISTANCE
                                        )));
         }
+        boolean successful = paths.size() == 0 ? false : true;
         for (int i = 0; i < atoms2.size(); i++) {
             // if distance calculations were performed but an empty path array
             // was returned, than the first atom is buried.
-            if (atom1isAccessible && atom2isAccessible && paths.size() == 0) {
+            if (atom1isAccessible && atom2isAccessible && !successful) {
                 Path path = new Path();
                 GridCell dummy = new GridCell(atom1.getXYZ(),
                                               GridCell.getSize());
@@ -1939,6 +1940,8 @@ public final class CrossLinkUtilities {
             } else if (atom1isAccessible
                        &&
                        atoms2areAccessible[i]
+                       &&
+                       successful
                        &&
                        paths.get(i).get(
                                BreadthFirstSearch.CELL_NO_OF_TARGET_CELL_IN_PATH
