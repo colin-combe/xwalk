@@ -178,7 +178,9 @@ public class Hes {
         ArrayList<Point3f> complexCoords = new ArrayList<Point3f>();
         for (AminoAcid aa : proteinComplex.getAllAminoAcids()) {
             for (Atom atom : aa.getAllAtoms()) {
-                 complexCoords.add(atom.getXYZ());
+                 if (!atom.getElement().getSymbol().equals("H")) {
+                     complexCoords.add(atom.getXYZ());
+                 }
             }
         }
         //------------------------------------------------------------------
