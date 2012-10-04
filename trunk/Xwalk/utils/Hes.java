@@ -123,11 +123,12 @@ public class Hes {
                 aaCount++;
                 for (Atom atom : aa.getAllAtoms()) {
                     atomCount++;
-                    if (hesValues != null) {
-                        hesSum += hesValues.get(i++);
-                    }
                 }
             }
+        }
+
+        for (float hesValue : hesValues) {
+            hesSum += hesValue;
         }
 
         output.append("HEADER   " + new File(this.pdbFile).getName()
