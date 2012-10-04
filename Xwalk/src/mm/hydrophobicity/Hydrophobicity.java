@@ -54,7 +54,7 @@ public class Hydrophobicity {
      *        XlogP values will be calculated.
      */
     public Hydrophobicity(final PolyPeptideList complex) {
-        if (ParameterReader.getXlogPparameterSet() == null) {
+//        if (ParameterReader.getXlogPparameterSet() == null) {
             try {
                 ParameterReader.setParameterReader(
                                                    Constants.ParameterSets.XLOGP
@@ -64,9 +64,9 @@ public class Hydrophobicity {
                               + "ERROR: While reading the XlogP parameter file"
                               + Constants.LINE_SEPERATOR);
             }
-            this.polyPeptideComplex = complex;
-            this.setAtomicXlogP();
-        }
+//        }
+        this.polyPeptideComplex = complex;
+        this.setAtomicXlogP();
     }
     //--------------------------------------------------------------------------
     /**
