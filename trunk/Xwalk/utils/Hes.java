@@ -121,9 +121,6 @@ public class Hes {
         if (aminoAcids != null) {
             for (AminoAcid aa : aminoAcids) {
                 aaCount++;
-                for (Atom atom : aa.getAllAtoms()) {
-                    atomCount++;
-                }
             }
         }
 
@@ -136,11 +133,11 @@ public class Hes {
         output.append("REMARK   0  AMINO ACID COUNT: "
                     + aaCount + nL);
         output.append("REMARK   0  ATOM COUNT: "
-                    + atomCount + nL);
+                    + hesValues.size() + nL);
         output.append("REMARK   0  HES SUM: "
                     + dec.format(hesSum) + nL);
         output.append("REMARK   0  AVERAGE: "
-                    + dec.format(hesSum / atomCount)
+                    + dec.format(hesSum / hesValues.size())
                     + nL);
         output.append("REMARK" + nL);
         output.append("REMARK   B-factor Column: HES value" + nL);
