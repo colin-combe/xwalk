@@ -131,7 +131,7 @@ public class DistanceReader {
                                               );
                     }
                     if (array.length >= 3) {
-                        if(array[2].trim().length() != 0) {
+                        if (array[2].trim().length() != 0) {
                             atom1.setChainId(array[2].trim().charAt(0) == '_'
                                                     ? ' ' : array[2].charAt(0));
                         }
