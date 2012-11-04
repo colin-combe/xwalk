@@ -978,7 +978,7 @@ public final class CrossLinkUtilities {
                                     ==
                                 xl.getPreAtom().getResidueNumber()
                         ) {
-                                 reverse = 1;
+                            reverse = 1;
                         } else {
                             reverse = -1;
                         }
@@ -999,7 +999,6 @@ public final class CrossLinkUtilities {
                                 continue;
                             }
                         }
-
                         // Now find vXL in the distance file and assign index
                         // in the distance file to vXL.
                         if (preAtom.getChainId() != ' ') {
@@ -1008,33 +1007,49 @@ public final class CrossLinkUtilities {
                                 xl.getPreAtom().getChainId()) {
                                 continue;
                             }
-                        } else if (postAtom.getChainId() != ' ') {
+                        }
+                        if (postAtom.getChainId() != ' ') {
                             if (postAtom.getChainId()
                                 !=
                                 xl.getPostAtom().getChainId()) {
                                 continue;
                             }
-                        } else if (!preAtom.getName().equals("")) {
+                        }
+                        if (!preAtom.getName().equals("")) {
                             if (!preAtom.getName().trim().equals(
                                                xl.getPreAtom().getName().trim())
                                                          ) {
                                 continue;
                             }
-                        } else if (!postAtom.getName().trim().equals("")) {
+                        }
+                        if (!postAtom.getName().trim().equals("")) {
                             if (!postAtom.getName().equals(
                                               xl.getPostAtom().getName().trim())
                                                           ) {
                                 continue;
                             }
-                        } else if (preAtom.getResidueNumber()
-                                   !=
-                                   xl.getPreAtom().getResidueNumber()) {
-                            continue;
-                        } else if (postAtom.getResidueNumber()
-                                !=
-                                xl.getPostAtom().getResidueNumber()) {
+                        }
+                        if (preAtom.getResidueNumber()
+                            !=
+                            xl.getPreAtom().getResidueNumber()) {
                             continue;
                         }
+                        if (postAtom.getResidueNumber()
+                            !=
+                            xl.getPostAtom().getResidueNumber()) {
+                            continue;
+                        }
+                        if (!preAtom.getResidueName().equalsIgnoreCase(
+                                                xl.getPreAtom().getResidueName()
+                                                                      )) {
+                            continue;
+                        }
+                        if (!postAtom.getResidueName().equalsIgnoreCase(
+                                xl.getPostAtom().getResidueName()
+                                                      )) {
+                            continue;
+                        }
+
                         xl.setIndex(dxl.getIndex());
                         if (Boolean.parseBoolean(
                                                 CrossLinkParameter.getParameter(

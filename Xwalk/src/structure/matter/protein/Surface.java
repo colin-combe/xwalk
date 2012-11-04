@@ -31,7 +31,9 @@ public class Surface {
     //--------------------------------------------------------------------------
     /**
      * Minimum relative SASA of an amino acid in order to be considered as
-     * a surface residue.
+     * a surface residue. See Miller, S., Janin, J., Lesk, A. M. & Chothia, C.
+     * Interior and surface of monomeric proteins. J Mol Biol 196, 641Ð656
+     * (1987).
      */
     private static final int MIN_RELATIVE_SOLVENT_ACCESSIBILITY = 5;
     //--------------------------------------------------------------------------
