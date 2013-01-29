@@ -308,10 +308,11 @@ public class CommandlineArguments {
               + "SASDprobability\tPeptidePairSequences"
               + nl
               + nl
-              + "where the Solvent Accessible Surface Distance (SASD) presents "
-              + "a number code, when a Distance file (-dist) is provided:"
+              + "where the Solvent Accessible Surface (SAS) distance "
+              + "corresponds to a number code, when a Distance file (-dist) is "
+              + "provided:"
               + nl
-              + "\t>= 0: SASD (when -euc is NOT set)"
+              + "\t>= 0: SAS distance (when -euc is NOT set)"
               + nl
               + "\t-1: Distance exceeds the maximum distance (-max)"
               + nl
@@ -326,7 +327,7 @@ public class CommandlineArguments {
               + nl
               + nl
               + "Virtual cross-links are sorted first by "
-              + "decreasing probability, then by increasing SASD and "
+              + "decreasing probability, then by increasing SAS distance and "
               + "finally by increasing Euclidean distance."
               + nl
               + nl
@@ -339,9 +340,9 @@ public class CommandlineArguments {
               + nl
               + "\t-xSC\t[switch]\tRemoves only side chain atoms of cross-"
               + "linked amino acids except for CB atoms and keeps -radius "
-              + "at 1.4 prior to calculating SASD. This might be of value when "
-              + "side chain conformations of cross-linked residues are unknown "
-              + "[optional]."
+              + "at 1.4 prior to calculating SAS distances. This might be of "
+              + "value when side chain conformations of cross-linked residues "
+              + "are unknown [optional]."
               + nl
               + "\t-bb\t[switch]\tReads in only backbone and beta carbon "
               + "atom coordinates from the input file and increases -radius to "
@@ -452,7 +453,7 @@ public class CommandlineArguments {
               + "\t-max\t[double]\tCalculates distances in Angstroem "
               + "only up-to this value, where the value must be smaller than "
               + xwalk.constants.Constants.MAX_SASD_DISTANCE
-              + " for SASD calculations. (default: "
+              + " for SAS distance calculations. (default: "
               + xwalk.constants.Constants.DEFAULT_CROSS_LINKER_LENGTH + ")."
               + nl
               + "\t-euc\t[switch]\tSkips Solvent-Path-Distance "
