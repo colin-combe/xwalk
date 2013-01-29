@@ -40,7 +40,7 @@ import xwalk.io.DistanceWriter;
  * Main class Xwalk that implements the main method to execute the virtual
  * cross-link calculation.
  * @author Abdullah Kahraman
- * @version 0.1
+ * @version 0.5
  * @since 0.1
  */
 public class Xwalk {
