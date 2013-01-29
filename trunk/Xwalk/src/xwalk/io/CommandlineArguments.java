@@ -282,7 +282,7 @@ public class CommandlineArguments {
               + nl
               + "ABOUT"
               + nl
-              + "Version 0.4"
+              + "Version 0.5"
               + nl
               + "Xwalk calculates and outputs distances in Angstroem "
               + "for potential cross-links "
