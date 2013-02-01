@@ -1,4 +1,4 @@
-Xwalk (version 0.4)
+Xwalk (version 0.5)
 -------------------
 
 INTRODUCTION
@@ -10,7 +10,7 @@ introduce the algorithm Xwalk for predicting and validating these cross-links on
 existing protein structures. Xwalk calculates and displays non-linear distances
 between chemically cross-linked amino acids on protein surfaces, while mimicking
 the flexibility and non-linearity of cross-linker molecules. It returns a
-"Solvent Accessible Surface Distance" (SASD), which corresponds to the length of
+"Solvent Accessible Surface" (SAS) distance, which corresponds to the length of
 the shortest path between two amino acids, where the path leads through solvent
 occupied space without penetrating the protein surface.
 
@@ -49,63 +49,62 @@ local file in the following tab delimeted format:
 5th column: Sequence distance within the PDB file as calculated from the residue
             identifiers of the 1st and 2nd amino acid.
 6th column: Euclidean distance between 1st and 2nd amino acid.
-7th column: SASD between  1st and 2nd amino acid. 
+7th column: SAS distance between  1st and 2nd amino acid. 
 8th column: Probability for observing the Euclidean distance in a XL experiment
             using DSS or BS3. 
-9th column: Probability for observing the SASD in a XL experiment using DSS or
-            BS3. 
+9th column: Probability for observing the SAS distance in a XL experiment using
+            DSS or BS3. 
 10th column: shortest tryptic peptide sequence for both amino acids.
 
 Setting -pymol -out xxx.pml on the commandline will write a PyMOL script into
 the file xxx.pml, which can be load into the molecular viewer PyMOL to visualise
-the SASD paths (see NOTES).
+the SAS distance paths (see NOTES).
 
 
 ALGORITHM
 ---------
-The SASD is calculated using a grid and the breadth-first search algorithm to
-search within the grid for the shortest path between two points on the protein
+The SAS distance is calculated using a grid and the breadth-first search algorithm
+to search within the grid for the shortest path between two points on the protein
 surface using following algorithm:
-1.)	Read in input data
-	a. xyz.pdb, spatial coordinates of a protein or protein complex in PDB
-	   format.
-	b. maxdist: maximum distance of the path (i.e. the length of the
-	   cross-linker + AA side chain length)
-	c. listXL, a list of experimentally determined cross-linked lysine residues.
-2.)	Remove all non-protein atoms in xyz.pdb and assign protein atoms a van der
+1.)    Read in input data
+    a. xyz.pdb, spatial coordinates of a protein or protein complex in PDB
+       format.
+    b. maxdist: maximum distance of the path (i.e. the length of the
+       cross-linker + AA side chain length)
+    c. listXL, a list of experimentally determined cross-linked lysine residues.
+2.)    Remove all non-protein atoms in xyz.pdb and assign protein atoms a van der
     Waals radius sum of SURFNET atom radii + solvent radius
-3.)	Select a random lysine pair AAab from listXL, 
-4.)	Check Euclidean distance (Euc) of AAab. Continue, if Euc > maxdist,
+3.)    Select a random lysine pair AAab from listXL, 
+4.)    Check Euclidean distance (Euc) of AAab. Continue, if Euc > maxdist,
     disregard otherwise and go back to 3.) 
-5.)	Generate a grid of size maxdist and grid spacing 1√Ö centered at AAa
-6.)	Set Integer.MAX_VALUE as distance for all grid cells and label grid cells as
+5.)    Generate a grid of size maxdist and grid spacing 1 Angstroem centered at AAa
+6.)    Set Integer.MAX_VALUE as distance for all grid cells and label grid cells as
     residing in the
-	a. protein
-	b. solvent
-	c. boundary between protein and solvent
-7.)	Label grid cells residing in AAab as solvent
-8.)	Set distance dist = 0.0 for central grid cell of AAa and store grid cell in
+    a. protein
+    b. solvent
+    c. boundary between protein and solvent
+7.)    Label grid cells residing in AAab as solvent
+8.)    Set distance dist = 0.0 for central grid cell of AAa and store grid cell in
     the active list listactive 
-9.)	Start breadth-first search. Iterate through listactive 
-	a. Check that grid cell i is labeled as solvent 
-	b. Find all immediate neighbors listneighbour
-	c. Iterate through listneighbour
-		i. Check that grid cell j is labeled as solvent
-		ii. Compute new distance for grid cell j as the sum of the distance in
-		    grid cell i and the Euclidean distance between grid cell i and j 
-		iii. If distance sum in 9.c.ii is smaller than the current distance in
-		     grid cell j, store the distance sum as new distance for grid cell j
-		     and add grid cell j to the new active list listnew_active,
-		iv. Break up iteration of 9.c.) if grid cell j == central grid of AAb
+9.)    Start breadth-first search. Iterate through listactive 
+    a. Check that grid cell i is labeled as solvent 
+    b. Find all immediate neighbors listneighbour
+    c. Iterate through listneighbour
+        i. Check that grid cell j is labeled as solvent
+        ii. Compute new distance for grid cell j as the sum of the distance in
+            grid cell i and the Euclidean distance between grid cell i and j 
+        iii. If distance sum in 9.c.ii is smaller than the current distance in
+             grid cell j, store the distance sum as new distance for grid cell j
+             and add grid cell j to the new active list listnew_active,
 10.) Go back to step 9.) with listactive = listnew_active
 
 
 
 NOTES
 -----
-- As the SASD is based on a grid calculation, the default heap size of the Java
-  VM with 64MB is likely to be too small. You can increase the heap size with
-  "java -Xmx512m"
+- As the SAS distance is based on a grid calculation, the default heap size of
+  the Java VM with 64MB is likely to be too small. You can increase the heap
+  size with "java -Xmx512m"
 - You can obtain PyMOL for free at the webpage: http://pymol.org/
 - Beware that in order for PyMOL to recognize the script file, the file must
   have the name ending .pml
@@ -124,22 +123,36 @@ Xwalk executable and libraries are available under the Creative Commons
 Attribution-NonCommercial-ShareAlike 3.0 Unported License via the Xwalk website.
 
 Anyone is free:
-	to copy, modify, distribute the software;
+     to copy, modify, distribute the software;
 
 Under the following conditions:
-	- the original authors must be given credit by citing the original Xwalk paper: 
+    - the original authors must be given credit by citing the original Xwalk paper: 
         Kahraman A., Malmström L., Aebersold R. (2011). Xwalk: Computing and
         Visualizing Distances in Cross-linking Experiments. Bioinformatics,
         doi:10.1093/bioinformatics/btr348.
-	- the software or derivate works must not be used for commercial purposes
-	- derivate works must be licenced under the same or similar licence
+    - the software or derivate works must not be used for commercial purposes
+    - derivate works must be licenced under the same or similar licence
 
 Any of the above conditions can be waived if the authors give permission.
 
 
 VERSION HISTORY
 ---------------
-0.4: - Maximum distance threshold for SASD calculation has been increased to 100Å.
+0.5: - Added parameter -xSC, which is similar to -bb except that it leaves all side
+       chain atoms of non-modified amino acid untouched, while removing only side
+       chain atoms of cross-linked amino acids (except their CB atoms). In addition
+       the solvent probe sphere is kept at the conventional radius of 1.4 Angstroem
+       prior to SAS distance calculations. This parameter might be of value when
+       side chain conformations of cross-linked residues are unknown.
+     - The premature halt of SAS distance calculation has been removed, which in the
+       previous versions ensured a faster execution time, however, at the cost of
+       the distance calculation accuracy.
+     - Distance probabilities have been recalculated using a larger data set of
+       published cross-links.
+     - Bug fixes.
+
+0.4: - Maximum distance threshold for SAS distance calculation has been increased to 100
+       Angstroem.
      - Added option to read in .gzip files
      - Warning messages are output for redundant XL entries in -dist files. 
      - Added parameter -keepName to keep protein names from -dist files in the output.
@@ -150,12 +163,12 @@ VERSION HISTORY
 
 0.2.1: -Fixed a bug that caused Xwalk to crash on cases where cross-linked atoms
         were located outside the grid.
-       -Added a further number code to the SASD column for atom pairs that
+       -Added a further number code to the SAS distance column for atom pairs that
         are located in closed cavities prohibiting a shortest path calculation.
        -Bug fixes   
 
 0.2: -Probability calculation with option -prob
-     -Number code in SASD column (see -help)
+     -Number code in SAS distance column (see -help)
      -Euclidean distance for all residue pairs in a distance file (-dist)
      -PyMol option changed from -p to -pymol
      -Removed -grid, -global and -all commandline options
