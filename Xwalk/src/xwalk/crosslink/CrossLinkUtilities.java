@@ -389,8 +389,11 @@ public final class CrossLinkUtilities {
             for (Atom atom2 : relevantAtomPairs.get(atom1)) {
                 PolyPeptide atom2TrypticPeptide = null;
                 boolean conforming = false;
-                float errorRange = Constants.getCoordinateUncertainty(atom1)
+      // errorRange calculations cause confusion with the user, so leave it out.
+                float errorRange = 0;
+/*                Constants.getCoordinateUncertainty(atom1)
                                   + Constants.getCoordinateUncertainty(atom2);
+*/
                 float dist = Mathematics.distance(atom1.getXYZ(),
                                                   atom2.getXYZ());
                 if (dist <= Float.parseFloat(CrossLinkParameter.getParameter(
@@ -1438,14 +1441,16 @@ public final class CrossLinkUtilities {
                                     minimumDistanceAtomPair.get(1).getXYZ()
                                                       );
 
-                    float errorRange = Constants.getCoordinateUncertainty(
+                    float errorRange = 0;
+      // errorRange calculations cause confusion with the user, so leave it out.
+/*                    Constants.getCoordinateUncertainty(
                                                   minimumDistanceAtomPair.get(0)
                                                                           )
                                         +
                                         Constants.getCoordinateUncertainty(
                                                 minimumDistanceAtomPair.get(1)
                                                                           );
-
+*/
                     if (dist > Float.parseFloat(CrossLinkParameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                                                            )
