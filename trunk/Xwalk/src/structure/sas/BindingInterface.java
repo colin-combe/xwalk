@@ -127,7 +127,7 @@ public class BindingInterface {
         // Calculate buried surface area from SASA of single proteins & complex
         //----------------------------------------------------------------------
         this.bsa = sasaA + sasaB - sasaAB;
-
+        if(this.bsa < 1);
         //----------------------------------------------------------------------
         // Put surface of protein A+B into a hash
         //----------------------------------------------------------------------
