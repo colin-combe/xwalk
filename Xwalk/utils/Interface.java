@@ -93,18 +93,28 @@ public class Interface {
 
         //----------------------------------------------------------------------
         if (Commandline.get(args, "-help", false).equals("EXISTS")) {
-            System.err.println(nL + nL
-                           + "java " + Interface.class.getName()
-                           + " -in 1b14.pdb"
+            System.err.println(nL
+                           + "USAGE:" + nL
+                           + "\tjava " + Interface.class.getName()
+                           + " -in 1b14.pdb" + nL
                            + nL
-                           + "This program calculates all interfaces of a "
-                           + "protein complex where the interface is defined "
-                           + "as all amino acids that are within 9 Angstroem"
-                           + "to an atom of another protein chain. In addition "
-                           + "a hydrophobic environment score and the "
-                           + "evolutionary conservation of the interface amino "
-                           + "acids are calculated." + nL
-                           + "Parameters:" + nL
+                           + "INFORMATION:" + nL
+                           + "\tThis program determines all binary interfaces "
+                           + "in a protein complex. An interface is defined by "
+                           + "those amino acids that change their absolute "
+                           + "total solvent accessiblilty by at least 5% upon "
+                           + "complex formation. In addition hydrophobic "
+                           + "environment scores can be calculated and "
+                           + "the evolutionary conservation can be determined "
+                           + "and mapped on interface amino acids." + nL
+                           + nL
+                           + "\tNOTE: During the calculations temporary files "
+                           + "starting with proteinA, proteinB and proteinAB "
+                           + "and with suffixes .asa, .rsa and .log will be "
+                           + "generated, which can be deleted manually "
+                           + "afterwards." + nL
+                           + nL
+                           + "PARAMETERS:" + nL
                            + "\t-in <path>\tany structure file in PDB format "
                            + "(required)." + nL
                            + "\t-naccess <string>\tPath to the naccess "
@@ -113,19 +123,20 @@ public class Interface {
                            + "the average HES and conservation grades for "
                            + "non-interface surface amino acids (required)."
                            + nL
-                           + "\t-hes [switch]\tAssings the hydrophobic "
-                           + "enviroment score for each interface atom "
-                           + "to the occupancy column (optional)." + nL
-                           + "\t-consurf [switch]\tAssings the evolutionary "
-                           + "conservation of each interface amino acid "
-                           + "to the temperature factor column (optional)." + nL
-                           + "grade files to all protein components of the "
-                           + "structure file (optional)." + nL
+                           + "\t-hes [switch]\tCalculates hydrophobic "
+                           + "enviroment scores for each interface atom and "
+                           + "assigns them as occupancy values (optional)." + nL
+                           + "\t-consurf [switch]\tDownloads evolutionary "
+                           + "conservation files from the ConSurf server and "
+                           + "assings them to each interface amino acid's "
+                           + "temperature factor (optional)." + nL
                            + "\t-consurf <path>\ttext file listing ConSurf "
                            + "grade files to all protein components of the "
                            + "structure file (optional)." + nL
-                           + "\t-id [string]\tPDB Id of structure file, if "
-                           + "name of file is not its PDB id " + nL
+                           + "\t-id [string]\tThe PDB Id of the structure "
+                           + "file, in the case that the structure file is not "
+                           + "named by its PDB Id and a ConSurf file should "
+                           + "be downloaded." + nL
                            );
             System.exit(0);
         }
@@ -208,7 +219,7 @@ public class Interface {
                     Consurf.setConservation(protein, pdbIdent);
                 } catch (IOException e) {
                     throw new IOException("ERROR: Could not download ConSurf "
-                                        + " grade file for PDB id " + fileName
+                                        + "grade file for PDB Id " + fileName
                                         + ". " + e.getMessage());
                 }
             }
@@ -259,7 +270,9 @@ public class Interface {
                                                           proteinComplex.get(j),
                                                           proteinComplex.get(k),
                                                           naccess);
-                complexInterfaces.add(bi);
+                if (bi.getInterface().get(0).size() > 0) {
+                    complexInterfaces.add(bi);
+                }
             }
         }
         return complexInterfaces;
@@ -544,8 +557,10 @@ public class Interface {
         ArrayList<AminoAcid> interfaceAminoAcids =
                                                      new ArrayList<AminoAcid>();
         for (BindingInterface bi : complexInterfaces) {
-            interfaceAminoAcids.addAll(bi.getInterface().get(0));
-            interfaceAminoAcids.addAll(bi.getInterface().get(1));
+            if (bi.getInterface().size() >= 2) {
+                interfaceAminoAcids.addAll(bi.getInterface().get(0));
+                interfaceAminoAcids.addAll(bi.getInterface().get(1));
+            }
         }
         //----------------------------------------------------------------------
         // Calculate non-interface surface amino acids with NACCESS

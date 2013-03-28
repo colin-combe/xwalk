@@ -14,6 +14,7 @@
 
 package external;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,7 +74,8 @@ public class Naccess {
      *         {@code FALSE} otherwise.
      */
     public final boolean run(final String pdbFileName) {
-        String fileNameWithoutSuffix = pdbFileName.replaceAll("\\..*", "");
+        String fileNameWithoutSuffix =
+                        new File(pdbFileName).getName().replaceAll("\\..*", "");
         ExternCommand.execute(this.naccess + " " + pdbFileName, false);
         try {
             if (ReadFile.exists(fileNameWithoutSuffix + ".rsa")) {
@@ -115,6 +117,7 @@ public class Naccess {
                                            final ArrayList<AminoAcid> aminoAcids
                                              ) {
         ArrayList<AminoAcid> copy = (ArrayList<AminoAcid>) aminoAcids.clone();
+
         for (String line : this.rsaFile) {
             if (line.startsWith("RES")) {
                 Atom dummy = new Atom();
