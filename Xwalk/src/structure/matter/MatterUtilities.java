@@ -24,7 +24,7 @@ import structure.constants.Constants.BondTypes;
 import structure.constants.Constants.ElementTypes;
 import structure.math.Mathematics;
 import structure.math.Point3f;
-import structure.matter.parameter.AtomType;
+import structure.matter.parameter.AminoAcidType;
 import structure.matter.parameter.Element;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
@@ -268,5 +268,50 @@ public abstract class MatterUtilities {
             } });
     }
     //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    /**
+     * Checks whether an amino acid is among those that are were significantly
+     * often observed to be at protein-protein interfaces.
+     * @param aa
+     *        {@link AminoAcid} object.
+     * @return {@code TRUE} if amino acid is ILE, HIS, CYS, PHE, MET, TYR or
+     *         TRP
+     */
+    public static boolean isInterfaceTypic(final AminoAcid aa) {
+        if (aa.getType().equals(AminoAcidType.ISOLEUCINE)
+         || aa.getType().equals(AminoAcidType.HISTIDINE)
+         || aa.getType().equals(AminoAcidType.CYSTEINE)
+         || aa.getType().equals(AminoAcidType.PHENYLALANINE)
+         || aa.getType().equals(AminoAcidType.METHIONINE)
+         || aa.getType().equals(AminoAcidType.TYROSINE)
+         || aa.getType().equals(AminoAcidType.TRYPTOPHANE)) {
+            return true;
+        }
+    return false;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Checks whether an amino acid is among those that are were not
+     * significantly often observed to be at protein-protein interfaces.
+     * @param aa
+     *        {@link AminoAcid} object.
+     * @return {@code TRUE} if amino acid is LYS, GLU, ASP, SER, THR, ALA, PRO
+     *         or GLN
+     */
+    public static boolean isNonInterfaceTypic(final AminoAcid aa) {
+        if (aa.getType().equals(AminoAcidType.LYSINE)
+         || aa.getType().equals(AminoAcidType.GLUTAMIC_ACID)
+         || aa.getType().equals(AminoAcidType.ASPARTIC_ACID)
+         || aa.getType().equals(AminoAcidType.SERINE)
+         || aa.getType().equals(AminoAcidType.THREONINE)
+         || aa.getType().equals(AminoAcidType.ALANINE)
+         || aa.getType().equals(AminoAcidType.PROLINE)
+         || aa.getType().equals(AminoAcidType.GLUTAMINE)
+        ) {
+        return true;
+        }
+    return false;
+    }
+
 }
 

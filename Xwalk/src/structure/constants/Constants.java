@@ -189,6 +189,18 @@ public class Constants {
     public static final NumberFormat OCCUPANCY_TEMP_DEC_FORMAT =
                                                      new DecimalFormat("0.00");
     //--------------------------------------------------------------------------
+    /**
+     * Density of molecular surface dots. Recommended values are between
+     * 2.0 - 10.0. Default = {@code 0.1}.
+     */
+    public static final double DOT_DENSITY = 0.1;
+    /**
+     * Smoothing probe radius, which rolls over the inward molecular surface.
+     * Recommended values are between 0.0 - 0.6. Default = {@code 0.4}
+     */
+    public static final double SMOOTHING_RADIUS = 0.4;
+
+    //--------------------------------------------------------------------------
     // CONSTANT ENUM SETS
     //--------------------------------------------------------------------------
     /**

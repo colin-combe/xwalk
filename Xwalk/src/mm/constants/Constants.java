@@ -51,6 +51,18 @@ public class Constants {
      * omitted.
      */
     public static final float PHYSICOCHEMICAL_INFLUENCE_RADIUS = 9.0f;
+    /**
+     * Dielectric constant of a solvent. Default 78.0.
+     */
+    public static final double SOLVENT_DIELECTRIC_CONSTANT = 78.0;
+    /**
+     * Dielectric constant of a protein. Default 4.0.
+     */
+    public static final double PROTEIN_DIELECTRIC_CONSTANT = 4.0;
+    /**
+     * Conversion of 25 degrees Celsius to Fahrenheit measure. Default 298.15 K.
+     */
+    public static final double TWENTYFIVE_CELSIUS_IN_FAHRENHEIT = 298.15;
 
     //--------------------------------------------------------------------------
     // CONSTANT STRING VALUES
@@ -148,5 +160,29 @@ public class Constants {
             this.aminoAcidType = type;
         }
     }
+    //--------------------------------------------------------------------------
+    /**
+     * <a href="http://www.poissonboltzmann.org/pdb2pqr/
+     * frequently-asked-questions/what-force-fields-or-parameter-sets-are-
+     * available">Force fields</a> supported by PDB2PQR.
+     */
+    public enum ForceField {
 
+        /**
+         *  PARSE.
+         */
+        PARSE,
+        /**
+         *  AMBER 94.
+         */
+        AMBER,
+        /**
+         *  CHARMM 27.
+         */
+        CHARMM,
+        /**
+         *  USER-DEFINED.
+         */
+        ROSETTA
+    }
 }

@@ -22,6 +22,7 @@ import structure.constants.Constants;
 import structure.math.Mathematics;
 import structure.math.Point3f;
 import structure.matter.Atom;
+import structure.matter.AtomList;
 import structure.matter.parameter.AminoAcidType;
 import structure.matter.parameter.AtomType;
 import structure.matter.parameter.ParameterReader;
@@ -88,6 +89,9 @@ public class Hydrophobicity {
                         float xlogP = atomicXlogPs.get(atom.getType());
                         atom.setXlogP(xlogP);
                         sum += xlogP;
+                    } else {
+                        // hydrogen atoms have always a XlogP value of 0.
+                        atom.setXlogP(0);
                     }
                 }
             }
@@ -101,64 +105,23 @@ public class Hydrophobicity {
      * that only atoms within
      * mm.constants.Constants.PHYSICOCHEMICAL_INFLUENCE_RADIUS will be included
      * in the potential calculation.
-     * @param points
-     *        List of points on which potential will be calculated.
-     * @return List of float values where each float value represents the
-     *         XlogP potential of its associated point in the points parameter.
+     * @param sampleAtoms
+     *        List of atoms on which potential will be calculated.
      */
-    public final ArrayList<Float> mapHydrophobicity(
-                                                 final ArrayList<Point3f> points
-                                               ) {
+    public final void mapHydrophobicity(final AtomList sampleAtoms) {
 
-        ArrayList<Float> xlogPpotential = new ArrayList<Float>();
         float max = mm.constants.Constants.PHYSICOCHEMICAL_INFLUENCE_RADIUS;
 
-        // Initialize xlogPpotential list
-        for (int i = 0; i < points.size(); i++) { xlogPpotential.add(0.0f); }
-
-        // get all protein residues that are within 9 Angstroem.
-        Hashtable<Atom, ArrayList<Point3f>> env =
-                                      new Hashtable<Atom, ArrayList<Point3f>>();
-
-        for (PolyPeptide polyPeptide : this.polyPeptideComplex) {
-            for (AminoAcid aa : polyPeptide) {
-                for (Atom atom : aa.getAllAtoms()) {
-                    for (Point3f point : points) {
-                        float dist = Mathematics.distance(
-                                                           atom.getXYZ(),
-                                                           point
-                                                          );
-                        if (dist <= max) {
-                            if (!atom.getElement().getSymbol().startsWith(
-                                                                          "H"
-                                                                         )) {
-                                if (!env.containsKey(atom)) {
-                                    ArrayList<Point3f> coords =
-                                                       new ArrayList<Point3f>();
-                                    coords.add(point);
-                                    env.put(atom, coords);
-                                } else {
-                                    env.get(atom).add(point);
-                                }
-                            }
-                        }
-                    }
+        for (Atom sampleAtom : sampleAtoms) {
+            for (Atom atom : this.polyPeptideComplex.getAllAtoms()) {
+                float dist = Mathematics.distance(atom.getXYZ(),
+                                                  sampleAtom.getXYZ());
+                if (dist <= max) {
+                    float h = atom.getXlogP();
+                    double s = Mathematics.sigmoidFunction(dist, max);
+                    sampleAtom.setHes((float) (sampleAtom.getHes() + (h * s)));
                 }
             }
         }
-
-        for (Atom atom : env.keySet()) {
-            ArrayList<Point3f> coords = env.get(atom);
-
-            for (Point3f point : coords) {
-                float h = atom.getXlogP();
-                float dist = Mathematics.distance(atom.getXYZ(), point);
-                double s = Mathematics.sigmoidFunction(dist, max);
-                int index = points.indexOf(point);
-                xlogPpotential.set(index, (float) (xlogPpotential.get(index)
-                                           + (h * s)));
-            }
-        }
-    return xlogPpotential;
     }
 }
