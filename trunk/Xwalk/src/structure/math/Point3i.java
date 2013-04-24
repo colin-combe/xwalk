@@ -136,6 +136,18 @@ public class Point3i {
                            this.getJ(),
                            this.getK());
     }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns an integer array of three elements holding all three elements
+     * of this object.
+     * @return integer array of three elements.
+     */
+    public final int[] convert() {
+        int[] point = {this.getI(),
+                       this.getJ(),
+                       this.getK()};
+        return point;
+    }
 
     //--------------------------------------------------------------------------
     /**

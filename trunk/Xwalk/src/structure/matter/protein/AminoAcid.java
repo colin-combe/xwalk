@@ -171,46 +171,6 @@ public class AminoAcid extends Molecule {
     }
     //--------------------------------------------------------------------------
     /**
-     * Checks whether this amino acid is likely to be observed at a
-     * protein-protein interface.
-     * @return {@code TRUE} if amino acid is ILE, HIS, CYS, PHE, MET, TYR or
-     *         TRP
-     */
-    public final boolean isInterfaceTypic() {
-        if (this.getType().equals(AminoAcidType.ISOLEUCINE)
-         || this.getType().equals(AminoAcidType.HISTIDINE)
-         || this.getType().equals(AminoAcidType.CYSTEINE)
-         || this.getType().equals(AminoAcidType.PHENYLALANINE)
-         || this.getType().equals(AminoAcidType.METHIONINE)
-         || this.getType().equals(AminoAcidType.TYROSINE)
-         || this.getType().equals(AminoAcidType.TRYPTOPHANE)) {
-            return true;
-        }
-    return false;
-    }
-    //--------------------------------------------------------------------------
-    /**
-     * Checks whether this amino acid is unlikely to be observed at a
-     * protein-protein interface.
-     * @return {@code TRUE} if amino acid is LYS, GLU, ASP, SER, THR, ALA, PRO
-     *         or GLN
-     */
-    public final boolean isNonInterfaceTypic() {
-        if (this.getType().equals(AminoAcidType.LYSINE)
-         || this.getType().equals(AminoAcidType.GLUTAMIC_ACID)
-         || this.getType().equals(AminoAcidType.ASPARTIC_ACID)
-         || this.getType().equals(AminoAcidType.SERINE)
-         || this.getType().equals(AminoAcidType.THREONINE)
-         || this.getType().equals(AminoAcidType.ALANINE)
-         || this.getType().equals(AminoAcidType.PROLINE)
-         || this.getType().equals(AminoAcidType.GLUTAMINE)
-        ) {
-        return true;
-        }
-    return false;
-    }
-    //--------------------------------------------------------------------------
-    /**
      * Removes all side chain atoms of an amino acid.
      */
     public final void removeSideChain() {
@@ -229,5 +189,14 @@ public class AminoAcid extends Molecule {
         for (Atom atom : toBremoved) {
             this.remove(atom);
         }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Adds an atom to this amino acid.
+     * @param atom
+     *        {@link Atom} object to be added to this amino acid.
+     */
+    public final void add(final Atom atom) {
+        this.add(atom);
     }
 }

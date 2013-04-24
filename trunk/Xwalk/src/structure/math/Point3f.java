@@ -162,6 +162,18 @@ public class Point3f {
     }
     //--------------------------------------------------------------------------
     /**
+     * Returns a float array of three elements holding all three elements
+     * of this object.
+     * @return float array of three elements.
+     */
+    public final float[] convert() {
+        float[] point = {this.getX(),
+                         this.getY(),
+                         this.getZ()};
+        return point;
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Returns a String representation of this point.
      * @return String object holding the comma separated X,Y,Z coordinates of
      * this point.

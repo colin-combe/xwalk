@@ -162,6 +162,18 @@ public class Point3d {
     }
     //--------------------------------------------------------------------------
     /**
+     * Returns a double array of three elements holding all three elements
+     * of this object.
+     * @return double array of three elements.
+     */
+    public final double[] convert() {
+        double[] point = {this.getX(),
+                          this.getY(),
+                          this.getZ()};
+        return point;
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Returns a String representation of this point.
      * @return String object holding the comma separated X,Y,Z coordinates of
      * this point.

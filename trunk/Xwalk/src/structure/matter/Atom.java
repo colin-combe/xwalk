@@ -311,6 +311,18 @@ public class Atom {
      * XlogP hydrophobicity value of atom.
      */
     private float xlogP;
+    /**
+     * Hydrophobic environment score of the atom.
+     */
+    private float hydrohobicEnvironmentScore;
+    /**
+     * Partial charges.
+     */
+    private float partialCharge;
+    /**
+     * Potential that his atom experienced.
+     */
+    private float potential;
     //--------------------------------------------------------------------------
     /**
      * Constructor sets all the fields to defaults (mainly 0 and "").
@@ -336,6 +348,9 @@ public class Atom {
         this.isAromatic = false;
         this.isMetalic = false;
         this.xlogP = 0;
+        this.partialCharge = 0;
+        this.potential = 0;
+        this.hydrohobicEnvironmentScore = 0;
     }
     //--------------------------------------------------------------------------
     /**
@@ -373,6 +388,7 @@ public class Atom {
                                  );
         atom.setWeight(new Float(this.getWeight()).floatValue());
         atom.setXlogP(new Float(this.getXlogP()).floatValue());
+        atom.setPartialCharge(new Float(this.getPartialCharge()).floatValue());
     return atom;
     }
     //--------------------------------------------------------------------------
@@ -926,6 +942,63 @@ public class Atom {
      */
     public final float getXlogP() {
         return this.xlogP;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Sets the Hydrophobicity environment score of the atom.
+     * @param hes
+     *        float value representing the atom's Hydrophobic environment score.
+     * @see #getHes
+     */
+    public final void setHes(final float hes) {
+        this.hydrohobicEnvironmentScore = hes;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Gets the Hydrophobic environment score of the atom.
+     * @return float value representing the atoms Hydrophobic environment score.
+     * @see #setHes(float)
+     */
+    public final float getHes() {
+        return this.hydrohobicEnvironmentScore;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Sets the partial charge of the atom.
+     * @param partialCharge
+     *        float value representing the atom's partial charge.
+     * @see #getPartialCharge
+     */
+    public final void setPartialCharge(final float partialCharge) {
+        this.partialCharge = partialCharge;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Gets the partial charge of the atom.
+     * @return float value representing the atoms partial charge value.
+     * @see #setPartialCharge(float)
+     */
+    public final float getPartialCharge() {
+        return this.partialCharge;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Sets the potential experienced by this atom.
+     * @param potential
+     *        float value representing the potential experienced by this atom.
+     * @see #getPotential
+     */
+    public final void setPotential(final float potential) {
+        this.potential = potential;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Gets the potential experienced by this atom.
+     * @return float value representing the potential experienced by this atom.
+     * @see #setPotential(float)
+     */
+    public final float getPotential() {
+        return this.potential;
     }
     //--------------------------------------------------------------------------
     /**

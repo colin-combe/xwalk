@@ -379,6 +379,22 @@ public class PDBreader {
     }
     //--------------------------------------------------------------------------
     /**
+     * Method to return a list of all ATOM entries in a PDB file.
+     * @return An AtomList object holding all atoms from a PDB file.
+     */
+    public final AtomList getAllAtoms() {
+        AtomList selection = new AtomList();
+        for (AtomList atoms : allAtoms) {
+            for (Atom atom : atoms) {
+                if (atom.getFlag().equals("ATOM  ")) {
+                    selection.add(atom);
+                }
+            }
+        }
+        return selection;
+    }
+    //--------------------------------------------------------------------------
+    /**
      * Extracts all amino acids as AminoAcid objects from an AtomList object.
      * An amino acid is defined as a list of atoms that have an unique
      * combination of residue number and residue name.

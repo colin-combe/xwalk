@@ -46,9 +46,9 @@ public class Transformation {
     public static Point3f dimension(final AtomList atomList) {
         Point3f min = Transformation.min(atomList);
         Point3f max = Transformation.max(atomList);
-        Point3f dim = new Point3f(min.getX() - max.getX(),
-                                  min.getY() - max.getY(),
-                                  min.getZ() - max.getZ());
+        Point3f dim = new Point3f(max.getX() - min.getX(),
+                                  max.getY() - min.getY(),
+                                  max.getZ() - min.getZ());
     return dim;
     }
     //--------------------------------------------------------------------------

@@ -21,15 +21,15 @@ import mm.hydrophobicity.Hydrophobicity;
 
 import structure.constants.Constants;
 import structure.io.Commandline;
-import structure.io.ReadFile;
 import structure.io.pdb.PDBreader;
-import structure.math.Point3f;
 import structure.matter.Atom;
-import structure.matter.protein.AminoAcid;
+import structure.matter.AtomList;
+import structure.matter.hetgroups.SmallMolecule;
 import structure.matter.protein.PolyPeptideList;
 
 /**
- * Class holding for calculating the total HES of a PDB file.
+ * Class for calculating the Hydrophobicity Environment Scores (HES) for a
+ * protein structure in PDB format.
  * @author Abdullah Kahraman
  * @version 0.1
  * @since 0.1
@@ -39,13 +39,30 @@ public class Hes {
     /**
      * Path to the PDB formatted file of the protein complex.
      */
-    private String pdbFile;
+    private File pdbFile;
     /**
-     * Do XlogP hydrophobicity calculation.
+     * Path to a PDB file, holding sample points coordinates.
      */
+    private File sampleFile;
     //--------------------------------------------------------------------------
     /**
      * Reads all parameter from the commandline.
+     * @param args
+     *        String array holding all commandline arguments.
+     */
+    //--------------------------------------------------------------------------
+    /**
+     * Constructor.
+     * @param args
+     *        String array holding all commandline arguments.
+     */
+    public Hes(final String[] args) {
+        this.readCommandline(args);
+    }
+
+    //--------------------------------------------------------------------------
+    /**
+     * Constructor.
      * @param args
      *        String array holding all commandline arguments.
      */
@@ -55,22 +72,42 @@ public class Hes {
         //-----------user information-------------------------------------------
         if (args.length == 0) {
             System.out.println(nL
-                             + "java " + Interface.class.getName() + " -help"
+                             + "java " + this.getClass().getName() + " -help"
                              + nL);
             System.exit(0);
         }
 
         //----------------------------------------------------------------------
         if (Commandline.get(args, "-help", false).equals("EXISTS")) {
-            System.err.println(nL + nL
-                           + "java " + Interface.class.getName()
+            System.err.println(nL
+                           + "Information:"
+                           + nL
+                           + "\tThis program calculates Hydrophobicity "
+                           + "Environment Scores (HES) for a protein "
+                           + "structure, where the underlying atomic XlogP "
+                           + "values are listed as occupancy values and the "
+                           + "HES values are given in the temperature factor "
+                           + "column. In addition basic statistics will be "
+                           + "printed out as REMARK entries."
+                           + nL
+                           + nL
+                           + "Usage: "
+                           + nL
+                           + "\tjava " + this.getClass().getName()
                            + " -in 1b14.pdb"
                            + nL
-                           + "This program calculates the total HES of a "
-                           + "PDB file." + nL
-                           + "Parameters:" + nL
-                           + "\t-in <path>\tany structure file in PDB format "
-                           + "(required)." + nL
+                           + nL
+                           + "Parameters:"
+                           + nL
+                           + "\t-in <path>\tany structure file in PDB format. "
+                           + "Only ATOM entries will be read in (required)."
+                           + nL
+                           + "\t-sample <path>\tstructure file in PDB format "
+                           + "on which HES values will be mapped. "
+                           + "If not set, HES values will be calculated on "
+                           + "protein atoms. ATOM and HETATM entries will be "
+                           + "read in (optional)."
+                           + nL
                            + nL
                            );
             System.exit(0);
@@ -83,63 +120,59 @@ public class Hes {
             System.exit(1);
         } else {
 
-            this.pdbFile = Commandline.get(args, "-in", true);
+            String file = Commandline.get(args, "-in", true);
+            this.pdbFile = new File(file);
 
-            if (!ReadFile.exists(this.pdbFile)) {
+            if (!this.pdbFile.exists()) {
                 System.err.print(nL
-                              + "Couldn't open infile \"" + this.pdbFile
+                              + "Couldn't open PDB infile \""
+                              + this.pdbFile.getAbsolutePath()
+                              + "\" !!!" + nL + nL);
+                System.exit(1);
+            }
+        }
+        //----------------------------------------------------------------------
+        if (!Commandline.get(args, "-sample", true).equals("ERROR")) {
+            String file = Commandline.get(args, "-sample", true);
+            this.sampleFile = new File(file);
+
+            if (!this.sampleFile.exists()) {
+                System.err.print(nL
+                              + "Couldn't open sample PDB file \""
+                              + this.sampleFile.getAbsolutePath()
                               + "\" !!!" + nL + nL);
                 System.exit(1);
             }
         }
     }
     /**
-     * Returns REMARK lines with statistics on the non-interface part of a
-     * protein surface.
-     * @param aminoAcids
-     *        List of AminoAcids that form the non-interface surface of a
-     *        protein complex.
-     * @param hesValues
-     *        List of float values for the nonInterfaceSurfaceAminoAcids
-     *        object, where each float value represents the HES value for the
-     *        same amino acid.
+     * Returns REMARK lines with some statistics on HES.
+     * @param atoms
+     *        AtomList object with HES values set.
      * @return String object holding PDB-like REMARK lines with statistics on
      *         the non-interface part of the protein surface.
      */
-    private String getRemarks(
-                       final ArrayList<AminoAcid> aminoAcids,
-                       final ArrayList<Float> hesValues) {
+    private String getRemarks(final AtomList atoms) {
         String nL = Constants.LINE_SEPERATOR;
         NumberFormat dec = xwalk.constants.Constants.DISTANCE_DEC_FORMAT;
         StringBuffer output = new StringBuffer();
 
-        int aaCount = 0;
-        int atomCount = 0;
         float hesSum = 0;
-
-        int i = 0;
-        if (aminoAcids != null) {
-            for (AminoAcid aa : aminoAcids) {
-                aaCount++;
-            }
+        for (Atom atom : atoms) {
+            hesSum += atom.getHes();
         }
 
-        for (float hesValue : hesValues) {
-            hesSum += hesValue;
-        }
-
-        output.append("HEADER   " + new File(this.pdbFile).getName()
+        output.append("HEADER   " + this.pdbFile.getName()
                     + nL);
-        output.append("REMARK   0  AMINO ACID COUNT: "
-                    + aaCount + nL);
-        output.append("REMARK   0  ATOM COUNT: "
-                    + hesValues.size() + nL);
-        output.append("REMARK   0  HES SUM: "
+        output.append("REMARK   ATOM COUNT: "
+                    + atoms.size() + nL);
+        output.append("REMARK   HES SUM: "
                     + dec.format(hesSum) + nL);
-        output.append("REMARK   0  AVERAGE: "
-                    + dec.format(hesSum / hesValues.size())
+        output.append("REMARK   AVERAGE: "
+                    + dec.format(hesSum / atoms.size())
                     + nL);
         output.append("REMARK" + nL);
+        output.append("REMARK   Occupancy Column: atomic XlogP value" + nL);
         output.append("REMARK   B-factor Column: HES value" + nL);
         output.append("REMARK" + nL);
     return output.toString();
@@ -153,15 +186,14 @@ public class Hes {
      *        Array of Strings holding all commandline arguments.
      */
     public static void main(final String[] args) {
-        Hes hes = new Hes();
-        hes.readCommandline(args);
+        Hes hes = new Hes(args);
 
         //----------------------------------------------------------------------
         // Read in PDB files
         //----------------------------------------------------------------------
         ArrayList<PDBreader> readers = null;
         try {
-            readers = PDBreader.createPDBreaders(hes.pdbFile);
+            readers = PDBreader.createPDBreaders(hes.pdbFile.getAbsolutePath());
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -170,31 +202,40 @@ public class Hes {
         PolyPeptideList proteinComplex =
                                 readers.get(0).getEntireProteinComplex().get(0);
 
-        //----------------------------------------------------------------------
-        // Extract Cartesian coordinates of PDB atoms
-        //----------------------------------------------------------------------
-        ArrayList<Point3f> complexCoords = new ArrayList<Point3f>();
-        for (AminoAcid aa : proteinComplex.getAllAminoAcids()) {
-            for (Atom atom : aa.getAllAtoms()) {
-                 if (!atom.getElement().getSymbol().equals("H")) {
-                     complexCoords.add(atom.getXYZ());
-                 }
+        AtomList sampleCoords;
+        if (hes.sampleFile == null) {
+            sampleCoords = proteinComplex.getAllAtoms();
+        } else {
+            try {
+                readers = PDBreader.createPDBreaders(
+                                              hes.sampleFile.getAbsolutePath());
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+            sampleCoords = readers.get(0).getAllAtoms();
+            for (SmallMolecule molecule
+                               : readers.get(0).getAllSmallMolecules().get(0)) {
+                sampleCoords.addAll(molecule.getAllAtoms());
+            }
+        }
+
+        Hydrophobicity hydrophobicity = new Hydrophobicity(proteinComplex);
+        hydrophobicity.mapHydrophobicity(sampleCoords);
+        for (int i = 0; i < sampleCoords.size(); i++) {
+            sampleCoords.get(i).setTemperatureFactor(
+                                                  sampleCoords.get(i).getHes());
+            if (hes.sampleFile == null) {
+                sampleCoords.get(i).setOccupancy(
+                                proteinComplex.getAllAtoms().get(i).getXlogP());
+            } else {
+                sampleCoords.get(i).setOccupancy(0);
             }
         }
         //------------------------------------------------------------------
-        // Calculate HES
+        // Output HES statistics and coordinates with HES in temperature factor
+        // columns and XlogP values in the occupancy column.
         //------------------------------------------------------------------
-        Hydrophobicity hydrophobicity = new Hydrophobicity(proteinComplex);
-        ArrayList<Float> hesValues = hydrophobicity.mapHydrophobicity(
-                                                                 complexCoords);
-
-        //------------------------------------------------------------------
-        // Output interface with HES and conservation grades listed in the
-        // occupancy and temperature factor columns.
-        //------------------------------------------------------------------
-
-        String output = hes.getRemarks(proteinComplex.getAllAminoAcids(),
-                                       hesValues);
-        System.out.print(output);
+        String output = hes.getRemarks(sampleCoords);
+        System.out.print(output + sampleCoords.toString());
     }
 }
