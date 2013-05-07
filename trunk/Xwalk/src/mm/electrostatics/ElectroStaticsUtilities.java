@@ -32,7 +32,6 @@ import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
 import structure.matter.protein.AminoAcid;
-import structure.matter.protein.DotSurface;
 import structure.matter.protein.PolyPeptide;
 import structure.matter.protein.PolyPeptideList;
 
@@ -256,8 +255,8 @@ public class ElectroStaticsUtilities {
     //--------------------------------------------------------------------------
     /**
      * Map the electrostatic potentials from a DotSurface object to a
-     * AtomList object. All dot points within 5Å to an atom are determined and
-     * their average potential assigned to a protein atom.
+     * AtomList object. All dot points within 5 Angstroem to an atom are
+     * determined and their average potential assigned to a protein atom.
      * @param atomList
      *        AtomList object on which the electrostatic potentials will be
      *        mapped.
