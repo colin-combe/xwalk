@@ -312,6 +312,27 @@ public abstract class MatterUtilities {
         }
     return false;
     }
-
+    //--------------------------------------------------------------------------
+    /**
+     * Returns for an atom all atoms from a atomList that are within a certain
+     * radius threshold.
+     * @param atom
+     *        Atom object around which the environment should be determined.
+     * @param atomList
+     *        AtomList object constituting the potential environment.
+     * @param radius
+     *        Radius of the environment.
+     * @return AtomList object representing the environment.
+     */
+    public static AtomList getEnvironment(final Atom atom,
+                                          final AtomList atomList,
+                                          final double radius) {
+        AtomList proximity = new AtomList();
+        for (Atom atom2 : atomList) {
+            if (Mathematics.distance(atom.getXYZ(), atom2.getXYZ()) < radius) {
+                proximity.add(atom2);
+            }
+        }
+        return proximity;
+    }
 }
-

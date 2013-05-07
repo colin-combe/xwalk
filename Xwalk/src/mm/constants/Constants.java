@@ -33,22 +33,22 @@ public class Constants {
     //--------------------------------------------------------------------------
     /**
      * XlogP value of glycine residue, which serves as a reference for
-     * calculating the XlogP value of all amino acids.
+     * calculating the XlogP value of all amino acids. Default -1.128564.
      */
     public static final double GLYCINE_LOGP = -1.128564;
     /**
      * XlogP value added to organic ions like COO- in order to correct for their
-     * charge and thus higher solvation tendency.
+     * charge and thus higher solvation tendency. Default -1.083.
      */
     public static final float ORGANIC_ION_CORRECTION_FACTOR = -1.083f;
     /**
      * XlogP value given to all metal ions. Value is more or less arbitrary, but
-     * should be lower than any charged amino acid.
+     * should be lower than any charged amino acid. Default -3.
      */
     public static final float METAL_XLOGP = -3;
     /**
      * Radius above which any physicochemical property calculations will be
-     * omitted.
+     * omitted. Default 9.0 Angstroem.
      */
     public static final float PHYSICOCHEMICAL_INFLUENCE_RADIUS = 9.0f;
     /**
