@@ -32,33 +32,54 @@ public class Constants {
     // CONSTANT NUMERIC VALUES
     //--------------------------------------------------------------------------
     /**
+     * In Coloumb.
+     */
+    public static final double ELECTRON_CHARGE = 1.6021765314E-19;
+    //--------------------------------------------------------------------------
+    /**
+     * In metric gram.
+     */
+    public static final double ELECTRON_MASS = 9.109382616E-28;
+    //--------------------------------------------------------------------------
+    /**
+     * In Joules times s.
+     */
+    public static final double DIRACS_CONSTANT = 1.05457159682E-34;
+    //--------------------------------------------------------------------------
+    /**
      * XlogP value of glycine residue, which serves as a reference for
      * calculating the XlogP value of all amino acids. Default -1.128564.
      */
     public static final double GLYCINE_LOGP = -1.128564;
+    //--------------------------------------------------------------------------
     /**
      * XlogP value added to organic ions like COO- in order to correct for their
      * charge and thus higher solvation tendency. Default -1.083.
      */
     public static final float ORGANIC_ION_CORRECTION_FACTOR = -1.083f;
+    //--------------------------------------------------------------------------
     /**
      * XlogP value given to all metal ions. Value is more or less arbitrary, but
      * should be lower than any charged amino acid. Default -3.
      */
     public static final float METAL_XLOGP = -3;
+    //--------------------------------------------------------------------------
     /**
      * Radius above which any physicochemical property calculations will be
      * omitted. Default 9.0 Angstroem.
      */
     public static final float PHYSICOCHEMICAL_INFLUENCE_RADIUS = 9.0f;
+    //--------------------------------------------------------------------------
     /**
      * Dielectric constant of a solvent. Default 78.0.
      */
     public static final double SOLVENT_DIELECTRIC_CONSTANT = 78.0;
+    //--------------------------------------------------------------------------
     /**
      * Dielectric constant of a protein. Default 4.0.
      */
     public static final double PROTEIN_DIELECTRIC_CONSTANT = 4.0;
+    //--------------------------------------------------------------------------
     /**
      * Conversion of 25 degrees Celsius to Fahrenheit measure. Default 298.15 K.
      */

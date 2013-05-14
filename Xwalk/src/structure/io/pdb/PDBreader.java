@@ -420,6 +420,7 @@ public class PDBreader {
                 AminoAcid aa = new AminoAcid(residueAtoms);
                 aa.setElements();
                 if (aaTypes.indexOf("#" + atom.getResidueName() + "#") != -1) {
+                    aa.setRank(aminoAcids.size() + 1);
                     aminoAcids.add(aa);
                 }
                 preAtom = atom;
@@ -429,12 +430,15 @@ public class PDBreader {
                 residueAtoms.add(atom);
             }
         }
+        // last residueAtoms should also be added as an amino acid to the
+        // AminoAcid ArrayList.
         AminoAcid aa = new AminoAcid(residueAtoms);
         aa.setElements();
         if (aa.getAllAtoms().size() > 0) {
             if (aaTypes.indexOf("#" + aa.getAtom(0).getResidueName() + "#")
                 !=
                 -1) {
+                aa.setRank(aminoAcids.size() + 1);
                 aminoAcids.add(aa);
             }
         }

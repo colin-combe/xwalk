@@ -42,7 +42,7 @@ public class ReadFile extends ArrayList < String > {
     /**
      * Path of file to be read in.
      */
-    private String filePath;
+    private File file;
     //--------------------------------------------------------------------------
     /**
      * System-dependent new line carrier.
@@ -119,7 +119,7 @@ public class ReadFile extends ArrayList < String > {
             this.add(lineBuffer + this.nL);
         }
         br.close();
-        this.filePath = fileName;
+        this.file = new File(fileName);
     }
     //--------------------------------------------------------------------------
     /**
@@ -188,14 +188,14 @@ public class ReadFile extends ArrayList < String > {
              String[] lineArray = line.split(delim);
              if (lineArray.length <= columnNumber) {
                 throw new ArrayIndexOutOfBoundsException("WARNING: Can't find "
-                                                       + "column no.\""
-                                                       + columnNumber + "\". "
-                                                       + "Only \""
-                                                       + (lineArray.length - 1)
-                                                       + "\" columns exists "
-                                                       + "in file \""
-                                                       + this.filePath + "\""
-                                                       + this.nL);
+                                                   + "column no.\""
+                                                   + columnNumber + "\". "
+                                                   + "Only \""
+                                                   + (lineArray.length - 1)
+                                                   + "\" columns exists "
+                                                   + "in file \""
+                                                   + this.file.getAbsolutePath()
+                                                   + "\"" + this.nL);
              } else {
                 column.add(lineArray[columnNumber]);
             }
@@ -218,7 +218,8 @@ public class ReadFile extends ArrayList < String > {
                              + newName + "\"" + this.nL);
             return false;
         }
-        File file2delete = new File(filePath);
+        File file2delete = this.file;
+        this.file = new File(newName);
         return file2delete.delete();
     }
     //--------------------------------------------------------------------------

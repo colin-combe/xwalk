@@ -69,6 +69,7 @@ public class CrossLinkParameter {
                             DO_MONO_CROSSLINK,
                             DO_PROBABILITY,
                             DO_SOLVENT_PATH_DISTANCE,
+                            DO_BFACTOR,
                             DO_PYMOL_OUTPUT,
                             INFILE_PATH,
                             IS_HOMOMERIC,
@@ -143,6 +144,8 @@ public class CrossLinkParameter {
                                                 arg.isTrypsinateArgumentSet()));
         this.setParameter(Parameter.DO_EXPASY_RULE, Boolean.toString(
                                                     arg.isExpasyArgumentSet()));
+        this.setParameter(Parameter.DO_BFACTOR, Boolean.toString(
+                                                   arg.isBfactorArgumentSet()));
         try {
             ParameterReader.setParameterReader(ParameterSets.SURFNET);
             ParameterReader.setParameterReader(ParameterSets.XLOGP);

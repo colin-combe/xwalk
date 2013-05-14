@@ -36,9 +36,14 @@ public class AminoAcid extends Molecule {
     private AminoAcidType aminoAcidType;
     //--------------------------------------------------------------------------
     /**
-     * Number of this amino acid within an amino acid sequence.
+     * PDB Number of this amino acid.
      */
     private int number;
+    //--------------------------------------------------------------------------
+    /**
+     * Rank number of this amino acid within the amino acid sequence.
+     */
+    private int rank;
     //--------------------------------------------------------------------------
     /**
      * Conservation grade of this amino acid.
@@ -48,7 +53,7 @@ public class AminoAcid extends Molecule {
     /**
      * Constructor. Checks whether all atoms really belong to a single amino
      * acid. Furthermore assigns the amino acid to one of various amino acid
-     * types.
+     * types and sets the amino acid number to the PDB residue number.
      * @param atoms
      *        - AtomList object holding the atomic coordinates of this amino
      *          acid.
@@ -141,15 +146,24 @@ public class AminoAcid extends Molecule {
     }
     //--------------------------------------------------------------------------
     /**
-     * Method to assign all atoms of a residue a rank position reflecting the
-     * rank of the amino acid within the PDB sequence.
-     * @param rank
-     *        - Integer representing the rank position of this amino acid.
+     * Assigns a rank number to this amino acid, which should reflect the
+     * number of this amino acid within a protein sequence.
+     * @param rankNumber
+     *        - int value representing the rank position of this amino acid.
      */
-    public final void setRank(final int rank) {
+    public final void setRank(final int rankNumber) {
+        this.rank = rankNumber;
         for (Atom atom : this.getAllAtoms()) {
-            atom.setRank(rank);
+            atom.setRank(rankNumber);
         }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the rank number of this amino acid.
+     * @return int value representing the rank position of this amino acid.
+     */
+    public final int getRank() {
+        return this.rank;
     }
     //--------------------------------------------------------------------------
     /**
