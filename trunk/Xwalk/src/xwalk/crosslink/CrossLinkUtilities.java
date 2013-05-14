@@ -24,7 +24,6 @@ import java.util.TreeSet;
 import java.util.zip.DataFormatException;
 
 import structure.constants.Constants;
-import structure.constants.Constants.ParameterSets;
 import structure.exceptions.FileFormatException;
 import structure.grid.AtomGrid;
 import structure.grid.GridCell;
@@ -387,13 +386,34 @@ public final class CrossLinkUtilities {
         for (Atom atom1 : relevantAtomPairs.keySet()) {
             PolyPeptide atom1TrypticPeptide = null;
             for (Atom atom2 : relevantAtomPairs.get(atom1)) {
+
+                boolean onlyIntra = Boolean.parseBoolean(
+                                      CrossLinkParameter.getParameter(
+                                         Parameter.DO_INTRAMOLECULAR_DISTANCE));
+                boolean onlyInter = Boolean.parseBoolean(
+                                      CrossLinkParameter.getParameter(
+                                         Parameter.DO_INTERMOLECULAR_DISTANCE));
+                if (onlyIntra) {
+                    if (atom1.getChainId() != atom2.getChainId()) {
+                        continue;
+                    }
+                }
+                if (onlyInter) {
+                    if (atom1.getChainId() == atom2.getChainId()) {
+                        continue;
+                    }
+                }
                 PolyPeptide atom2TrypticPeptide = null;
                 boolean conforming = false;
-      // errorRange calculations cause confusion with the user, so leave it out.
+
                 float errorRange = 0;
-/*                Constants.getCoordinateUncertainty(atom1)
-                                  + Constants.getCoordinateUncertainty(atom2);
-*/
+                if (Boolean.parseBoolean(
+                       CrossLinkParameter.getParameter(Parameter.DO_BFACTOR))) {
+                   errorRange += Constants.getCoordinateUncertainty(atom1)
+                                 +
+                                 Constants.getCoordinateUncertainty(atom2);
+                }
+
                 float dist = Mathematics.distance(atom1.getXYZ(),
                                                   atom2.getXYZ());
                 if (dist <= Float.parseFloat(CrossLinkParameter.getParameter(
@@ -988,19 +1008,16 @@ public final class CrossLinkUtilities {
                         Atom preAtom = null;
                         Atom postAtom = null;
                         switch (reverse) {
-                            case  0 : {
+                            case  0 :
                                 preAtom = dxl.getPreAtom();
                                 postAtom = dxl.getPostAtom();
                                 break;
-                            }
-                            case  1 : {
+                            case  1 :
                                 preAtom = dxl.getPostAtom();
                                 postAtom = dxl.getPreAtom();
                                 break;
-                            }
-                            default : {
+                            default :
                                 continue;
-                            }
                         }
                         // Now find vXL in the distance file and assign index
                         // in the distance file to vXL.
@@ -1442,15 +1459,15 @@ public final class CrossLinkUtilities {
                                                       );
 
                     float errorRange = 0;
-      // errorRange calculations cause confusion with the user, so leave it out.
-/*                    Constants.getCoordinateUncertainty(
-                                                  minimumDistanceAtomPair.get(0)
-                                                                          )
-                                        +
-                                        Constants.getCoordinateUncertainty(
-                                                minimumDistanceAtomPair.get(1)
-                                                                          );
-*/
+                    if (Boolean.parseBoolean(CrossLinkParameter.getParameter(
+                                                       Parameter.DO_BFACTOR))) {
+                       errorRange += Constants.getCoordinateUncertainty(
+                                                 minimumDistanceAtomPair.get(0))
+                                     +
+                                     Constants.getCoordinateUncertainty(
+                                                minimumDistanceAtomPair.get(1));
+                   }
+
                     if (dist > Float.parseFloat(CrossLinkParameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                                                            )
@@ -1501,9 +1518,6 @@ public final class CrossLinkUtilities {
      * @param pairs
      *        - Hashtable of all pairs of atom that conform to the atom and
      *          amino acid identifiers as set by the user.
-     * @param parameter
-     *        - CrossLinkParameter object holding all user set parameters for
-     *          calculating cross-links
      * @return Hashtable of intra-, inter or intra/inter atom pairs.
      */
     private static Hashtable < Atom, AtomList > fixIntraInterSelection(
@@ -1691,11 +1705,6 @@ public final class CrossLinkUtilities {
         for (Atom atom : pairs.keySet()) {
             AtomList pairedAtoms = pairs.get(atom);
 
-// To have more consistent results when pairedAtoms consist of different atoms
-// the size of the grid should only be determined by maxDist.
-//                           + Constants.getCoordinateUncertainty(atom)
-//                           + Constants.getCoordinateUncertainty(pairedAtoms);
-//
             String pairedAminoAcidId = "#" + AminoAcid.getAminoAcidId(atom)
                                            + atom.getName() + "#";
             for (Atom pairedAtom : pairedAtoms) {
@@ -1756,11 +1765,14 @@ public final class CrossLinkUtilities {
                 maxDist = Float.parseFloat(CrossLinkParameter.getParameter(
                                                       Parameter.MAXIMUM_DISTANCE
                                                                  ));
-// errorRange calculations cause confusion with the user, so leave it out.
                 float errorRange = 0;
-//                       Constants.getCoordinateUncertainty(atom)
-//                       +
-//                       Constants.getCoordinateUncertainty(pairedAtoms.get(i));
+                if (Boolean.parseBoolean(
+                       CrossLinkParameter.getParameter(Parameter.DO_BFACTOR))) {
+                    errorRange += Constants.getCoordinateUncertainty(atom)
+                                  +
+                                  Constants.getCoordinateUncertainty(
+                                                            pairedAtoms.get(i));
+                }
 
                 // Conforming distance found!
                 if (dist <= maxDist + errorRange) {

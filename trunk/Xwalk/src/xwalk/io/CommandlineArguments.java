@@ -198,6 +198,11 @@ public class CommandlineArguments {
      */
     private boolean doExpasy = false;
     /**
+     * To include the B-factor coordinate uncertainty in the distance
+     * calculation.
+     */
+    private boolean doBfactor = false;
+    /**
      * To output probabilities according to experimental data on DSS and BS3.
      */
     private boolean doProbability = false;
@@ -259,6 +264,7 @@ public class CommandlineArguments {
         this.readTrypsinateArgument();
         this.readProbabilityArgument();
         this.readExpasyArgument();
+        this.readBfactorArgument();
         this.readVerboseOutputArgument();
     }
     //--------------------------------------------------------------------------
@@ -463,6 +469,10 @@ public class CommandlineArguments {
               + "\t-prob\t[switch]\tOutputs probability information for each "
               + "vXL as determined by experimental data on DSS and BS3 cross-"
               + "linking experiments [optional]. "
+              + nl
+              + "\t-bfactor\t[switch]\tAdds the uncertainty of the atom "
+              + "coordinates as expressed by their B-factor/temperature factor "
+              + "to the maximum distance threshold [optional]. "
               + nl
               + nl
               + "SOLVENT-PATH-DISTANCE GRID RELATED:"
@@ -1370,6 +1380,29 @@ public class CommandlineArguments {
      */
     public final boolean isExpasyArgumentSet() {
         return this.doExpasy;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Determines whether the argument -bfactor has been set on the commandline.
+     * @see #isBfactorArgumentSet()
+     */
+    private void readBfactorArgument() {
+        if (Commandline.get(this.arguments,
+                            "-bfactor",
+                            false).equals("EXISTS")) {
+            this.doBfactor = true;
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the a boolean expression whether coordinate uncertainty as
+     * expressed by the B-factor is to be included in the distances calculation.
+     * @return {@code TRUE} if B-factor should be used, {@code FALSE}
+     * otherwise.
+     * @see #readBfactorArgument()
+     */
+    public final boolean isBfactorArgumentSet() {
+        return this.doBfactor;
     }
     //--------------------------------------------------------------------------
     /**

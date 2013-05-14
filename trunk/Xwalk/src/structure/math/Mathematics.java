@@ -40,19 +40,6 @@ public class Mathematics {
     }
     //--------------------------------------------------------------------------
     /**
-     * In Coloumb.
-     */
-    public static final double ELECTRON_CHARGE = 1.6021765314E-19;
-    /**
-     * In metric gram.
-     */
-    public static final double ELECTRON_MASS = 9.109382616E-28;
-    /**
-     * In Joules times s.
-     */
-    public static final double DIRACS_CONSTANT = 1.05457159682E-34;
-    //--------------------------------------------------------------------------
-    /**
      * Returns a value between 0 and 1 for {@code x} according to a bell-curved
      * sigmoid function with {@code x=0} having value 1 and {@code x=maxX}
      * having value 0.
