@@ -47,11 +47,15 @@ public class Electro {
     /**
      * Path to the PDB formatted file of the protein complex.
      */
-    private File in;
+    private File inFile;
     /**
      * Path to a PDB file, holding sample points coordinates.
      */
     private File sampleFile;
+    /**
+     * Path to a PQR file of the protein complex.
+     */
+    private File pqrFile;
     /**
      * Path to the APBS executable.
      */
@@ -129,6 +133,10 @@ public class Electro {
                            + "If not set, HES values will be calculated on "
                            + "protein atoms. ATOM and HETATM entries will be "
                            + "read in (optional)." + nL
+                           + "\t-pqr <path>\tA PQR file of the input file, "
+                           + "which will be used for the electrostatic "
+                           + "calculation. PDB2PQR calculation will be skipped "
+                           + "(optional)." + nL
                            + "\t-apbs <path>\tFull path to the APBS "
                            + "application (required). You can download it from "
                            + "http://apbs.sourceforge.net." + nL
@@ -154,10 +162,9 @@ public class Electro {
                                   + "!!!" + nL);
             System.exit(1);
         } else {
-
             String file = Commandline.get(args, "-in", true);
-            this.in = new File(file);
-            if (!this.in.exists()) {
+            this.inFile = new File(file);
+            if (!this.inFile.exists()) {
                 System.err.print("ERROR: " + file + " does not exist!" + nL);
                 System.exit(1);
             }
@@ -176,13 +183,25 @@ public class Electro {
             }
         }
         //----------------------------------------------------------------------
+        if (!Commandline.get(args, "-pqr", true).equals("ERROR")) {
+            String file = Commandline.get(args, "-pqr", true);
+            this.pqrFile = new File(file);
+
+            if (!this.pqrFile.exists()) {
+                System.err.print(nL
+                              + "Couldn't open PQR file \""
+                              + this.pqrFile.getAbsolutePath()
+                              + "\" !!!" + nL + nL);
+                System.exit(1);
+            }
+        }
+        //----------------------------------------------------------------------
         if (Commandline.get(args, "-apbs", true).equals("ERROR")) {
             System.err.println(nL + "ERROR: Could not find -apbs parameter. "
                                   + "Please check the help page with -help "
                                   + "!!!" + nL);
             System.exit(1);
         } else {
-
             String file = Commandline.get(args, "-apbs", true);
             this.apbs = new File(file);
 
@@ -202,7 +221,6 @@ public class Electro {
                                   + "with -help !!!" + nL);
             System.exit(1);
         } else {
-
             String file = Commandline.get(args, "-multivalue", true);
             this.multivalue = new File(file);
 
@@ -216,23 +234,25 @@ public class Electro {
             }
         }
         //----------------------------------------------------------------------
-        if (Commandline.get(args, "-pdb2pqr", true).equals("ERROR")) {
-            System.err.println(nL + "ERROR: Could not find -pdb2pqr parameter. "
-                                  + "Please check the help page with -help "
-                                  + "!!!" + nL);
-            System.exit(1);
-        } else {
-
-            String file = Commandline.get(args, "-pdb2pqr", true);
-            this.pdb2pqr = new File(file);
-
-            if (!this.pdb2pqr.exists()) {
-                System.err.print("ERROR: " + file + " does not exist!" + nL);
+        if (this.pqrFile == null) {
+            if (Commandline.get(args, "-pdb2pqr", true).equals("ERROR")) {
+                System.err.println(nL + "ERROR: Could not find -pdb2pqr "
+                                      + "parameter. Please check the help page "
+                                      + "with -help !!!" + nL);
                 System.exit(1);
-            }
-            if (!this.pdb2pqr.canExecute()) {
-                System.err.print("ERROR: Can't execute " + file + "!" + nL);
-                System.exit(1);
+            } else {
+                String file = Commandline.get(args, "-pdb2pqr", true);
+                this.pdb2pqr = new File(file);
+
+                if (!this.pdb2pqr.exists()) {
+                    System.err.print("ERROR: " + file + " does not exist!"
+                                     + nL);
+                    System.exit(1);
+                }
+                if (!this.pdb2pqr.canExecute()) {
+                    System.err.print("ERROR: Can't execute " + file + "!" + nL);
+                    System.exit(1);
+                }
             }
         }
         //----------------------------------------------------------------------
@@ -245,7 +265,6 @@ public class Electro {
                                   + "!!!" + nL);
                 System.exit(1);
             } else {
-
                 String file = Commandline.get(args, "-sims", true);
                 this.sims = new File(file);
 
@@ -281,7 +300,7 @@ public class Electro {
             potentialSum += atom.getPotential();
         }
 
-        output.append("HEADER   " + this.in.getName()
+        output.append("HEADER   " + this.inFile.getName()
                     + nL);
         output.append("REMARK   ATOM COUNT: "
                     + sampleCoords.size() + nL);
@@ -311,7 +330,8 @@ public class Electro {
         //----------------------------------------------------------------------
         ArrayList<PDBreader> readers = null;
         try {
-            readers = PDBreader.createPDBreaders(electro.in.getAbsolutePath());
+            readers = PDBreader.createPDBreaders(
+                                              electro.inFile.getAbsolutePath());
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -319,6 +339,8 @@ public class Electro {
 
         PolyPeptideList proteinComplex =
                                 readers.get(0).getEntireProteinComplex().get(0);
+        proteinComplex.addSmallMolecules(
+                                  readers.get(0).getAllSmallMolecules().get(0));
 
         AtomList sampleCoords;
         if (electro.sampleFile == null) {
@@ -338,26 +360,30 @@ public class Electro {
             }
         }
 
-        //----------------------------------------------------------------------
-        // Run PDB2PQR on protein complex
-        //----------------------------------------------------------------------
+        if (electro.pqrFile == null) {
+            //------------------------------------------------------------------
+            // Run PDB2PQR on protein complex
+            //------------------------------------------------------------------
 
-        String pqrParameter = "--chain --nodebump --with-ph=7";
-        File pqrFile = PDB2PQR.run(electro.pdb2pqr,
-                                   electro.in,
-                                   ForceField.PARSE,
-                                   pqrParameter,
-                                   true);
+            String pqrParameter = "--chain --nodebump --with-ph=7";
+            electro.pqrFile = PDB2PQR.run(electro.pdb2pqr,
+                                       electro.inFile,
+                                       ForceField.PARSE,
+                                       pqrParameter,
+                                       true);
+        }
 //        try {
 //            PDB2PQR.adjust(pqrFile, true);
 //        } catch (Exception e) {
 //            System.err.println("ERROR while trying to adjust PQR file: " + e);
 //        }
-        ElectroStaticsUtilities.assignPartialCharges(proteinComplex, pqrFile);
+        ElectroStaticsUtilities.assignPartialCharges(proteinComplex,
+                                                     electro.pqrFile);
         String pqrFileName =
-             pqrFile.getName().substring(0, pqrFile.getName().lastIndexOf("."));
+           electro.pqrFile.getName().substring(0,
+                                    electro.pqrFile.getName().lastIndexOf("."));
         File apbsParameterFile = APBS.createInputFile(
-                        pqrFile,
+                        electro.pqrFile,
                         pqrFileName,
                         sampleCoords,
                         electro.lpbe,
@@ -370,19 +396,30 @@ public class Electro {
                                                   sampleCoords,
                                                   new File(pqrFileName + ".dx"),
                                                   electro.multivalue);
+        AtomList hetgroupAtoms = new AtomList();
         if (electro.sampleFile == null) {
             ElectroStaticsUtilities.mapElectrostaticPotentials(
                                                    proteinComplex.getAllAtoms(),
                                                    sampleCoords);
             sampleCoords = proteinComplex.getAllAtoms();
+            for (SmallMolecule hetgroup : proteinComplex.getSmallMolecules()) {
+                sampleCoords.addAll(hetgroup.getAllAtoms());
+                hetgroupAtoms.addAll(hetgroup.getAllAtoms());
+            }
         }
 
         for (int i = 0; i < sampleCoords.size(); i++) {
             sampleCoords.get(i).setTemperatureFactor(
                                             sampleCoords.get(i).getPotential());
             if (electro.sampleFile == null) {
-                sampleCoords.get(i).setOccupancy(
+                if (i < proteinComplex.getAllAtoms().size()) {
+                    sampleCoords.get(i).setOccupancy(
                         proteinComplex.getAllAtoms().get(i).getPartialCharge());
+                } else {
+                       sampleCoords.get(i).setOccupancy(
+                       hetgroupAtoms.get(i - proteinComplex.getAllAtoms().size()
+                                                       ).getPartialCharge());
+                }
             } else {
                 sampleCoords.get(i).setOccupancy(0);
             }

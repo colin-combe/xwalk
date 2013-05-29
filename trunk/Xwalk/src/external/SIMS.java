@@ -21,6 +21,7 @@ import structure.io.WriteFile;
 import structure.math.Point3f;
 import structure.matter.Atom;
 import structure.matter.AtomList;
+import structure.matter.hetgroups.SmallMolecule;
 import structure.matter.protein.PolyPeptideList;
 
 /**
@@ -83,6 +84,9 @@ public class SIMS {
         write.setFile("molec.cor");
 
         AtomList atoms = complex.getAllAtoms();
+        for (SmallMolecule hetgroup : complex.getSmallMolecules()) {
+            atoms.addAll(hetgroup.getAllAtoms());
+        }
         for (Atom atom : atoms) {
             atom.setOccupancy(atom.getVanDerWaalsRadius());
         }

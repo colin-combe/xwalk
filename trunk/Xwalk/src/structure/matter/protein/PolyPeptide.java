@@ -47,13 +47,12 @@ public class PolyPeptide extends ArrayList <AminoAcid> {
         this.addAll(chain);
     }
     //--------------------------------------------------------------------------
-
     /**
-     * Adds small molecules to this polypeptide object.
+     * Sets small molecules to this polypeptide object.
      * @param hetgroups
      *        - List of SmallMolecule objects.
      */
-    public final void addSmallMolecules(
+    public final void setSmallMolecules(
                                      final ArrayList < SmallMolecule > hetgroups
                                        ) {
         this.smallMolecules = hetgroups;
@@ -65,6 +64,18 @@ public class PolyPeptide extends ArrayList <AminoAcid> {
      */
     public final ArrayList < SmallMolecule > getSmallMolecules() {
         return this.smallMolecules;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Adds a small molecule to this polypeptide objects small molecule list.
+     * @param hetgroup
+     *        - SmallMolecule objects.
+     */
+    public final void addSmallMolecule(final SmallMolecule hetgroup) {
+        if (this.smallMolecules == null) {
+            this.smallMolecules = new ArrayList<SmallMolecule>();
+        }
+        this.smallMolecules.add(hetgroup);
     }
     //--------------------------------------------------------------------------
     /**
