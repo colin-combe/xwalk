@@ -31,6 +31,7 @@ import structure.math.Point3i;
 import structure.matter.Atom;
 import structure.matter.AtomList;
 import structure.matter.MatterUtilities;
+import structure.matter.hetgroups.SmallMolecule;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
 import structure.matter.protein.PolyPeptideList;
@@ -294,7 +295,11 @@ public class ElectroStaticsUtilities {
                                             final File pqr) {
         try {
             PQRreader pqrReader = new PQRreader(pqr.getAbsolutePath());
-            for (Atom pdbAtom : complex.getAllAtoms()) {
+            AtomList allAtoms = complex.getAllAtoms();
+            for (SmallMolecule hetgroup : complex.getSmallMolecules()) {
+                allAtoms.addAll(hetgroup.getAllAtoms());
+            }
+            for (Atom pdbAtom : allAtoms) {
                 for (Atom pqrAtom : pqrReader.getAllAtoms()) {
                     if (MatterUtilities.equalsType(pdbAtom, pqrAtom)
                         &&

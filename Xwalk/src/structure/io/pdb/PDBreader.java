@@ -365,7 +365,7 @@ public class PDBreader {
                                                         getAllSmallMolecules() {
         ArrayList < ArrayList < SmallMolecule >> smallMolecules =
                                 new ArrayList < ArrayList < SmallMolecule >>();
-        for (AtomList atoms : allAtoms) {
+        for (AtomList atoms : this.allAtoms) {
             AtomList selection = new AtomList();
 
             for (Atom atom : atoms) {

@@ -20,8 +20,10 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import structure.constants.Constants;
+import structure.math.Mathematics;
 import structure.matter.Atom;
 import structure.matter.AtomList;
+import structure.matter.hetgroups.SmallMolecule;
 import structure.matter.parameter.Element;
 import structure.matter.parameter.ParameterReader;
 
@@ -45,6 +47,57 @@ public class PolyPeptideList extends ArrayList < PolyPeptide > {
      */
     private String name = "";
 
+    //--------------------------------------------------------------------------
+    /**
+     * Adds a list of small molecules to their closest protein member.
+     * @param hetgroups
+     *        - Array of SmallMolecule objects.
+     */
+    public final void addSmallMolecules(
+                                     final ArrayList<SmallMolecule> hetgroups) {
+        for (SmallMolecule hetgroup : hetgroups) {
+            this.addSmallMolecule(hetgroup);
+        }
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns small molecules from the complex.
+     * @return Array of SmallMolecule objects.
+     */
+    public final ArrayList<SmallMolecule> getSmallMolecules() {
+        ArrayList<SmallMolecule> hetgroups = new ArrayList<SmallMolecule>();
+        for (PolyPeptide protein : this) {
+            if (protein.getSmallMolecules().size() > 0) {
+                hetgroups.addAll(protein.getSmallMolecules());
+            }
+        }
+        return hetgroups;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Adds a small molecule to the closest protein member.
+     * @param hetgroup
+     *        - SmallMolecule objects.
+     */
+    public final void addSmallMolecule(final SmallMolecule hetgroup) {
+        double minDist = Double.MAX_VALUE;
+        PolyPeptide minDistProtein = null;
+        for (PolyPeptide protein : this) {
+            for (AminoAcid aa : protein) {
+                for (Atom atom : aa.getAllAtoms()) {
+                    for (Atom hetatm : hetgroup.getAllAtoms()) {
+                        double dist =
+                           Mathematics.distance(atom.getXYZ(), hetatm.getXYZ());
+                        if (dist <= minDist) {
+                            minDist = dist;
+                            minDistProtein = protein;
+                        }
+                    }
+                }
+            }
+        }
+        minDistProtein.addSmallMolecule(hetgroup);
+    }
     //--------------------------------------------------------------------------
     /**
      * Returns protein atoms found in this complex.

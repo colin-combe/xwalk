@@ -71,6 +71,14 @@ public class Constants {
     public static final float PHYSICOCHEMICAL_INFLUENCE_RADIUS = 9.0f;
     //--------------------------------------------------------------------------
     /**
+     * Distance for non-bonded contact between protein and ligand atoms
+     * as defined by HBPLUS/LIGPLOT (Wallace, A., Laskowski, R. & Thornton, J.
+     * LIGPLOT: a program to generate schematic diagrams of protein-ligand
+     * interactions. Protein Eng 8, 127Ð134 (1995).). Default is 3.9.
+     */
+    public static final float NON_BONDED_CONTACT_DISTANCE = 3.9f;
+    //--------------------------------------------------------------------------
+    /**
      * Dielectric constant of a solvent. Default 78.0.
      */
     public static final double SOLVENT_DIELECTRIC_CONSTANT = 78.0;
