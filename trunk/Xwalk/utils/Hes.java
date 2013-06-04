@@ -213,9 +213,11 @@ public class Hes {
                 System.err.println(e.getMessage());
             }
             sampleCoords = readers.get(0).getAllAtoms();
-            for (SmallMolecule molecule
+            if (readers.get(0).getAllSmallMolecules().size() > 0) {
+                for (SmallMolecule molecule
                                : readers.get(0).getAllSmallMolecules().get(0)) {
-                sampleCoords.addAll(molecule.getAllAtoms());
+                    sampleCoords.addAll(molecule.getAllAtoms());
+                }
             }
         }
 

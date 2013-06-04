@@ -339,8 +339,11 @@ public class Electro {
 
         PolyPeptideList proteinComplex =
                                 readers.get(0).getEntireProteinComplex().get(0);
-        proteinComplex.addSmallMolecules(
+
+        if (readers.get(0).getAllSmallMolecules().size() > 0) {
+            proteinComplex.addSmallMolecules(
                                   readers.get(0).getAllSmallMolecules().get(0));
+        }
 
         AtomList sampleCoords;
         if (electro.sampleFile == null) {
@@ -354,9 +357,11 @@ public class Electro {
                 System.err.println(e.getMessage());
             }
             sampleCoords = readers.get(0).getAllAtoms();
-            for (SmallMolecule molecule
+            if (readers.get(0).getAllSmallMolecules().size() > 0) {
+                for (SmallMolecule molecule
                                : readers.get(0).getAllSmallMolecules().get(0)) {
-                sampleCoords.addAll(molecule.getAllAtoms());
+                    sampleCoords.addAll(molecule.getAllAtoms());
+                }
             }
         }
 
