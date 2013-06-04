@@ -1,4 +1,4 @@
-Xwalk (version 0.5)
+Xwalk (version 0.6)
 -------------------
 
 INTRODUCTION
@@ -138,6 +138,17 @@ Any of the above conditions can be waived if the authors give permission.
 
 VERSION HISTORY
 ---------------
+0.6: - Added parameter -bfactor, which adds the uncertainty of the atom coordinates
+       as expressed by their B-factor/temperature factor to the maximum distance
+       threshold.
+     - Distance probabilities were updated based on the latest update of XLdb with
+       506 intra-protein and 62 inter-protein cross-links.
+     - Added Electro.java to the utils package for calculating electrostatic
+       potentials on molecular surfaces. Requires APBS, PDB2PQR and SIMS.
+     - Added Compactness.java to the utils package for calculating the number
+       of atoms within a certain radius of any atom in a protein.
+     - Bug fixes.
+
 0.5: - Added parameter -xSC, which is similar to -bb except that it leaves all side
        chain atoms of non-modified amino acid untouched, while removing only side
        chain atoms of cross-linked amino acids (except their CB atoms). In addition
