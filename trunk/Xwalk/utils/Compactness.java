@@ -86,17 +86,22 @@ public class Compactness {
                            + "starting with proteinA, proteinB and proteinAB "
                            + "and with suffixes .asa, .rsa and .log will be "
                            + "generated, which can be deleted manually "
-                           + "afterwards." + nL
+                           + "afterwards."
                            + nL
-                           + "PARAMETERS:" + nL
+                           + nL
+                           + "PARAMETERS:"
+                           + nL
                            + "\t-in <path>\tany structure file in PDB format "
-                           + "(required)." + nL
+                           + "(required)."
+                           + nL
                            + "\t-naccess <string>\tPath to the naccess "
                            + "executable, which will be used to focus "
                            + "calculations only on solvent accessible amino "
                            + "acids. (optional)."
+                           + nL
                            + "\t-radius <double>\tRadius of environment. "
                            + "Default are 5.0 Angstroem (optional)."
+                           + nL
                            );
             System.exit(0);
         }
