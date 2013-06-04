@@ -375,6 +375,7 @@ public class PDBreader {
             }
             smallMolecules.add(this.getAllSmallMolecules(selection));
         }
+
         return smallMolecules;
     }
     //--------------------------------------------------------------------------
@@ -459,6 +460,9 @@ public class PDBreader {
                                                             ) {
         ArrayList < SmallMolecule > molecules =
                                              new ArrayList < SmallMolecule >();
+        if (atomList == null || atomList.size() == 0) {
+            return molecules;
+        }
         Atom preAtom = atomList.get(0);
         AtomList mol = new AtomList();
         for (Atom atom : atomList) {
