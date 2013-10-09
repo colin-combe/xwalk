@@ -639,6 +639,9 @@ public class Interface {
                 }
             }
         }
-        System.out.print(output + complexInterfaces);
+        System.out.print(output);
+        for (BindingInterface bindingSite : complexInterfaces) {
+            System.out.print(bindingSite);
+        }
     }
 }
