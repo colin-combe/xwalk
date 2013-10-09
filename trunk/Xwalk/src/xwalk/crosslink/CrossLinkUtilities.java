@@ -424,6 +424,7 @@ public final class CrossLinkUtilities {
                 }
 
                 CrossLink xl = new CrossLink(atom1, atom2);
+
                 // set file name of each cross-link to the file name of
                 // its protein complex
                 if (distanceFileCrossLinks == null
@@ -499,7 +500,6 @@ public final class CrossLinkUtilities {
         // slightly from run to run depending on the order of the crossLinks
         // in the crossLink list.
         crossLinks.sort();
-
         return crossLinks;
     }
 
@@ -716,7 +716,6 @@ public final class CrossLinkUtilities {
                                                                       );
 
         pairs = CrossLinkUtilities.fixIntraInterSelection(pairs);
-
         return pairs;
     }
     //--------------------------------------------------------------------------
@@ -1211,6 +1210,7 @@ public final class CrossLinkUtilities {
                 }
             }
         }
+
     return candidates2;
     }
     //--------------------------------------------------------------------------
@@ -1506,7 +1506,6 @@ public final class CrossLinkUtilities {
                 }
             }
         }
-
         return pairs;
     }
 

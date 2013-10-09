@@ -22,6 +22,7 @@ import external.Naccess;
 
 import structure.constants.Constants;
 import structure.io.pdb.PDBwriter;
+import structure.matter.Atom;
 import structure.matter.MatterUtilities;
 import structure.matter.protein.AminoAcid;
 import structure.matter.protein.PolyPeptide;
@@ -127,7 +128,6 @@ public class BindingInterface {
         // Calculate buried surface area from SASA of single proteins & complex
         //----------------------------------------------------------------------
         this.bsa = sasaA + sasaB - sasaAB;
-        if(this.bsa < 1);
         //----------------------------------------------------------------------
         // Put surface of protein A+B into a hash
         //----------------------------------------------------------------------
@@ -179,6 +179,25 @@ public class BindingInterface {
      */
     public final float getBSA() {
         return bsa;
+    }
+    //--------------------------------------------------------------------------
+    /**
+     * Returns the atom coordinates of this binding interface in PDB format.
+     * @return String representation of the binding interface.
+     */
+    public final String toString() {
+        StringBuffer output = new StringBuffer();
+        for (AminoAcid aa : this.bindingInterface.get(0)) {
+            for (Atom atom : aa.getAllAtoms()) {
+                output.append(atom.toString());
+            }
+        }
+        for (AminoAcid aa : this.bindingInterface.get(1)) {
+            for (Atom atom : aa.getAllAtoms()) {
+                output.append(atom.toString());
+            }
+        }
+        return output.toString();
     }
     //--------------------------------------------------------------------------
 }
