@@ -173,9 +173,8 @@ public class DistanceWriter extends WriteFile {
         String infile = CrossLinkParameter.getParameter(Parameter.INFILE_PATH);
         String nl = Constants.LINE_SEPERATOR;
 
-        String infileWithoutExtension = new File(infile).getName().replaceAll(
-                                                                     "\\..*", ""
-                                                                             );
+        String infileWithoutExtension = new File(infile).getName().substring(0,
+                                   new File(infile).getName().lastIndexOf('.'));
 
         output.append("load " + infile + nl);
         output.append("set transparency, 0.5, " + infileWithoutExtension + nl);
@@ -266,9 +265,8 @@ public class DistanceWriter extends WriteFile {
         String infile = CrossLinkParameter.getParameter(Parameter.INFILE_PATH);
         String nl = Constants.LINE_SEPERATOR;
 
-        String infileWithoutExtension = new File(infile).getName().replaceAll(
-                                                                     "\\..*", ""
-                                                                             );
+        String infileWithoutExtension = new File(infile).getName().substring(0,
+                                   new File(infile).getName().lastIndexOf('.'));
 
         for (CrossLink crossLink : crossLinkList) {
             Atom atom1 = crossLink.getPreAtom();
@@ -357,9 +355,8 @@ public class DistanceWriter extends WriteFile {
         StringBuffer output = new StringBuffer();
         String infile = CrossLinkParameter.getParameter(Parameter.INFILE_PATH);
         String nl = Constants.LINE_SEPERATOR;
-        String infileWithoutExtension = new File(infile).getName().replaceAll(
-                "\\..*", ""
-                        );
+        String infileWithoutExtension = new File(infile).getName().substring(0,
+                                   new File(infile).getName().lastIndexOf('.'));
 
         for (MonoLink monoLink : monoLinkList) {
             if (monoLink.getChainId() != '_') {
